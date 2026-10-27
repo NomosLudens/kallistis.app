@@ -4,6 +4,8 @@ import {
   ArrowLeft,
   Check,
   Download,
+  FileText,
+  Hammer,
   LoaderCircle,
   MessageCircle,
   Plus,
@@ -11,7 +13,6 @@ import {
   Send,
   X,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 
 type DraftSummary = {
   id: string;
@@ -129,6 +130,11 @@ function ConversationalCreationPage() {
   const [targetMarco, setTargetMarco] = useState(1);
   const [progressionSelection, setProgressionSelection] = useState<string | string[] | null>(null);
   const logRef = useRef<HTMLElement>(null);
+  const returnTo = (() => {
+    if (typeof window === "undefined") return "/chat";
+    const candidate = new URLSearchParams(window.location.search).get("returnTo");
+    return candidate && /^\/chat\/[a-z0-9-]{36}$/i.test(candidate) ? candidate : "/chat";
+  })();
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -440,26 +446,44 @@ function ConversationalCreationPage() {
       JSON.stringify([...next!.pool].sort((a, b) => a - b));
 
   return (
-    <main className="min-h-[calc(100dvh-3.5rem)] bg-[#08080E] text-[#F3EBDD]">
-      <div className="mx-auto flex min-h-[calc(100dvh-3.5rem)] max-w-3xl flex-col px-4 py-6 sm:px-6">
-        <header className="mb-6 flex items-center justify-between gap-4">
+    <main className="min-h-[calc(100dvh-3.5rem)] bg-[radial-gradient(ellipse_at_top,rgba(122,75,194,0.12),transparent_52%),#08080E] text-[#F3EBDD]">
+      <div className="mx-auto flex min-h-[calc(100dvh-3.5rem)] max-w-4xl flex-col px-4 py-5 sm:px-6 sm:py-7">
+        <header className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 sm:mb-7">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--gold)]">
+            <p className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--gold)]">
               Oficina de personagens
             </p>
-            <h1 className="serif mt-2 text-3xl">Criar por conversa</h1>
+            <h1 className="serif mt-1 text-3xl sm:text-4xl">Criar por conversa</h1>
           </div>
-          <Link
-            to="/personagens"
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/15 px-3 text-sm text-white/70"
-          >
-            <ArrowLeft className="h-4 w-4" /> Personagens
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {detail ? (
+              <>
+                <a
+                  href={`/personagem/${encodeURIComponent(detail.character.id)}/ficha`}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3 text-sm text-white/80 transition hover:bg-white/[0.07]"
+                >
+                  <FileText className="h-4 w-4" /> Ficha
+                </a>
+                <a
+                  href={`/microapp?app=character-forge&characterId=${encodeURIComponent(detail.character.id)}&returnTo=${encodeURIComponent(returnTo)}`}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[color:var(--gold)]/30 bg-[color:var(--gold)]/10 px-3 text-sm text-white/90 transition hover:bg-[color:var(--gold)]/20"
+                >
+                  <Hammer className="h-4 w-4" /> Forge
+                </a>
+              </>
+            ) : null}
+            <a
+              href={returnTo}
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 px-3 text-sm text-white/70 transition hover:bg-white/[0.05] hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" /> Conversa
+            </a>
+          </div>
         </header>
 
         {!detail ? (
-          <section className="rounded-2xl border border-white/10 bg-[#111016] p-5">
-            <p className="text-sm leading-6 text-white/70">
+          <section className="rounded-3xl border border-white/10 bg-[#111016]/90 p-5 shadow-2xl shadow-black/25 backdrop-blur sm:p-7">
+            <p className="max-w-2xl text-sm leading-7 text-white/70 sm:text-base">
               Conte livremente quem é essa pessoa, o que busca e o que perdeu. A conversa ajuda a
               explorar possibilidades; nenhuma escolha mecânica é salva sem sua revisão e
               confirmação.
@@ -470,7 +494,7 @@ function ConversationalCreationPage() {
                 <select
                   value={targetMarco}
                   onChange={(event) => setTargetMarco(Number(event.target.value))}
-                  className="mt-2 block min-h-10 rounded-lg border border-white/15 bg-[#24212a] px-3"
+                  className="mt-2 block min-h-11 w-full max-w-xs rounded-xl border border-white/15 bg-[#17151d] px-3 text-sm text-white outline-none transition focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
                 >
                   {[1, 2, 3, 4].map((marco) => (
                     <option key={marco} value={marco}>
@@ -494,12 +518,12 @@ function ConversationalCreationPage() {
                 maxLength={12000}
                 disabled={sending}
                 placeholder="Quero criar alguém que…"
-                className="min-h-32 w-full resize-y rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm leading-6 outline-none focus:border-[color:var(--gold)]/60"
+                className="min-h-36 w-full resize-y rounded-2xl border border-white/15 bg-black/25 px-4 py-3 text-base leading-7 outline-none transition placeholder:text-white/35 focus:border-[color:var(--gold)]/60 focus:ring-2 focus:ring-[color:var(--gold)]/15"
               />
               <button
                 type="submit"
                 disabled={sending || !message.trim()}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[color:var(--gold)] px-4 font-medium text-[#16120b] disabled:opacity-50"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[color:var(--gold)] px-5 font-medium text-[#16120b] shadow-lg shadow-[color:var(--gold)]/10 transition hover:brightness-110 disabled:opacity-50"
               >
                 {sending ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -563,7 +587,7 @@ function ConversationalCreationPage() {
               role="log"
               aria-live="polite"
               aria-relevant="additions"
-              className="max-h-[55dvh] min-h-[35dvh] space-y-4 overflow-y-auto rounded-2xl border border-white/10 bg-[#111016] p-4 sm:max-h-[62dvh] sm:p-6"
+              className="max-h-[55dvh] min-h-[35dvh] space-y-4 overflow-x-hidden overflow-y-auto rounded-3xl border border-white/10 bg-[#111016]/90 p-4 shadow-xl shadow-black/20 sm:max-h-[62dvh] sm:p-6"
             >
               <p className="text-xs text-white/40">
                 Rascunho {detail.character.id.slice(0, 8)} · versão {detail.character.version}
@@ -600,7 +624,7 @@ function ConversationalCreationPage() {
                   </summary>
                   <ul className="mt-3 space-y-2 text-sm text-white/65">
                     {conversation.confirmed.map((choice) => (
-                      <li key={choice.path}>
+                      <li key={choice.path} className="break-words [overflow-wrap:anywhere]">
                         <span className="text-white/40">{choice.label}:</span>{" "}
                         {JSON.stringify(choice.value)}
                       </li>
@@ -620,7 +644,9 @@ function ConversationalCreationPage() {
                   <p className="mb-2 text-[10px] uppercase tracking-widest text-white/40">
                     {item.role === "user" ? "Você" : "KALLISTIS"}
                   </p>
-                  <p className="whitespace-pre-wrap text-sm leading-6">{item.content}</p>
+                  <p className="break-words whitespace-pre-wrap text-sm leading-6 [overflow-wrap:anywhere]">
+                    {item.content}
+                  </p>
                 </article>
               ))}
             </section>
@@ -665,7 +691,7 @@ function ConversationalCreationPage() {
             {next && !conversation?.pending.length && !isComplete && !isSubmitted ? (
               <section
                 aria-label="Próxima escolha"
-                className="mt-3 rounded-xl border border-[color:var(--gold)]/30 bg-[#111016] p-4 text-sm"
+                className="mt-3 rounded-2xl border border-[color:var(--gold)]/30 bg-[#111016]/95 p-4 text-sm shadow-xl shadow-black/20 sm:p-5"
               >
                 <h2 className="serif text-xl">Agora: {next.label}</h2>
                 <p className="mt-1 text-white/55">
@@ -681,7 +707,7 @@ function ConversationalCreationPage() {
                         return (
                           <article
                             key={option}
-                            className="rounded-xl border border-white/10 bg-black/15 p-3"
+                            className="rounded-2xl border border-white/10 bg-black/20 p-3 transition-colors hover:border-[color:var(--gold)]/25"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <button

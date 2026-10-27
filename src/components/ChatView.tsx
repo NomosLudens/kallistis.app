@@ -22,6 +22,7 @@ import {
   GitBranch,
   Play,
   Plus,
+  Hammer,
 } from "lucide-react";
 import { KittScanner, type KittState } from "@/components/KittScanner";
 import { setKittPulse, useKittPulse } from "@/lib/kitt-pulse";
@@ -1220,21 +1221,21 @@ export function ChatView({ threadId }: ChatViewProps) {
       <nav
         aria-label="Navegação do chat"
         data-testid="chat-primary-actions"
-        className="shrink-0 border-b px-3 py-2 sm:px-4"
+        className="shrink-0 border-b bg-[#0a0910]/75 px-3 py-2 backdrop-blur-sm sm:px-4"
         style={{ borderColor: theme.chipBorder }}
       >
-        <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => void navigate({ to: "/chat", search: { scope: "general" } })}
-            className="rounded-xl border px-3 py-1.5 text-sm text-[color:var(--ivory)]"
+            className="inline-flex min-h-10 items-center rounded-xl border bg-white/[0.025] px-3 text-sm text-[color:var(--ivory)] transition hover:bg-white/[0.06]"
             style={{ borderColor: theme.chipBorder }}
           >
             Chat Geral
           </button>
           {chatCharacters.length > 0 && chatScope !== "master" && (
             <label
-              className="col-span-2 flex min-w-0 w-full items-center gap-2 rounded-xl border px-3 py-1.5 text-sm text-[color:var(--ivory-dim)] sm:w-auto"
+              className="flex min-w-0 w-full items-center gap-2 rounded-xl border bg-white/[0.025] px-3 py-1 text-sm text-[color:var(--ivory-dim)] sm:w-auto"
               style={{ borderColor: theme.chipBorder }}
             >
               <span className="hidden sm:inline">Personagem</span>
@@ -1269,7 +1270,7 @@ export function ChatView({ threadId }: ChatViewProps) {
                     setCharacterBusy(false);
                   }
                 }}
-                className="w-full min-w-0 rounded-md border border-white/15 bg-[#17131f] px-2 py-1.5 text-sm text-[#F3EBDD] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] sm:w-auto sm:min-w-48 sm:max-w-[min(24rem,60vw)]"
+                className="min-h-8 w-full min-w-0 rounded-md border border-white/15 bg-[#17131f] px-2 py-1 text-sm text-[#F3EBDD] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] sm:w-auto sm:min-w-48 sm:max-w-[min(24rem,60vw)]"
                 style={{ colorScheme: "dark" }}
               >
                 <option value="" style={{ backgroundColor: "#17131f", color: "#F3EBDD" }}>
@@ -1292,18 +1293,41 @@ export function ChatView({ threadId }: ChatViewProps) {
             type="button"
             aria-pressed={chatScope === "character_creation"}
             disabled={isLoading || initialMessages === null}
-            onClick={() => void navigate({ to: "/criar-personagem" })}
-            className="rounded-xl border px-3 py-1.5 text-sm text-[color:var(--ivory)] disabled:opacity-50"
+            onClick={() => {
+              window.location.href = `/criar-personagem?returnTo=${encodeURIComponent(`/chat/${threadId}`)}`;
+            }}
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl border bg-white/[0.025] px-3 text-sm text-[color:var(--ivory)] transition hover:bg-white/[0.06] disabled:opacity-50"
             style={{ borderColor: theme.chipBorder }}
           >
-            Criar personagem
+            <Plus className="h-4 w-4" aria-hidden />
+            Criação
           </button>
+          {activeCharacter && chatScope !== "master" ? (
+            <>
+              <a
+                href={`/personagem/${encodeURIComponent(activeCharacter.id)}/ficha`}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border bg-white/[0.025] px-3 text-sm text-[color:var(--ivory)] transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                style={{ borderColor: theme.chipBorder }}
+              >
+                <FileText className="h-4 w-4" aria-hidden />
+                Ficha
+              </a>
+              <a
+                href={`/microapp?app=character-forge&characterId=${encodeURIComponent(activeCharacter.id)}&returnTo=${encodeURIComponent(`/chat/${threadId}`)}`}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border bg-[color:var(--kallistis)]/[0.12] px-3 text-sm text-[color:var(--ivory)] transition hover:bg-[color:var(--kallistis)]/[0.2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                style={{ borderColor: theme.chipBorder }}
+              >
+                <Hammer className="h-4 w-4" aria-hidden />
+                Forge
+              </a>
+            </>
+          ) : null}
           {isMaster && (
             <button
               type="button"
               aria-pressed={chatScope === "master"}
               onClick={() => void navigate({ to: "/chat", search: { scope: "master" } })}
-              className="rounded-xl border px-3 py-1.5 text-sm text-[color:var(--ivory)]"
+              className="inline-flex min-h-10 items-center rounded-xl border bg-white/[0.025] px-3 text-sm text-[color:var(--ivory)] transition hover:bg-white/[0.06]"
               style={{ borderColor: theme.chipBorder }}
             >
               Chat do Mestre
@@ -1314,11 +1338,13 @@ export function ChatView({ threadId }: ChatViewProps) {
           <p
             role="status"
             aria-live="polite"
-            className="mx-auto mt-1 max-w-3xl text-[11px] leading-snug text-[color:var(--ivory-dim)] sm:mt-2 sm:text-xs"
+            className="mx-auto mt-2 flex max-w-3xl items-center gap-2 text-[11px] leading-snug text-[color:var(--ivory-dim)] sm:text-xs"
           >
-            Ficha ativa:{" "}
-            <strong className="text-[color:var(--gold)]">{activeCharacter.name}</strong>. KALLISTIS
-            usa esta ficha e o cânone como contexto.
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--gold)]" aria-hidden />
+            <span className="truncate">
+              Conversa com <strong className="text-[color:var(--gold)]">{activeCharacter.name}</strong>
+            </span>
+            <span className="hidden sm:inline">· ficha e cânone ativos como contexto</span>
           </p>
         )}
       </nav>
