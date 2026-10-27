@@ -11,6 +11,7 @@ import { canAccessPath, getAuthz, useAuthz } from "@/lib/use-authz";
 import { OstPlayer } from "@/components/OstPlayer";
 import { RouteErrorBoundary, RouteNotFoundBoundary } from "@/components/loading-states";
 import { ScenePulseReceiver } from "@/components/ScenePulseReceiver";
+import { useEffect, useState } from "react";
 
 export async function authenticatedBeforeLoad({ location }: { location: { pathname: string } }) {
   console.info("kallistis_e2e:authenticated_beforeload_started");
@@ -45,9 +46,35 @@ class AccessDeniedError extends Error {
 
 function AuthenticatedRouteErrorBoundary({ error, reset }: { error: unknown; reset: () => void }) {
   if (error instanceof AccessDeniedError) {
-    return <RouteNotFoundBoundary message={error.message} />;
+    return <AccessDeniedBoundary message={error.message} />;
   }
   return <RouteErrorBoundary error={error} reset={reset} />;
+}
+
+function AccessDeniedBoundary({ message }: { message: string }) {
+  const [canBootstrap, setCanBootstrap] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/admin/system-administrators", { credentials: "same-origin", cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const payload = (await response.json().catch(() => null)) as { canBootstrap?: boolean } | null;
+        if (active) setCanBootstrap(payload?.canBootstrap === true);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  return (
+    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center gap-4 px-4 py-12 text-center">
+      <p className="text-sm text-[color:var(--ivory-dim)]">{message}</p>
+      {canBootstrap ? (
+        <a className="rounded-full border border-[color:var(--gold)]/45 px-5 py-2.5 text-sm text-[color:var(--gold)] transition-colors hover:bg-[color:var(--gold)]/10" href="/admin/bootstrap">
+          Configurar primeiro administrador local
+        </a>
+      ) : null}
+    </div>
+  );
 }
 
 export const Route = createFileRoute("/_authenticated")({

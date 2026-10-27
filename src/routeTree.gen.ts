@@ -74,6 +74,7 @@ import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
 import { Route as ApiAuthRecoveryCodeRouteImport } from './routes/api/auth/recovery-code'
 import { Route as ApiAuthGooglePlayerOnboardingRouteImport } from './routes/api/auth/google-player-onboarding'
 import { Route as ApiAdminTalBootstrapRouteImport } from './routes/api/admin/tal-bootstrap'
+import { Route as ApiAdminSystemAdministratorsRouteImport } from './routes/api/admin/system-administrators'
 import { Route as ApiAdminRecoveryCodeRouteImport } from './routes/api/admin/recovery-code'
 import { Route as ApiAdminPlayerAccessStatusRouteImport } from './routes/api/admin/player-access-status'
 import { Route as ApiAdminMesasRouteImport } from './routes/api/admin/mesas'
@@ -87,6 +88,7 @@ import { Route as AuthenticatedSurfaceSurfaceRouteImport } from './routes/_authe
 import { Route as AuthenticatedMapaContinuidadeMapIdRouteImport } from './routes/_authenticated/mapa-continuidade.$mapId'
 import { Route as AuthenticatedChatThreadIdRouteImport } from './routes/_authenticated/chat.$threadId'
 import { Route as AuthenticatedCampanhaMesaSlugRouteImport } from './routes/_authenticated/campanha.$mesaSlug'
+import { Route as AuthenticatedAdminBootstrapRouteImport } from './routes/_authenticated/admin/bootstrap'
 import { Route as ApiMasterSurfaceSurfaceRouteImport } from './routes/api/master/surface.$surface'
 import { Route as AuthenticatedPersonagemCharacterIdFichaRouteImport } from './routes/_authenticated/personagem/$characterId/ficha'
 import { Route as ApiInternalVttHandoffConsumeRouteImport } from './routes/api/internal/vtt/handoff/consume'
@@ -425,6 +427,12 @@ const ApiAdminTalBootstrapRoute = ApiAdminTalBootstrapRouteImport.update({
   path: '/api/admin/tal-bootstrap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminSystemAdministratorsRoute =
+  ApiAdminSystemAdministratorsRouteImport.update({
+    id: '/api/admin/system-administrators',
+    path: '/api/admin/system-administrators',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminRecoveryCodeRoute = ApiAdminRecoveryCodeRouteImport.update({
   id: '/api/admin/recovery-code',
   path: '/api/admin/recovery-code',
@@ -497,6 +505,12 @@ const AuthenticatedCampanhaMesaSlugRoute =
     path: '/campanha/$mesaSlug',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminBootstrapRoute =
+  AuthenticatedAdminBootstrapRouteImport.update({
+    id: '/admin/bootstrap',
+    path: '/admin/bootstrap',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiMasterSurfaceSurfaceRoute = ApiMasterSurfaceSurfaceRouteImport.update({
   id: '/api/master/surface/$surface',
   path: '/api/master/surface/$surface',
@@ -558,6 +572,7 @@ export interface FileRoutesByFullPath {
   '/api/session-pulse': typeof ApiSessionPulseRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/tts': typeof ApiTtsRoute
+  '/admin/bootstrap': typeof AuthenticatedAdminBootstrapRoute
   '/campanha/$mesaSlug': typeof AuthenticatedCampanhaMesaSlugRoute
   '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
   '/mapa-continuidade/$mapId': typeof AuthenticatedMapaContinuidadeMapIdRoute
@@ -571,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/mesas': typeof ApiAdminMesasRoute
   '/api/admin/player-access-status': typeof ApiAdminPlayerAccessStatusRoute
   '/api/admin/recovery-code': typeof ApiAdminRecoveryCodeRoute
+  '/api/admin/system-administrators': typeof ApiAdminSystemAdministratorsRoute
   '/api/admin/tal-bootstrap': typeof ApiAdminTalBootstrapRoute
   '/api/auth/google-player-onboarding': typeof ApiAuthGooglePlayerOnboardingRoute
   '/api/auth/recovery-code': typeof ApiAuthRecoveryCodeRoute
@@ -641,6 +657,7 @@ export interface FileRoutesByTo {
   '/api/session-pulse': typeof ApiSessionPulseRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/tts': typeof ApiTtsRoute
+  '/admin/bootstrap': typeof AuthenticatedAdminBootstrapRoute
   '/campanha/$mesaSlug': typeof AuthenticatedCampanhaMesaSlugRoute
   '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
   '/mapa-continuidade/$mapId': typeof AuthenticatedMapaContinuidadeMapIdRoute
@@ -654,6 +671,7 @@ export interface FileRoutesByTo {
   '/api/admin/mesas': typeof ApiAdminMesasRoute
   '/api/admin/player-access-status': typeof ApiAdminPlayerAccessStatusRoute
   '/api/admin/recovery-code': typeof ApiAdminRecoveryCodeRoute
+  '/api/admin/system-administrators': typeof ApiAdminSystemAdministratorsRoute
   '/api/admin/tal-bootstrap': typeof ApiAdminTalBootstrapRoute
   '/api/auth/google-player-onboarding': typeof ApiAuthGooglePlayerOnboardingRoute
   '/api/auth/recovery-code': typeof ApiAuthRecoveryCodeRoute
@@ -726,6 +744,7 @@ export interface FileRoutesById {
   '/api/session-pulse': typeof ApiSessionPulseRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/tts': typeof ApiTtsRoute
+  '/_authenticated/admin/bootstrap': typeof AuthenticatedAdminBootstrapRoute
   '/_authenticated/campanha/$mesaSlug': typeof AuthenticatedCampanhaMesaSlugRoute
   '/_authenticated/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
   '/_authenticated/mapa-continuidade/$mapId': typeof AuthenticatedMapaContinuidadeMapIdRoute
@@ -739,6 +758,7 @@ export interface FileRoutesById {
   '/api/admin/mesas': typeof ApiAdminMesasRoute
   '/api/admin/player-access-status': typeof ApiAdminPlayerAccessStatusRoute
   '/api/admin/recovery-code': typeof ApiAdminRecoveryCodeRoute
+  '/api/admin/system-administrators': typeof ApiAdminSystemAdministratorsRoute
   '/api/admin/tal-bootstrap': typeof ApiAdminTalBootstrapRoute
   '/api/auth/google-player-onboarding': typeof ApiAuthGooglePlayerOnboardingRoute
   '/api/auth/recovery-code': typeof ApiAuthRecoveryCodeRoute
@@ -811,6 +831,7 @@ export interface FileRouteTypes {
     | '/api/session-pulse'
     | '/api/transcribe'
     | '/api/tts'
+    | '/admin/bootstrap'
     | '/campanha/$mesaSlug'
     | '/chat/$threadId'
     | '/mapa-continuidade/$mapId'
@@ -824,6 +845,7 @@ export interface FileRouteTypes {
     | '/api/admin/mesas'
     | '/api/admin/player-access-status'
     | '/api/admin/recovery-code'
+    | '/api/admin/system-administrators'
     | '/api/admin/tal-bootstrap'
     | '/api/auth/google-player-onboarding'
     | '/api/auth/recovery-code'
@@ -894,6 +916,7 @@ export interface FileRouteTypes {
     | '/api/session-pulse'
     | '/api/transcribe'
     | '/api/tts'
+    | '/admin/bootstrap'
     | '/campanha/$mesaSlug'
     | '/chat/$threadId'
     | '/mapa-continuidade/$mapId'
@@ -907,6 +930,7 @@ export interface FileRouteTypes {
     | '/api/admin/mesas'
     | '/api/admin/player-access-status'
     | '/api/admin/recovery-code'
+    | '/api/admin/system-administrators'
     | '/api/admin/tal-bootstrap'
     | '/api/auth/google-player-onboarding'
     | '/api/auth/recovery-code'
@@ -978,6 +1002,7 @@ export interface FileRouteTypes {
     | '/api/session-pulse'
     | '/api/transcribe'
     | '/api/tts'
+    | '/_authenticated/admin/bootstrap'
     | '/_authenticated/campanha/$mesaSlug'
     | '/_authenticated/chat/$threadId'
     | '/_authenticated/mapa-continuidade/$mapId'
@@ -991,6 +1016,7 @@ export interface FileRouteTypes {
     | '/api/admin/mesas'
     | '/api/admin/player-access-status'
     | '/api/admin/recovery-code'
+    | '/api/admin/system-administrators'
     | '/api/admin/tal-bootstrap'
     | '/api/auth/google-player-onboarding'
     | '/api/auth/recovery-code'
@@ -1055,6 +1081,7 @@ export interface RootRouteChildren {
   ApiAdminMesasRoute: typeof ApiAdminMesasRoute
   ApiAdminPlayerAccessStatusRoute: typeof ApiAdminPlayerAccessStatusRoute
   ApiAdminRecoveryCodeRoute: typeof ApiAdminRecoveryCodeRoute
+  ApiAdminSystemAdministratorsRoute: typeof ApiAdminSystemAdministratorsRoute
   ApiAdminTalBootstrapRoute: typeof ApiAdminTalBootstrapRoute
   ApiAuthGooglePlayerOnboardingRoute: typeof ApiAuthGooglePlayerOnboardingRoute
   ApiAuthRecoveryCodeRoute: typeof ApiAuthRecoveryCodeRoute
@@ -1537,6 +1564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminTalBootstrapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/system-administrators': {
+      id: '/api/admin/system-administrators'
+      path: '/api/admin/system-administrators'
+      fullPath: '/api/admin/system-administrators'
+      preLoaderRoute: typeof ApiAdminSystemAdministratorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/recovery-code': {
       id: '/api/admin/recovery-code'
       path: '/api/admin/recovery-code'
@@ -1628,6 +1662,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCampanhaMesaSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/bootstrap': {
+      id: '/_authenticated/admin/bootstrap'
+      path: '/admin/bootstrap'
+      fullPath: '/admin/bootstrap'
+      preLoaderRoute: typeof AuthenticatedAdminBootstrapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/master/surface/$surface': {
       id: '/api/master/surface/$surface'
       path: '/api/master/surface/$surface'
@@ -1676,6 +1717,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRegistroVivoRoute: typeof AuthenticatedRegistroVivoRoute
   AuthenticatedRevisaoRoute: typeof AuthenticatedRevisaoRoute
   AuthenticatedStateRoute: typeof AuthenticatedStateRoute
+  AuthenticatedAdminBootstrapRoute: typeof AuthenticatedAdminBootstrapRoute
   AuthenticatedCampanhaMesaSlugRoute: typeof AuthenticatedCampanhaMesaSlugRoute
   AuthenticatedChatThreadIdRoute: typeof AuthenticatedChatThreadIdRoute
   AuthenticatedMapaContinuidadeMapIdRoute: typeof AuthenticatedMapaContinuidadeMapIdRoute
@@ -1702,6 +1744,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRegistroVivoRoute: AuthenticatedRegistroVivoRoute,
   AuthenticatedRevisaoRoute: AuthenticatedRevisaoRoute,
   AuthenticatedStateRoute: AuthenticatedStateRoute,
+  AuthenticatedAdminBootstrapRoute: AuthenticatedAdminBootstrapRoute,
   AuthenticatedCampanhaMesaSlugRoute: AuthenticatedCampanhaMesaSlugRoute,
   AuthenticatedChatThreadIdRoute: AuthenticatedChatThreadIdRoute,
   AuthenticatedMapaContinuidadeMapIdRoute:
@@ -1798,6 +1841,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminMesasRoute: ApiAdminMesasRoute,
   ApiAdminPlayerAccessStatusRoute: ApiAdminPlayerAccessStatusRoute,
   ApiAdminRecoveryCodeRoute: ApiAdminRecoveryCodeRoute,
+  ApiAdminSystemAdministratorsRoute: ApiAdminSystemAdministratorsRoute,
   ApiAdminTalBootstrapRoute: ApiAdminTalBootstrapRoute,
   ApiAuthGooglePlayerOnboardingRoute: ApiAuthGooglePlayerOnboardingRoute,
   ApiAuthRecoveryCodeRoute: ApiAuthRecoveryCodeRoute,

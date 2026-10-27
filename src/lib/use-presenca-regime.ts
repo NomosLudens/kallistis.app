@@ -7,6 +7,7 @@ export const PRESENCA_META = {
   green: {
     label: "Verde",
     short: "Verde",
+    description: "Fluxo normal; interação e iniciativa normais.",
     dot: "bg-emerald-500",
     ring: "ring-emerald-500/40",
     chip: "border-emerald-500/60 text-emerald-200 bg-emerald-500/10",
@@ -15,6 +16,7 @@ export const PRESENCA_META = {
   yellow: {
     label: "Amarelo",
     short: "Amarelo",
+    description: "Reduzir intensidade, iniciativa e frequência; você continua disponível.",
     dot: "bg-amber-400",
     ring: "ring-amber-400/40",
     chip: "border-amber-400/60 text-amber-100 bg-amber-400/10",
@@ -23,6 +25,7 @@ export const PRESENCA_META = {
   blue: {
     label: "Azul",
     short: "Azul",
+    description: "Não puxar, insistir ou iniciar interação dirigida; se você iniciar, responder normalmente.",
     dot: "bg-sky-400",
     ring: "ring-sky-400/40",
     chip: "border-sky-400/60 text-sky-100 bg-sky-400/10",
@@ -31,6 +34,7 @@ export const PRESENCA_META = {
   red: {
     label: "Vermelho",
     short: "Vermelho",
+    description: "Nenhuma iniciativa dirigida; não insistir; se você iniciar, responder normalmente.",
     dot: "bg-rose-500",
     ring: "ring-rose-500/40",
     chip: "border-rose-500/40 text-rose-100 bg-rose-500/10",

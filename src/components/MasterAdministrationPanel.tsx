@@ -7,6 +7,7 @@ import { AdminMesasPanel } from "@/components/AdminMesasPanel";
 import { PlayerAvatarPlaceholder } from "@/components/PlayerAvatarPlaceholder";
 import { TalResponsibleMasterPanel } from "@/components/TalResponsibleMasterPanel";
 import { CommunityChatModerationPanel } from "@/components/CommunityChatModerationPanel";
+import { SystemAdministratorManager } from "@/components/SystemAdministratorManager";
 import { PLAYER_ACCESS_APPS } from "@/lib/player-access";
 import {
   listContinuityMapDocumentOptions,
@@ -635,6 +636,7 @@ export function MasterAdministrationPanel({ isSystemMaster }: { isSystemMaster: 
           Ações que afetam Mesas, jogadores, personagens, acessos e publicações.
         </p>
       </header>
+      <SystemAdministratorManager />
       <CommunityChatModerationPanel />
       <AdminMesasPanel />
       {adminMesas.length ? (

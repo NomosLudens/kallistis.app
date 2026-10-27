@@ -29,7 +29,7 @@ function MestrePage() {
   return (
     <>
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-8 px-3 py-4 sm:px-4 sm:py-6 lg:flex-row lg:items-start lg:gap-10 lg:px-8 lg:py-8">
-        <main className="min-w-0 flex-1">
+        <main className="order-2 min-w-0 flex-1 lg:order-1">
           <MasterCommandCenter
             selectedMesa={selectedMesa}
             onSelectedMesaChange={handleMesaChange}

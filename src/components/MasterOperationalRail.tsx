@@ -141,7 +141,7 @@ export function MasterOperationalRail({ mesaId }: { mesaId: string | null }) {
     <aside
       id="master-operational-rail"
       aria-label="Rail operacional do Mestre"
-      className="w-full min-w-0 rounded-xl border border-white/10 bg-[#0C0B12]/90 p-4 text-[#F3EBDD] shadow-xl lg:sticky lg:top-20 lg:w-[320px] lg:shrink-0 xl:w-[360px]"
+      className="order-1 w-full min-w-0 rounded-xl border border-white/10 bg-[#0C0B12]/90 p-4 text-[#F3EBDD] shadow-xl lg:order-2 lg:sticky lg:top-20 lg:w-[320px] lg:shrink-0 xl:w-[360px]"
     >
       {activePlayer && activeRow ? (
         <>

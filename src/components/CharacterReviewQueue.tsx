@@ -340,20 +340,33 @@ export function CharacterReviewQueue() {
           const playerName = character.playerName || character.ownerDisplayName || "—";
           return (
             <article className="rounded-lg border border-white/10 p-4" key={character.id}>
-              <h3 className="font-semibold">{character.name || "Sem nome"}</h3>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3 className="font-semibold">{character.name || "Sem nome"}</h3>
+                <span className="rounded-full border border-amber-300/30 bg-amber-300/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-amber-100">
+                  Aguardando análise
+                </span>
+              </div>
               <p className="mt-1 text-sm text-white/65">
                 Jogador: {playerName} · {String(character.snapshot.povo || "Povo não definido")} ·{" "}
                 {String(trail?.oficio || "Ofício não definido")} · Marco {String(trail?.marco || 1)}
               </p>
-              <a
-                className="mt-3 inline-flex rounded border border-[color:var(--gold)]/40 bg-[color:var(--gold)]/15 px-3 py-2 text-sm text-[color:var(--ivory)]"
-                href={
-                  "/microapp?app=character-forge&mode=tal&characterId=" +
-                  encodeURIComponent(character.id)
-                }
-              >
-                Abrir ficha canônica no Character Forge
-              </a>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a
+                  className="inline-flex min-h-10 items-center rounded border border-white/20 px-3 py-2 text-sm text-white/80 hover:border-white/40 hover:text-white"
+                  href={`/personagem/${encodeURIComponent(character.id)}/ficha`}
+                >
+                  Ler ficha
+                </a>
+                <a
+                  className="inline-flex min-h-10 items-center rounded border border-[color:var(--gold)]/40 bg-[color:var(--gold)]/15 px-3 py-2 text-sm text-[color:var(--ivory)] hover:border-[color:var(--gold)]"
+                  href={
+                    "/microapp?app=character-forge&mode=tal&characterId=" +
+                    encodeURIComponent(character.id)
+                  }
+                >
+                  Abrir no Forge
+                </a>
+              </div>
               <textarea
                 className="mt-3 min-h-20 w-full rounded border border-white/15 bg-black/20 p-2 text-sm"
                 placeholder="Nota da rejeição (opcional)"

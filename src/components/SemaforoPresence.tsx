@@ -96,34 +96,40 @@ export function SemaforoPresence({
             </p>
           ) : null}
           {!noMesa && !mesaNeedsChoice ? (
-            <div className="flex flex-wrap gap-2">
-              {ORDER.map((regime) => {
-                const item = PRESENCA_META[regime];
-                const active = regime === current;
-                return (
-                  <button
-                    key={regime}
-                    type="button"
-                    onClick={() => void setState(regime)}
-                    className={
-                      "inline-flex min-h-11 min-w-[44px] items-center justify-center gap-1.5 px-3 rounded-full border text-[11px] transition " +
-                      (active
-                        ? item.chip
-                        : "border-white/10 text-[#F3EBDD]/55 hover:text-[#F3EBDD] hover:border-white/25")
-                    }
-                    aria-pressed={active}
-                    title={item.label}
-                    disabled={saving}
-                  >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${item.dot} ${item.glow}`}
-                      aria-hidden
-                    />
-                    {item.short}
-                  </button>
-                );
-              })}
-            </div>
+            <>
+              <div className="flex flex-wrap gap-2" aria-label="Regimes de presença">
+                {ORDER.map((regime) => {
+                  const item = PRESENCA_META[regime];
+                  const active = regime === current;
+                  return (
+                    <button
+                      key={regime}
+                      type="button"
+                      onClick={() => void setState(regime)}
+                      className={
+                        "inline-flex min-h-11 min-w-[44px] items-center justify-center gap-1.5 px-3 rounded-full border text-[11px] transition " +
+                        (active
+                          ? item.chip
+                          : "border-white/10 text-[#F3EBDD]/55 hover:text-[#F3EBDD] hover:border-white/25")
+                      }
+                      aria-pressed={active}
+                      aria-label={`${item.label}: ${item.description}`}
+                      title={item.description}
+                      disabled={saving}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${item.dot} ${item.glow}`}
+                        aria-hidden
+                      />
+                      {item.short}
+                    </button>
+                  );
+                })}
+              </div>
+              <p role="status" className="text-xs leading-relaxed text-[#F3EBDD]/65">
+                <strong className="text-[#F3EBDD]/85">{meta.label}:</strong> {meta.description}
+              </p>
+            </>
           ) : null}
           {saving ? <p className="text-[11px] text-[#F3EBDD]/50">Salvando presença…</p> : null}
           {error ? (
