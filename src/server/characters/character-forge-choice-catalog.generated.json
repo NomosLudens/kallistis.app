@@ -1,0 +1,1456 @@
+{
+  "peoples": [
+    {
+      "name": "Aelvari",
+      "heritages": [
+        "Cronista",
+        "Vidente Cauteloso"
+      ]
+    },
+    {
+      "name": "Kragor",
+      "heritages": [
+        "Escudo do Clã",
+        "Voz da Assembleia"
+      ]
+    },
+    {
+      "name": "Draken",
+      "heritages": [
+        "Soberania",
+        "Condutor"
+      ]
+    },
+    {
+      "name": "Nomos",
+      "heritages": [
+        "Reparador",
+        "Processador"
+      ]
+    },
+    {
+      "name": "Livres",
+      "heritages": [
+        "Comunidade Escolhida",
+        "Múltiplos Caminhos"
+      ]
+    },
+    {
+      "name": "Dóreos",
+      "heritages": [
+        "Forjador",
+        "Guardião de Obra"
+      ]
+    },
+    {
+      "name": "Teriantes",
+      "heritages": [
+        "Caçador",
+        "Protetor de Bando"
+      ]
+    },
+    {
+      "name": "Nimari",
+      "heritages": [
+        "Cartógrafo de Frestas",
+        "Negociador de Risco"
+      ]
+    },
+    {
+      "name": "Vitrálios",
+      "heritages": [
+        "Lapidador de Si",
+        "Coro Vitrálio"
+      ]
+    }
+  ],
+  "offices": [
+    {
+      "name": "Guardião",
+      "skills": [
+        "Combate",
+        "Cuidado"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Bastião",
+        "Amparo"
+      ],
+      "keys": [
+        "Escudo de Juramento",
+        "Martelo de Vigília",
+        "Lança de Interposição",
+        "Insígnia de Guarda"
+      ],
+      "proficiencies": "armaduras médias e pesadas, escudos, armas militares",
+      "initialTechnique": "Interpor",
+      "techniques": [
+        "Postura Inabalável",
+        "Marca de Proteção",
+        "Linha que Não Cede",
+        "Guarda de Juramento",
+        "Círculo Seguro",
+        "Último Escudo"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Postura Inabalável",
+          "level": "I"
+        },
+        {
+          "name": "Marca de Proteção",
+          "level": "I"
+        },
+        {
+          "name": "Linha que Não Cede",
+          "level": "II"
+        },
+        {
+          "name": "Guarda de Juramento",
+          "level": "II"
+        },
+        {
+          "name": "Círculo Seguro",
+          "level": "III"
+        },
+        {
+          "name": "Último Escudo",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Sentinela",
+          "techniques": []
+        },
+        {
+          "name": "Escolta",
+          "techniques": []
+        },
+        {
+          "name": "Quebra-Impacto",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Duelista",
+      "skills": [
+        "Combate; escolha Atletismo ou Furtividade"
+      ],
+      "optionalSkills": [
+        "Atletismo",
+        "Furtividade"
+      ],
+      "roles": [
+        "Vanguarda"
+      ],
+      "keys": [
+        "Sabre de Fresta",
+        "Florete de Espelho",
+        "Lâmina Ritual",
+        "Par de Lâminas Gêmeas"
+      ],
+      "proficiencies": "armas corpo a corpo leves e militares",
+      "initialTechnique": "Abertura",
+      "techniques": [
+        "Passo Cortante",
+        "Contra-ataque",
+        "Golpe de Precisão",
+        "Quebra de Guarda",
+        "Dança de Lâminas",
+        "Duelo Inevitável"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Passo Cortante",
+          "level": "I"
+        },
+        {
+          "name": "Contra-ataque",
+          "level": "I"
+        },
+        {
+          "name": "Golpe de Precisão",
+          "level": "II"
+        },
+        {
+          "name": "Quebra de Guarda",
+          "level": "II"
+        },
+        {
+          "name": "Dança de Lâminas",
+          "level": "III"
+        },
+        {
+          "name": "Duelo Inevitável",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Gunner",
+          "techniques": []
+        },
+        {
+          "name": "Quebra-Guarda",
+          "techniques": []
+        },
+        {
+          "name": "Dançarino de Lâminas",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Atirador",
+      "skills": [
+        "Pontaria",
+        "Percepção"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Artilharia"
+      ],
+      "keys": [
+        "Arco de Quartzo",
+        "Besta de Trilho",
+        "Carabina Nomos",
+        "Foco de Mira"
+      ],
+      "proficiencies": "arcos, bestas, armas de disparo e dispositivos de alcance",
+      "initialTechnique": "Linha Clara",
+      "techniques": [
+        "Mira Paciente",
+        "Disparo de Supressão",
+        "Ricochete",
+        "Marca de Caça",
+        "Chuva de Projéteis",
+        "Horizonte Perfurado"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Mira Paciente",
+          "level": "I"
+        },
+        {
+          "name": "Disparo de Supressão",
+          "level": "I"
+        },
+        {
+          "name": "Ricochete",
+          "level": "II"
+        },
+        {
+          "name": "Marca de Caça",
+          "level": "II"
+        },
+        {
+          "name": "Chuva de Projéteis",
+          "level": "III"
+        },
+        {
+          "name": "Horizonte Perfurado",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Longavista",
+          "techniques": []
+        },
+        {
+          "name": "Geômetra",
+          "techniques": []
+        },
+        {
+          "name": "Supressor",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Tecelão",
+      "skills": [
+        "Magia",
+        "Conhecimento"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Artilharia",
+        "Amparo"
+      ],
+      "keys": [
+        "Bastão de Convergência",
+        "Grimório Estratificado",
+        "Tear Ritual",
+        "Prisma de Fórmulas"
+      ],
+      "proficiencies": "focos, grimórios, bastões e ferramentas rituais",
+      "initialTechnique": "Forma Estável",
+      "techniques": [
+        "Contrafluxo",
+        "Geometria de Área",
+        "Palavra Preparada",
+        "Dupla Tradição",
+        "Forma Persistente",
+        "Convergência"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Contrafluxo",
+          "level": "I"
+        },
+        {
+          "name": "Geometria de Área",
+          "level": "I"
+        },
+        {
+          "name": "Palavra Preparada",
+          "level": "II"
+        },
+        {
+          "name": "Dupla Tradição",
+          "level": "II"
+        },
+        {
+          "name": "Forma Persistente",
+          "level": "III"
+        },
+        {
+          "name": "Convergência",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Tramador",
+          "techniques": []
+        },
+        {
+          "name": "Desatador",
+          "techniques": []
+        },
+        {
+          "name": "Condutor",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Curador",
+      "skills": [
+        "Cuidado",
+        "Empatia"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Amparo"
+      ],
+      "keys": [
+        "Kit de Retorno",
+        "Foco de Amparo",
+        "Sino de Lucidez",
+        "Símbolo de Cuidado"
+      ],
+      "proficiencies": "kits médicos, focos de cuidado e armas simples",
+      "initialTechnique": "Estabilizar Relação",
+      "techniques": [
+        "Triagem",
+        "Pulso Restaurador",
+        "Partilha de Dor",
+        "Memória do Corpo",
+        "Retorno",
+        "Círculo de Vida"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Triagem",
+          "level": "I"
+        },
+        {
+          "name": "Pulso Restaurador",
+          "level": "I"
+        },
+        {
+          "name": "Partilha de Dor",
+          "level": "II"
+        },
+        {
+          "name": "Memória do Corpo",
+          "level": "II"
+        },
+        {
+          "name": "Retorno",
+          "level": "III"
+        },
+        {
+          "name": "Círculo de Vida",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Socorrista",
+          "techniques": []
+        },
+        {
+          "name": "Restaurador",
+          "techniques": []
+        },
+        {
+          "name": "Guardião da Cicatriz",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Evocador",
+      "skills": [
+        "Evocação; escolha Magia ou Empatia"
+      ],
+      "optionalSkills": [
+        "Magia",
+        "Empatia"
+      ],
+      "roles": [
+        "Artilharia",
+        "Amparo",
+        "Bastião"
+      ],
+      "keys": [
+        "Âncora de Pacto",
+        "Máscara de Convocação",
+        "Totem de Presença",
+        "Chave de Vínculo"
+      ],
+      "proficiencies": "focos de vínculo e armas simples",
+      "initialTechnique": "Vínculo Manifesto",
+      "techniques": [
+        "Âncora Reforçada",
+        "Comando Duplo",
+        "Forma Adaptável",
+        "Partilha de Sentidos",
+        "Evocação Maior",
+        "Presença Convergente"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Âncora Reforçada",
+          "level": "I"
+        },
+        {
+          "name": "Comando Duplo",
+          "level": "I"
+        },
+        {
+          "name": "Forma Adaptável",
+          "level": "II"
+        },
+        {
+          "name": "Partilha de Sentidos",
+          "level": "II"
+        },
+        {
+          "name": "Evocação Maior",
+          "level": "III"
+        },
+        {
+          "name": "Presença Convergente",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Pactário",
+          "techniques": []
+        },
+        {
+          "name": "Arauto",
+          "techniques": []
+        },
+        {
+          "name": "Convocador",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Artífice",
+      "skills": [
+        "Ofício",
+        "Investigação"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Bastião",
+        "Artilharia"
+      ],
+      "keys": [
+        "Ferramentas Modulares",
+        "Luva de Inscrição",
+        "Dispositivo de Campo",
+        "Obra Modular"
+      ],
+      "proficiencies": "ferramentas, dispositivos, armaduras leves e armas técnicas",
+      "initialTechnique": "Preparação de Campo",
+      "techniques": [
+        "Ferramenta Modular",
+        "Armadilha",
+        "Autômato Auxiliar",
+        "Sobrecarga Segura",
+        "Oficina Portátil",
+        "Obra Magistral"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Ferramenta Modular",
+          "level": "I"
+        },
+        {
+          "name": "Armadilha",
+          "level": "I"
+        },
+        {
+          "name": "Autômato Auxiliar",
+          "level": "II"
+        },
+        {
+          "name": "Sobrecarga Segura",
+          "level": "II"
+        },
+        {
+          "name": "Oficina Portátil",
+          "level": "III"
+        },
+        {
+          "name": "Obra Magistral",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Armeiro",
+          "techniques": []
+        },
+        {
+          "name": "Engenheiro de Campo",
+          "techniques": []
+        },
+        {
+          "name": "Reparador",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Batedor",
+      "skills": [
+        "Sobrevivência",
+        "Furtividade"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Vanguarda",
+        "Artilharia"
+      ],
+      "keys": [
+        "Faca de Trilha",
+        "Arco de Exploração",
+        "Bússola de Frestas",
+        "Kit de Rastreamento"
+      ],
+      "proficiencies": "armas leves, arcos e ferramentas de exploração",
+      "initialTechnique": "Primeiro a Ver",
+      "techniques": [
+        "Rota Segura",
+        "Emboscada",
+        "Passo Sem Marca",
+        "Guia de Frestas",
+        "Caçador de Anomalias",
+        "Ninguém Fica Para Trás"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "Rota Segura",
+          "level": "I"
+        },
+        {
+          "name": "Emboscada",
+          "level": "I"
+        },
+        {
+          "name": "Passo Sem Marca",
+          "level": "II"
+        },
+        {
+          "name": "Guia de Frestas",
+          "level": "II"
+        },
+        {
+          "name": "Caçador de Anomalias",
+          "level": "III"
+        },
+        {
+          "name": "Ninguém Fica Para Trás",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Rastreador",
+          "techniques": []
+        },
+        {
+          "name": "Infiltrador",
+          "techniques": []
+        },
+        {
+          "name": "Passador",
+          "techniques": []
+        }
+      ]
+    },
+    {
+      "name": "Satirista",
+      "skills": [
+        "Empatia",
+        "Velarim"
+      ],
+      "optionalSkills": [],
+      "roles": [
+        "Amparo",
+        "Artilharia"
+      ],
+      "keys": [
+        "Instrumento de Memória",
+        "Máscara",
+        "Verso Guardado",
+        "Objeto de Desejo",
+        "Lembrança Corporal"
+      ],
+      "proficiencies": "armas simples, armaduras leves, instrumentos, máscaras e focos de Ressonância",
+      "initialTechnique": "Licença do Bobo",
+      "techniques": [
+        "A Música que Guarda",
+        "Riso de Desarme",
+        "Verdade Inconveniente",
+        "Segredo Compartilhado",
+        "Coro dos Ausentes",
+        "A Última Palavra"
+      ],
+      "techniquesWithLevels": [
+        {
+          "name": "A Música que Guarda",
+          "level": "I"
+        },
+        {
+          "name": "Riso de Desarme",
+          "level": "I"
+        },
+        {
+          "name": "Verdade Inconveniente",
+          "level": "II"
+        },
+        {
+          "name": "Segredo Compartilhado",
+          "level": "II"
+        },
+        {
+          "name": "Coro dos Ausentes",
+          "level": "III"
+        },
+        {
+          "name": "A Última Palavra",
+          "level": "III"
+        }
+      ],
+      "specializations": [
+        {
+          "name": "Memorialista",
+          "techniques": []
+        },
+        {
+          "name": "Bufão",
+          "techniques": []
+        },
+        {
+          "name": "Confidente",
+          "techniques": []
+        }
+      ]
+    }
+  ],
+  "origins": [
+    "Criado na Luz",
+    "Criado na Escuridão",
+    "Trocado",
+    "Outro"
+  ],
+  "originBenefits": [
+    "(a) contato no Refúgio ou rede equivalente",
+    "(b) +2 para identificar propaganda sobre Trocados",
+    "(c) acesso a uma rota clandestina"
+  ],
+  "attributes": [
+    "Corpo",
+    "Agilidade",
+    "Intelecto",
+    "Presença",
+    "Vontade",
+    "Sintonia"
+  ],
+  "skills": [
+    "Atletismo",
+    "Combate",
+    "Pontaria",
+    "Furtividade",
+    "Percepção",
+    "Sobrevivência",
+    "Investigação",
+    "Conhecimento",
+    "Ofício",
+    "Influência",
+    "Empatia",
+    "Cuidado",
+    "Magia",
+    "Evocação",
+    "Velarim"
+  ],
+  "weapons": [
+    "Desarmado",
+    "Arma improvisada",
+    "Faca",
+    "Clava",
+    "Bastão",
+    "Lança curta",
+    "Espada",
+    "Sabre",
+    "Machado",
+    "Martelo de guerra",
+    "Lança longa",
+    "Lâmina grande",
+    "Arma de haste",
+    "Funda",
+    "Arma de arremesso",
+    "Arco",
+    "Besta",
+    "Besta pesada",
+    "Arma de disparo",
+    "Repetidor Nomos",
+    "Projetor de quartzo",
+    "Bastão ritual",
+    "Lâmina ressonante",
+    "Luva de inscrição"
+  ],
+  "armors": [
+    "Roupas reforçadas",
+    "Leve",
+    "Média",
+    "Pesada",
+    "Escudo"
+  ],
+  "tools": [
+    "Kit de cura",
+    "Ferramentas de Artífice",
+    "Conjunto de inscrição",
+    "Foco de magia",
+    "Âncora de Evocação",
+    "Kit de exploração",
+    "Analisador científico",
+    "Equipamento de escalada",
+    "Kit de disfarce",
+    "Instrumentos de frequência"
+  ],
+  "consumables": [
+    "Tônico de Vitalidade",
+    "Estabilizador de Fluxo",
+    "Sal de Memória",
+    "Selo de Contenção",
+    "Munição de Quartzo",
+    "Fio de Retorno",
+    "Carga de Reparo",
+    "Ampola de Repouso"
+  ],
+  "universalTechniques": [
+    "Avanço",
+    "Aparar",
+    "Cobrir",
+    "Preparar",
+    "Recuperar"
+  ],
+  "magic": [
+    "Centelha Orientada",
+    "Mão de Pressão",
+    "Véu de Silêncio",
+    "Marca de Frequência",
+    "Selo Transitório",
+    "Sopro Elemental",
+    "Lança Elemental",
+    "Barreira Manifestada",
+    "Passo Velado",
+    "Pulso Restaurador",
+    "Eco de Memória",
+    "Trava de Juramento",
+    "Voz Harmônica",
+    "Selo de Reparo",
+    "Tempestade Local",
+    "Círculo de Repouso",
+    "Ponte Breve",
+    "Dissolver Forma",
+    "Memória Compartilhada",
+    "Prisma Defletor",
+    "Âncora de Área",
+    "Salto de Possibilidade",
+    "Horizonte Partilhado",
+    "Prisão de Forma",
+    "Travessia Fratal",
+    "Restauração de Nome",
+    "Cataclismo Contido",
+    "Pacto Vivo"
+  ],
+  "magicForms": [
+    {
+      "id": "SILMA",
+      "canonicalName": "SILMA"
+    },
+    {
+      "id": "MANESH",
+      "canonicalName": "MANESH"
+    },
+    {
+      "id": "VELAR",
+      "canonicalName": "VELAR"
+    },
+    {
+      "id": "NOOVETH",
+      "canonicalName": "NOOVETH"
+    },
+    {
+      "id": "MIRA",
+      "canonicalName": "MIRA"
+    },
+    {
+      "id": "VETH",
+      "canonicalName": "VETH"
+    },
+    {
+      "id": "VERTH",
+      "canonicalName": "VERTH"
+    },
+    {
+      "id": "TAL",
+      "canonicalName": "TAL"
+    },
+    {
+      "id": "KAJ",
+      "canonicalName": "KAJ"
+    },
+    {
+      "id": "HAJ",
+      "canonicalName": "HAJ"
+    },
+    {
+      "id": "KOMM",
+      "canonicalName": "KOMM"
+    },
+    {
+      "id": "THUVEL",
+      "canonicalName": "THUVEL"
+    },
+    {
+      "id": "KAV",
+      "canonicalName": "KAV"
+    },
+    {
+      "id": "ANIR",
+      "canonicalName": "ANIR"
+    },
+    {
+      "id": "THAREN",
+      "canonicalName": "THAREN"
+    },
+    {
+      "id": "LUUMEH",
+      "canonicalName": "LUUMEH"
+    },
+    {
+      "id": "THEI",
+      "canonicalName": "THEI"
+    },
+    {
+      "id": "SAA",
+      "canonicalName": "SAA"
+    },
+    {
+      "id": "NAM",
+      "canonicalName": "NAM"
+    },
+    {
+      "id": "MANUV",
+      "canonicalName": "MANUV"
+    },
+    {
+      "id": "LIMNAR",
+      "canonicalName": "LIMNAR"
+    },
+    {
+      "id": "NOEH",
+      "canonicalName": "NOEH"
+    },
+    {
+      "id": "OM",
+      "canonicalName": "OM"
+    },
+    {
+      "id": "SAAL",
+      "canonicalName": "SAAL"
+    },
+    {
+      "id": "HAETH",
+      "canonicalName": "HAETH"
+    },
+    {
+      "id": "LESH",
+      "canonicalName": "LESH"
+    },
+    {
+      "id": "NA",
+      "canonicalName": "NA"
+    },
+    {
+      "id": "VE",
+      "canonicalName": "VE"
+    },
+    {
+      "id": "KRIA",
+      "canonicalName": "KRIA"
+    },
+    {
+      "id": "VIA",
+      "canonicalName": "VIA"
+    },
+    {
+      "id": "SEN",
+      "canonicalName": "SEN"
+    },
+    {
+      "id": "NASH",
+      "canonicalName": "NASH"
+    },
+    {
+      "id": "MIRAJ",
+      "canonicalName": "MIRAJ"
+    },
+    {
+      "id": "KOMMETH",
+      "canonicalName": "KOMMETH"
+    },
+    {
+      "id": "NIVA",
+      "canonicalName": "NIVA"
+    },
+    {
+      "id": "REQ",
+      "canonicalName": "REQ"
+    },
+    {
+      "id": "ORUN",
+      "canonicalName": "ORUN"
+    },
+    {
+      "id": "ARI",
+      "canonicalName": "ARI"
+    },
+    {
+      "id": "MARE",
+      "canonicalName": "MARE"
+    },
+    {
+      "id": "THIR",
+      "canonicalName": "THIR"
+    },
+    {
+      "id": "ELUN",
+      "canonicalName": "ELUN"
+    },
+    {
+      "id": "THUR",
+      "canonicalName": "THUR"
+    },
+    {
+      "id": "THULUN",
+      "canonicalName": "THULUN"
+    },
+    {
+      "id": "ZAAR",
+      "canonicalName": "ZAAR"
+    },
+    {
+      "id": "AR",
+      "canonicalName": "AR"
+    },
+    {
+      "id": "IM",
+      "canonicalName": "IM"
+    },
+    {
+      "id": "ATH",
+      "canonicalName": "ATH"
+    },
+    {
+      "id": "RU",
+      "canonicalName": "RU"
+    },
+    {
+      "id": "AV",
+      "canonicalName": "AV"
+    },
+    {
+      "id": "SILMAIN",
+      "canonicalName": "SILMAIN"
+    },
+    {
+      "id": "LUZ",
+      "canonicalName": "LUZ"
+    },
+    {
+      "id": "SUUL",
+      "canonicalName": "SUUL"
+    },
+    {
+      "id": "MANIR",
+      "canonicalName": "MANIR"
+    },
+    {
+      "id": "MIRIN",
+      "canonicalName": "MIRIN"
+    },
+    {
+      "id": "VERUM",
+      "canonicalName": "VERUM"
+    },
+    {
+      "id": "LAR",
+      "canonicalName": "LAR"
+    },
+    {
+      "id": "RUM",
+      "canonicalName": "RUM"
+    },
+    {
+      "id": "RAA",
+      "canonicalName": "RAA"
+    },
+    {
+      "id": "NHEL",
+      "canonicalName": "NHEL"
+    },
+    {
+      "id": "YAH",
+      "canonicalName": "YAH"
+    },
+    {
+      "id": "ZHEL",
+      "canonicalName": "ZHEL"
+    },
+    {
+      "id": "NIHEL",
+      "canonicalName": "NIHEL"
+    },
+    {
+      "id": "KRAG",
+      "canonicalName": "KRAG"
+    },
+    {
+      "id": "KRAG'OR",
+      "canonicalName": "KRAG'OR"
+    },
+    {
+      "id": "NI'AR",
+      "canonicalName": "NI'AR"
+    },
+    {
+      "id": "RA'IN",
+      "canonicalName": "RA'IN"
+    },
+    {
+      "id": "NIMAR",
+      "canonicalName": "NIMAR"
+    },
+    {
+      "id": "RAAR",
+      "canonicalName": "RAAR"
+    },
+    {
+      "id": "R'AL",
+      "canonicalName": "R'AL"
+    },
+    {
+      "id": "BEQ",
+      "canonicalName": "BEQ"
+    },
+    {
+      "id": "NAAR",
+      "canonicalName": "NAAR"
+    },
+    {
+      "id": "HAJR",
+      "canonicalName": "HAJR"
+    },
+    {
+      "id": "KA'V",
+      "canonicalName": "KA'V"
+    },
+    {
+      "id": "NIM'THEI",
+      "canonicalName": "NIM'THEI"
+    },
+    {
+      "id": "NUERI",
+      "canonicalName": "NUERI"
+    },
+    {
+      "id": "MA'VEL",
+      "canonicalName": "MA'VEL"
+    }
+  ],
+  "evocations": [
+    "Muralha de Ecos",
+    "Guardião de Quartzo",
+    "Colosso de Juramento",
+    "Fera de Estilhaço",
+    "Lobo de Fresta",
+    "Garuda Fratal",
+    "Eco do Jardim",
+    "Olho de Vael",
+    "Arquivo Aelvari",
+    "Centelha Draken",
+    "Serpente de Tormenta",
+    "Coro dos Céus Partidos",
+    "Mão Nomos",
+    "Autômato de Ponte",
+    "Oficina Caminhante",
+    "Guia Nimari",
+    "Andarilho do Umbral",
+    "Navegante de Kethrell"
+  ],
+  "evocationModels": [
+    {
+      "name": "Muralha de Ecos",
+      "size": "Menor"
+    },
+    {
+      "name": "Guardião de Quartzo",
+      "size": "Padrão"
+    },
+    {
+      "name": "Colosso de Juramento",
+      "size": "Maior"
+    },
+    {
+      "name": "Fera de Estilhaço",
+      "size": "Menor"
+    },
+    {
+      "name": "Lobo de Fresta",
+      "size": "Padrão"
+    },
+    {
+      "name": "Garuda Fratal",
+      "size": "Maior"
+    },
+    {
+      "name": "Eco do Jardim",
+      "size": "Menor"
+    },
+    {
+      "name": "Olho de Vael",
+      "size": "Padrão"
+    },
+    {
+      "name": "Arquivo Aelvari",
+      "size": "Maior"
+    },
+    {
+      "name": "Centelha Draken",
+      "size": "Menor"
+    },
+    {
+      "name": "Serpente de Tormenta",
+      "size": "Padrão"
+    },
+    {
+      "name": "Coro dos Céus Partidos",
+      "size": "Maior"
+    },
+    {
+      "name": "Mão Nomos",
+      "size": "Menor"
+    },
+    {
+      "name": "Autômato de Ponte",
+      "size": "Padrão"
+    },
+    {
+      "name": "Oficina Caminhante",
+      "size": "Maior"
+    },
+    {
+      "name": "Guia Nimari",
+      "size": "Menor"
+    },
+    {
+      "name": "Andarilho do Umbral",
+      "size": "Padrão"
+    },
+    {
+      "name": "Navegante de Kethrell",
+      "size": "Maior"
+    }
+  ],
+  "evocationSizes": [
+    "Menor",
+    "Padrão",
+    "Maior",
+    "Instável"
+  ],
+  "evocationForms": [
+    "Guardião",
+    "Predador",
+    "Oráculo",
+    "Tempestade",
+    "Artífice",
+    "Limiar"
+  ],
+  "conditions": [
+    "Abalado",
+    "Exposto",
+    "Imobilizado",
+    "Lento",
+    "Sangrando",
+    "Silenciado",
+    "Dissonante",
+    "Fraturado",
+    "Corrompido",
+    "Caído"
+  ],
+  "qualities": [
+    "Qualidade inicial e aquisição",
+    "Precário",
+    "Comum",
+    "Refinado",
+    "Magistral",
+    "Artefato"
+  ],
+  "progressions": [
+    "criação completa",
+    "técnica ou magia",
+    "especialização de Ofício",
+    "+1 perícia e técnica",
+    "+1 atributo, máximo 4",
+    "técnica avançada ou evocação maior",
+    "acesso a magia Grau 3",
+    "+1 perícia e vínculo adicional",
+    "segunda especialização ou técnica de outro Ofício",
+    "Legado"
+  ],
+  "peopleChoices": {
+    "Draken": [
+      {
+        "key": "afinidade",
+        "min": 1,
+        "max": 1,
+        "values": [
+          "brasa",
+          "frio",
+          "tormenta",
+          "pedra",
+          "maré",
+          "vento"
+        ]
+      }
+    ],
+    "Nomos": [
+      {
+        "key": "modulos",
+        "min": 2,
+        "max": 2,
+        "values": [
+          "Visão ampliada",
+          "Ferramenta integrada",
+          "Compartimento protegido",
+          "Blindagem leve",
+          "Interface de dados",
+          "Membros adaptáveis"
+        ]
+      }
+    ],
+    "Vitrálios": [
+      {
+        "key": "frequencia",
+        "min": 1,
+        "max": 1,
+        "values": [
+          "calor",
+          "som",
+          "emoção",
+          "luz física",
+          "vibração",
+          "magia"
+        ]
+      }
+    ],
+    "Teriantes": [
+      {
+        "key": "aspecto",
+        "min": 1,
+        "max": 1,
+        "values": [
+          "felino (visão e equilíbrio)",
+          "lupino (cheiro e cooperação)",
+          "aviano (distância e orientação)",
+          "reptiliano (calor e imobilidade)",
+          "aquático (vibração e água)",
+          "Outro Aspecto (aprovação do grupo)"
+        ]
+      }
+    ]
+  },
+  "snapshotFields": [
+    "id",
+    "criadoEm",
+    "nome",
+    "jogador",
+    "pronomes",
+    "campanha",
+    "apelido",
+    "descricao",
+    "aparencia",
+    "biografia",
+    "montaria",
+    "pet",
+    "conceito",
+    "povo",
+    "heranca",
+    "escolhasPovo",
+    "pericaLivre",
+    "aspectoOutro",
+    "tecnicaHeranca",
+    "origem",
+    "origemDetalhe",
+    "origemBeneficio",
+    "dividaComunitaria",
+    "origemTrocado",
+    "atributosBase",
+    "atributosGanhos",
+    "periciasBase",
+    "trilhas",
+    "trilhaAtiva",
+    "equipamento",
+    "vinculos",
+    "promessa",
+    "ferida",
+    "pergunta",
+    "manifestacao_pessoal",
+    "fulgor",
+    "capacidade_manifestacoes",
+    "reservas",
+    "condicoes",
+    "anotacoes",
+    "retrato",
+    "galeria",
+    "historico",
+    "checkpoints",
+    "artefatosVinculados",
+    "completo",
+    "passo"
+  ],
+  "snapshotNestedFields": {
+    "montaria": [
+      "nome",
+      "descricao",
+      "notas"
+    ],
+    "pet": [
+      "nome",
+      "descricao",
+      "notas"
+    ],
+    "conceito": [
+      "identidade",
+      "objetivo",
+      "perda"
+    ],
+    "escolhasPovo": [],
+    "origemTrocado": [
+      "nascimento",
+      "criacao",
+      "descricao"
+    ],
+    "atributosBase": [
+      "Corpo",
+      "Agilidade",
+      "Intelecto",
+      "Presença",
+      "Vontade",
+      "Sintonia"
+    ],
+    "atributosGanhos": [],
+    "periciasBase": [
+      "Atletismo",
+      "Combate",
+      "Pontaria",
+      "Furtividade",
+      "Percepção",
+      "Sobrevivência",
+      "Investigação",
+      "Conhecimento",
+      "Ofício",
+      "Influência",
+      "Empatia",
+      "Cuidado",
+      "Magia",
+      "Evocação",
+      "Velarim"
+    ],
+    "equipamento": [
+      "arma",
+      "armadura",
+      "ferramenta",
+      "consumiveis",
+      "extras",
+      "proficienciaConfirmada"
+    ],
+    "capacidade_manifestacoes": [],
+    "reservas": [
+      "vitalidade",
+      "lucidez",
+      "fluxo",
+      "folego",
+      "determinacao",
+      "sombra"
+    ]
+  },
+  "trailFields": [
+    "id",
+    "oficio",
+    "marco",
+    "papel",
+    "chave",
+    "chaveNome",
+    "pericias",
+    "pericaEscolhida",
+    "especializacoes",
+    "tecnicas",
+    "vinculosEvocados",
+    "ganhos",
+    "atributosGanhos",
+    "manifestacoesEpicas",
+    "magiaEpica",
+    "legado",
+    "acessoMagia",
+    "advanceAuthorizedFor",
+    "advanceNote"
+  ]
+}
