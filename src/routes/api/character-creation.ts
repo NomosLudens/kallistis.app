@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createFileRoute } from "@tanstack/react-router";
 import { classifyProviderError, providerFailureMessage } from "@/lib/openrouter.server";
+import { retrieveCanonicalPeopleSection } from "@/lib/canonical-rules.server";
 import { requireUser } from "@/lib/require-user.server";
 import { distributedChatRateLimit } from "@/lib/rate-limit";
 import { isSameOriginRequest } from "@/server/local-core/csrf";
@@ -67,6 +68,24 @@ type CurrentCharacter = {
 function db() {
   const url = getRuntimeDatabaseUrl();
   return url ? createBunPostgresExecutor(url) : null;
+}
+
+function conversationStateForApi(snapshot: CharacterSnapshot) {
+  const conversation = creationConversationState(snapshot);
+  const nextOptions = conversation.nextOptions;
+  if (nextOptions?.path !== "povo") return conversation;
+  return {
+    ...conversation,
+    nextOptions: {
+      ...nextOptions,
+      optionDetails: Object.fromEntries(
+        nextOptions.options.flatMap((people) => {
+          const source = retrieveCanonicalPeopleSection(people);
+          return source ? [[people, source.text]] : [];
+        }),
+      ),
+    },
+  };
 }
 
 async function readBody(request: Request) {
@@ -424,7 +443,7 @@ export const Route = createFileRoute("/api/character-creation")({
                   character,
                   messages,
                   memory,
-                  conversation: creationConversationState(character.snapshot),
+                  conversation: conversationStateForApi(character.snapshot),
                   progression: await createPostgresCharacterRepository(sql).progressionList(
                     auth.userId,
                     id,
@@ -595,7 +614,7 @@ export const Route = createFileRoute("/api/character-creation")({
                       { role: "user", content: firstMessage },
                       { role: "assistant", content: ai.reply },
                     ],
-                    conversation: creationConversationState(ai.snapshot),
+                    conversation: conversationStateForApi(ai.snapshot),
                     memory,
                   },
                   { status: 201, headers },
@@ -695,7 +714,7 @@ export const Route = createFileRoute("/api/character-creation")({
                     character: current,
                     messages,
                     memory,
-                    conversation: creationConversationState(current.snapshot),
+                    conversation: conversationStateForApi(current.snapshot),
                     progression: await createPostgresCharacterRepository(sql).progressionList(
                       auth.userId,
                       id,
@@ -761,7 +780,7 @@ export const Route = createFileRoute("/api/character-creation")({
                     character,
                     messages,
                     memory,
-                    conversation: creationConversationState(character.snapshot),
+                    conversation: conversationStateForApi(character.snapshot),
                     progression,
                     progressionChoices: conversationalProgressionState(character.snapshot),
                   },
@@ -821,7 +840,7 @@ export const Route = createFileRoute("/api/character-creation")({
                       character,
                       messages,
                       memory,
-                      conversation: creationConversationState(snapshot),
+                      conversation: conversationStateForApi(snapshot),
                       progression: await createPostgresCharacterRepository(
                         tx as Sql,
                       ).progressionList(auth.userId, id),
@@ -867,7 +886,7 @@ export const Route = createFileRoute("/api/character-creation")({
                     {
                       character,
                       messages,
-                      conversation: creationConversationState(snapshot),
+                      conversation: conversationStateForApi(snapshot),
                       memory,
                     },
                     { headers },
@@ -944,7 +963,7 @@ export const Route = createFileRoute("/api/character-creation")({
                     {
                       character,
                       messages,
-                      conversation: creationConversationState(character.snapshot),
+                      conversation: conversationStateForApi(character.snapshot),
                       memory,
                     },
                     { headers },
@@ -1080,7 +1099,7 @@ export const Route = createFileRoute("/api/character-creation")({
                     {
                       character,
                       messages,
-                      conversation: creationConversationState(ai.snapshot),
+                      conversation: conversationStateForApi(ai.snapshot),
                       memory,
                       providerUnavailable: ai.providerUnavailable,
                     },
@@ -1162,7 +1181,7 @@ export const Route = createFileRoute("/api/character-creation")({
                       character,
                       reply,
                       completed: "completed" in result && result.completed,
-                      conversation: creationConversationState(result.snapshot),
+                      conversation: conversationStateForApi(result.snapshot),
                       memory,
                     },
                     { headers },

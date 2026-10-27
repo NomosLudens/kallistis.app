@@ -372,6 +372,28 @@ export function retrieveCanonicalSectionByHeading(title: string): CanonicalRuleC
   return null;
 }
 
+export function retrieveCanonicalPeopleSection(title: string): CanonicalRuleContext | null {
+  const source = rules();
+  const normalizedTitle = normalize(title);
+  const matching = canonicalSectionIndex(source).filter((section) => {
+    const headings = section.context.searchHeadings?.map(normalize) ?? [];
+    return headings[0] === normalize("PARTE II — POVOS") && headings[1] === normalizedTitle;
+  });
+  if (!matching.length) return null;
+
+  const peopleHeading = matching[0].context.searchHeadings?.[1] ?? title;
+  return {
+    sourceId: RULE_SOURCE_ID,
+    sourceVersion: RULE_SOURCE_VERSION,
+    sourceHash: source.hash,
+    section: peopleHeading,
+    searchHeadings: ["PARTE II — POVOS", peopleHeading],
+    text: matching
+      .map(({ context }) => `### ${context.section}\n${context.text}`)
+      .join("\n\n"),
+  };
+}
+
 export function retrieveCanonicalCreationSections(question: string) {
   const query = normalize(question);
   if (!/\bcriacao\b/.test(query)) return null;

@@ -22,6 +22,9 @@ import {
 import { ChatEnvelope, readBoundedJson, validationStatus } from "@/lib/chat-request-contract";
 import { requireUser } from "@/lib/require-user.server";
 import { createLocalChatRuntime } from "@/server/local-core/chat-runtime";
+import { createBunPostgresExecutor } from "@/server/local-core/postgres";
+import { explicitNarrativeMemory, isNarrativeMemoryRecallQuestion, loadKallistisAgentMemories, storeKallistisAgentMemory } from "@/server/zeroclaw/narrative-memory";
+import { runKallistisZeroClawTurn } from "@/server/zeroclaw/acp-agent";
 import {
   createKallistisTools,
   KALLISTIS_MAX_TOOL_CALLS_PER_TURN,
@@ -363,6 +366,123 @@ export async function handleChatRoute(request: Request): Promise<Response> {
       requestId,
     );
     return createUIMessageStreamResponse({ stream: persistedStream });
+  }
+
+  if (
+    prepared.activeCharacterId &&
+    prepared.scope !== "master" &&
+    (prepared.scope === "general" || isNarrativeMemoryRecallQuestion(prepared.rawUserText) || explicitNarrativeMemory(prepared.rawUserText) !== null)
+  ) {
+    const runtime = createLocalChatRuntime(databaseUrl);
+    let characterMemory = "";
+    let savedMemory: string | null = null;
+    let campaignScoped = false;
+    try {
+      const thread = await runtime.chat.getThreadById(userId, body.threadId);
+      const character = await runtime.characters?.get(userId, prepared.activeCharacterId);
+      if (!thread || !character || character.status === "archived") {
+        return Response.json({ error: "active_character_forbidden", requestId }, { status: 403 });
+      }
+      if (thread.campaignId && !(await runtime.campaigns?.getAuthorized(userId, thread.campaignId))) {
+        return Response.json({ error: "campaign_forbidden", requestId }, { status: 403 });
+      }
+      campaignScoped = Boolean(thread.campaignId);
+      const scope = {
+        userId,
+        characterId: character.id,
+        campaignId: thread.campaignId ?? null,
+      };
+      const explicitMemory = explicitNarrativeMemory(prepared.rawUserText);
+      if (explicitMemory) {
+        const sql = createBunPostgresExecutor(databaseUrl);
+        try {
+          await storeKallistisAgentMemory(sql, {
+            ...scope,
+            threadId: thread.id,
+            sourceMessageId: newestUserMessage.id,
+          }, explicitMemory);
+          savedMemory = explicitMemory;
+        } finally {
+          sql.close();
+        }
+      }
+      const sql = createBunPostgresExecutor(databaseUrl);
+      try {
+        const memories = await loadKallistisAgentMemories(sql, scope);
+        console.info(JSON.stringify({
+          level: "info",
+          type: "kallistis_agent_memory_context_loaded",
+          request_id: requestId,
+          agent_identity: "kallistis",
+          scope: thread.campaignId ? "user_character_campaign" : "user_character",
+          entries: memories.length,
+        }));
+        if (memories.length) {
+          characterMemory = [
+            "\nMEMÓRIA NARRATIVA PRIVADA CARREGADA PELO BACKEND (não altera regras nem ficha):",
+            ...memories.map((memory) => `- [${memory.category}; ${memory.createdAt}] ${memory.content}`),
+          ].join("\n");
+        }
+      } finally {
+        sql.close();
+      }
+    } catch (error) {
+      console.error(JSON.stringify({ level: "error", type: "kallistis_agent_memory_failed", request_id: requestId, error: error instanceof Error ? error.message : "unknown" }));
+      return Response.json({ error: "agent_memory_unavailable", requestId }, { status: 503 });
+    } finally {
+      runtime.close();
+    }
+
+    if (savedMemory) {
+      prepared.directAssistantReply = `Vou lembrar disso para este personagem${campaignScoped ? " nesta campanha" : ""}: “${savedMemory}”.`;
+      const directStream = createUIMessageStream<UIMessage>({
+        execute: ({ writer }) => {
+          writer.write({ type: "text-start", id: body.assistantMessageId });
+          writer.write({ type: "text-delta", id: body.assistantMessageId, delta: prepared.directAssistantReply! });
+          writer.write({ type: "text-end", id: body.assistantMessageId });
+          writer.write({ type: "finish", finishReason: "stop" });
+        },
+        generateId: () => body.assistantMessageId,
+      });
+      const persistedStream = requireAssistantPersistenceBeforeFinish(directStream, async (content) => {
+        const runtime = createLocalChatRuntime(databaseUrl);
+        try {
+          await persistKallistisAssistant({ request, runtime, databaseUrl, userId, threadId: body.threadId, assistantMessageId: body.assistantMessageId, rawContent: content, derivedFrom: prepared.derivedFrom, requestId, sourceChannel: "C01" });
+        } finally { runtime.close(); }
+      }, requestId);
+      return createUIMessageStreamResponse({ stream: persistedStream });
+    }
+
+    if (prepared.scope !== "general" && !isNarrativeMemoryRecallQuestion(prepared.rawUserText)) {
+      return Response.json({ error: "narrative_memory_not_saved", requestId }, { status: 503 });
+    }
+
+    let responseText: string;
+    try {
+      responseText = await runKallistisZeroClawTurn({
+        system: `${prepared.system}${characterMemory}`,
+        messages: prepared.modelMessages,
+        signal: request.signal,
+      });
+    } catch {
+      return Response.json({ error: "zeroclaw_unavailable", reason: "O agente KALLÍSTIS não concluiu a resposta; nenhuma chamada alternativa foi feita.", requestId }, { status: 503 });
+    }
+    const agentStream = createUIMessageStream<UIMessage>({
+      execute: ({ writer }) => {
+        writer.write({ type: "text-start", id: body.assistantMessageId });
+        writer.write({ type: "text-delta", id: body.assistantMessageId, delta: responseText });
+        writer.write({ type: "text-end", id: body.assistantMessageId });
+        writer.write({ type: "finish", finishReason: "stop" });
+      },
+      generateId: () => body.assistantMessageId,
+    });
+    const persistedAgentStream = requireAssistantPersistenceBeforeFinish(agentStream, async (content) => {
+      const runtime = createLocalChatRuntime(databaseUrl);
+      try {
+        await persistKallistisAssistant({ request, runtime, databaseUrl, userId, threadId: body.threadId, assistantMessageId: body.assistantMessageId, rawContent: content, derivedFrom: prepared.derivedFrom, requestId, sourceChannel: "C01" });
+      } finally { runtime.close(); }
+    }, requestId);
+    return createUIMessageStreamResponse({ stream: persistedAgentStream });
   }
 
   const tools = createKallistisTools({

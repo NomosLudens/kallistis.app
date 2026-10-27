@@ -32,6 +32,11 @@ function AuthPage() {
   const [credential, setCredential] = useState("");
   const [recoveryCode, setRecoveryCode] = useState("");
   const [recoveryMode, setRecoveryMode] = useState(false);
+  const [registrationMode, setRegistrationMode] = useState(false);
+  const [registrationName, setRegistrationName] = useState("");
+  const [registrationPronouns, setRegistrationPronouns] = useState("");
+  const [registrationCredential, setRegistrationCredential] = useState("");
+  const [registrationCredentialConfirmation, setRegistrationCredentialConfirmation] = useState("");
   const [recoveryComplete, setRecoveryComplete] = useState(false);
   const [newRecoveryCode, setNewRecoveryCode] = useState("");
   const [recoverySessionEstablished, setRecoverySessionEstablished] = useState(false);
@@ -43,8 +48,21 @@ function AuthPage() {
   const [playerName, setPlayerName] = useState("");
   const [playerPronouns, setPlayerPronouns] = useState("");
   const [sessionError, setSessionError] = useState("");
+  const localRegistrationAvailable =
+    import.meta.env.DEV &&
+    typeof window !== "undefined" &&
+    ["127.0.0.1", "localhost", "::1"].includes(window.location.hostname);
+  const localRegistrationRequested =
+    localRegistrationAvailable &&
+    !hasSupabaseAuth &&
+    new URLSearchParams(window.location.search).get("mode") === "register";
 
   useEffect(() => {
+    if (localRegistrationRequested) {
+      setRegistrationMode(true);
+      setCheckingSession(false);
+      return;
+    }
     let active = true;
     void restoreLocalSessionFromSupabase()
       .then((session) => {
@@ -91,7 +109,7 @@ function AuthPage() {
     return () => {
       active = false;
     };
-  }, [hasSupabaseAuth, navigate]);
+  }, [hasSupabaseAuth, localRegistrationRequested, navigate]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -185,6 +203,53 @@ function AuthPage() {
       toast.success("Senha atualizada. Guarde o novo código de recuperação.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : RECOVERY_FAILURE_MESSAGE);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRegistrationSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (registrationCredential.length < 8) {
+      toast.error("A palavra precisa ter pelo menos 8 caracteres.");
+      return;
+    }
+    if (registrationCredential !== registrationCredentialConfirmation) {
+      toast.error("As palavras não conferem.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          displayName: registrationName,
+          pronouns: registrationPronouns,
+          credential: registrationCredential,
+        }),
+      });
+      const result = (await response.json().catch(() => null)) as {
+        error?: string;
+        user?: { id?: string };
+      } | null;
+      if (!response.ok || !result?.user?.id) {
+        const message =
+          result?.error === "invite_capacity_exhausted"
+            ? "Não há vagas de jogador disponíveis neste ambiente."
+            : result?.error === "registration_credential_in_use"
+              ? "Essa palavra já está em uso. Escolha outra."
+              : result?.error === "registration_rate_limited"
+                ? "Muitas tentativas de cadastro. Tente novamente mais tarde."
+                : "Não foi possível criar a conta local. Confira os dados e tente novamente.";
+        throw new Error(message);
+      }
+      setRegistrationCredential("");
+      setRegistrationCredentialConfirmation("");
+      await navigate({ to: "/chat", replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível criar a conta local.");
     } finally {
       setLoading(false);
     }
@@ -303,6 +368,77 @@ function AuthPage() {
               {recoverySessionEstablished ? "Eu guardei o código e continuar" : "Voltar ao login"}
             </Button>
           </div>
+        ) : registrationMode ? (
+          <form onSubmit={handleRegistrationSubmit} className="auth-card__form">
+            <p className="text-sm text-[color:var(--ivory-dim)]">
+              Conta de desenvolvimento local. Você define a palavra; ela não será exibida novamente.
+            </p>
+            <div>
+              <Label htmlFor="registration-name">Nome do jogador</Label>
+              <Input
+                id="registration-name"
+                name="display-name"
+                type="text"
+                autoComplete="name"
+                maxLength={60}
+                required
+                value={registrationName}
+                onChange={(event) => setRegistrationName(event.target.value)}
+                className="auth-card__input"
+              />
+            </div>
+            <div>
+              <Label htmlFor="registration-pronouns">Pronomes</Label>
+              <Input
+                id="registration-pronouns"
+                name="pronouns"
+                type="text"
+                maxLength={80}
+                required
+                value={registrationPronouns}
+                onChange={(event) => setRegistrationPronouns(event.target.value)}
+                className="auth-card__input"
+              />
+            </div>
+            <div>
+              <Label htmlFor="registration-credential">Sua palavra de acesso</Label>
+              <Input
+                id="registration-credential"
+                name="new-password"
+                type="password"
+                minLength={8}
+                maxLength={256}
+                autoComplete="new-password"
+                required
+                value={registrationCredential}
+                onChange={(event) => setRegistrationCredential(event.target.value)}
+                className="auth-card__input"
+              />
+            </div>
+            <div>
+              <Label htmlFor="registration-credential-confirmation">Confirme sua palavra</Label>
+              <Input
+                id="registration-credential-confirmation"
+                name="new-password-confirmation"
+                type="password"
+                minLength={8}
+                maxLength={256}
+                autoComplete="new-password"
+                required
+                value={registrationCredentialConfirmation}
+                onChange={(event) => setRegistrationCredentialConfirmation(event.target.value)}
+                className="auth-card__input"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="auth-card__submit"
+              disabled={loading}
+              aria-busy={loading}
+            >
+              {loading ? "Criando conta…" : "Criar conta local"}
+            </Button>
+          </form>
         ) : recoveryMode ? (
           <form onSubmit={handleRecoverySubmit} className="auth-card__form">
             <div>
@@ -428,15 +564,31 @@ function AuthPage() {
                 {loading ? "Entrando…" : "Entrar"}
               </Button>
             </form>
+            {localRegistrationAvailable && !hasSupabaseAuth ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="auth-card__submit mt-3"
+                onClick={() => setRegistrationMode(true)}
+                disabled={loading}
+              >
+                Criar conta de desenvolvimento
+              </Button>
+            ) : null}
           </>
         )}
         {!recoveryComplete && (
           <div className="auth-card__hint">
-            {recoveryMode ? (
+            {recoveryMode || registrationMode ? (
               <button
                 type="button"
                 className="underline underline-offset-4"
-                onClick={closeRecovery}
+                onClick={() => {
+                  if (recoveryMode) closeRecovery();
+                  setRegistrationMode(false);
+                  setRegistrationCredential("");
+                  setRegistrationCredentialConfirmation("");
+                }}
               >
                 Voltar ao login
               </button>

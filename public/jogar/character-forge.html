@@ -3864,7 +3864,10 @@
       }
 
       /* ================= UI ================= */
-      var VIEW = "personagens";
+      // A Forge deep link must never render the browser's previous local
+      // selection while the authenticated character fetch is still pending.
+      var VIEW = TAL_TARGET_CHARACTER_ID ? "dossie" : "personagens";
+      if (TAL_TARGET_CHARACTER_ID) DB.atual = TAL_TARGET_CHARACTER_ID;
       const TABS = [
         ["personagens", "Personagens"],
         ["criar", "Criação"],

@@ -70,6 +70,7 @@ import { Route as ApiChannelsTelegramRouteImport } from './routes/api/channels/t
 import { Route as ApiBridgeOlharDeKairosRouteImport } from './routes/api/bridge/olhar-de-kairos'
 import { Route as ApiBridgeDecifrarSnapshotLocalRouteImport } from './routes/api/bridge/decifrar-snapshot-local'
 import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
 import { Route as ApiAuthRecoveryCodeRouteImport } from './routes/api/auth/recovery-code'
 import { Route as ApiAuthGooglePlayerOnboardingRouteImport } from './routes/api/auth/google-player-onboarding'
 import { Route as ApiAdminTalBootstrapRouteImport } from './routes/api/admin/tal-bootstrap'
@@ -403,6 +404,11 @@ const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
   path: '/api/auth/session',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
+  id: '/api/auth/register',
+  path: '/api/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthRecoveryCodeRoute = ApiAuthRecoveryCodeRouteImport.update({
   id: '/api/auth/recovery-code',
   path: '/api/auth/recovery-code',
@@ -568,6 +574,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/tal-bootstrap': typeof ApiAdminTalBootstrapRoute
   '/api/auth/google-player-onboarding': typeof ApiAuthGooglePlayerOnboardingRoute
   '/api/auth/recovery-code': typeof ApiAuthRecoveryCodeRoute
+  '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/auth/session': typeof ApiAuthSessionRoute
   '/api/bridge/decifrar-snapshot-local': typeof ApiBridgeDecifrarSnapshotLocalRoute
   '/api/bridge/olhar-de-kairos': typeof ApiBridgeOlharDeKairosRoute
@@ -650,6 +657,7 @@ export interface FileRoutesByTo {
   '/api/admin/tal-bootstrap': typeof ApiAdminTalBootstrapRoute
   '/api/auth/google-player-onboarding': typeof ApiAuthGooglePlayerOnboardingRoute
   '/api/auth/recovery-code': typeof ApiAuthRecoveryCodeRoute
+  '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/auth/session': typeof ApiAuthSessionRoute
   '/api/bridge/decifrar-snapshot-local': typeof ApiBridgeDecifrarSnapshotLocalRoute
   '/api/bridge/olhar-de-kairos': typeof ApiBridgeOlharDeKairosRoute
@@ -734,6 +742,7 @@ export interface FileRoutesById {
   '/api/admin/tal-bootstrap': typeof ApiAdminTalBootstrapRoute
   '/api/auth/google-player-onboarding': typeof ApiAuthGooglePlayerOnboardingRoute
   '/api/auth/recovery-code': typeof ApiAuthRecoveryCodeRoute
+  '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/auth/session': typeof ApiAuthSessionRoute
   '/api/bridge/decifrar-snapshot-local': typeof ApiBridgeDecifrarSnapshotLocalRoute
   '/api/bridge/olhar-de-kairos': typeof ApiBridgeOlharDeKairosRoute
@@ -818,6 +827,7 @@ export interface FileRouteTypes {
     | '/api/admin/tal-bootstrap'
     | '/api/auth/google-player-onboarding'
     | '/api/auth/recovery-code'
+    | '/api/auth/register'
     | '/api/auth/session'
     | '/api/bridge/decifrar-snapshot-local'
     | '/api/bridge/olhar-de-kairos'
@@ -900,6 +910,7 @@ export interface FileRouteTypes {
     | '/api/admin/tal-bootstrap'
     | '/api/auth/google-player-onboarding'
     | '/api/auth/recovery-code'
+    | '/api/auth/register'
     | '/api/auth/session'
     | '/api/bridge/decifrar-snapshot-local'
     | '/api/bridge/olhar-de-kairos'
@@ -983,6 +994,7 @@ export interface FileRouteTypes {
     | '/api/admin/tal-bootstrap'
     | '/api/auth/google-player-onboarding'
     | '/api/auth/recovery-code'
+    | '/api/auth/register'
     | '/api/auth/session'
     | '/api/bridge/decifrar-snapshot-local'
     | '/api/bridge/olhar-de-kairos'
@@ -1046,6 +1058,7 @@ export interface RootRouteChildren {
   ApiAdminTalBootstrapRoute: typeof ApiAdminTalBootstrapRoute
   ApiAuthGooglePlayerOnboardingRoute: typeof ApiAuthGooglePlayerOnboardingRoute
   ApiAuthRecoveryCodeRoute: typeof ApiAuthRecoveryCodeRoute
+  ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiAuthSessionRoute: typeof ApiAuthSessionRoute
   ApiBridgeDecifrarSnapshotLocalRoute: typeof ApiBridgeDecifrarSnapshotLocalRoute
   ApiBridgeOlharDeKairosRoute: typeof ApiBridgeOlharDeKairosRoute
@@ -1496,6 +1509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/register': {
+      id: '/api/auth/register'
+      path: '/api/auth/register'
+      fullPath: '/api/auth/register'
+      preLoaderRoute: typeof ApiAuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/recovery-code': {
       id: '/api/auth/recovery-code'
       path: '/api/auth/recovery-code'
@@ -1781,6 +1801,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminTalBootstrapRoute: ApiAdminTalBootstrapRoute,
   ApiAuthGooglePlayerOnboardingRoute: ApiAuthGooglePlayerOnboardingRoute,
   ApiAuthRecoveryCodeRoute: ApiAuthRecoveryCodeRoute,
+  ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiAuthSessionRoute: ApiAuthSessionRoute,
   ApiBridgeDecifrarSnapshotLocalRoute: ApiBridgeDecifrarSnapshotLocalRoute,
   ApiBridgeOlharDeKairosRoute: ApiBridgeOlharDeKairosRoute,

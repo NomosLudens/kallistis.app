@@ -51,6 +51,7 @@ type Conversation = {
     pool: number[];
     min?: number;
     max?: number;
+    optionDetails?: Record<string, string>;
   } | null;
 };
 type MemoryRecord = Record<string, unknown>;
@@ -106,6 +107,14 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
   return payload;
 }
 
+function readableCanon(source: string) {
+  return source
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
 function ConversationalCreationPage() {
   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
   const [detail, setDetail] = useState<Detail | null>(null);
@@ -115,6 +124,7 @@ function ConversationalCreationPage() {
   const [error, setError] = useState("");
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
+  const [expandedPeople, setExpandedPeople] = useState<string | null>(null);
   const [distribution, setDistribution] = useState<Record<string, number>>({});
   const [targetMarco, setTargetMarco] = useState(1);
   const [progressionSelection, setProgressionSelection] = useState<string | string[] | null>(null);
@@ -133,6 +143,7 @@ function ConversationalCreationPage() {
   useEffect(() => {
     setSelected([]);
     setDistribution({});
+    setExpandedPeople(null);
   }, [next?.path]);
   useEffect(() => setProgressionSelection(null), [detail?.progressionChoices?.next?.id]);
 
@@ -662,21 +673,68 @@ function ConversationalCreationPage() {
                   para sua confirmação antes de entrar na ficha.
                 </p>
                 {next.kind === "choice" || next.kind === "yes" ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(next.kind === "yes" ? ["Confirmo a proficiência"] : next.options).map(
-                      (option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          disabled={sending}
-                          onClick={() => void choose(next.kind === "yes" ? true : option)}
-                          className="min-h-10 rounded-lg border border-white/20 px-3 text-left hover:border-[color:var(--gold)]/70 disabled:opacity-50"
-                        >
-                          {option}
-                        </button>
-                      ),
-                    )}
-                  </div>
+                  next.path === "povo" ? (
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {next.options.map((option) => {
+                        const suggested = option === "Aelvari" || option === "Dóreos";
+                        const expanded = expandedPeople === option;
+                        return (
+                          <article
+                            key={option}
+                            className="rounded-xl border border-white/10 bg-black/15 p-3"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <button
+                                type="button"
+                                disabled={sending}
+                                onClick={() => void choose(option)}
+                                className="min-h-10 rounded-lg border border-white/20 px-3 text-left hover:border-[color:var(--gold)]/70 disabled:opacity-50"
+                              >
+                                {option}
+                              </button>
+                              {suggested ? (
+                                <span className="text-xs text-[color:var(--gold)]">
+                                  Possibilidade ligada à memória
+                                </span>
+                              ) : null}
+                            </div>
+                            <button
+                              type="button"
+                              aria-expanded={expanded}
+                              disabled={!next.optionDetails?.[option]}
+                              onClick={() => setExpandedPeople(expanded ? null : option)}
+                              className="mt-2 min-h-9 text-left text-xs text-white/65 underline decoration-white/25 underline-offset-4 disabled:opacity-40"
+                            >
+                              {expanded
+                                ? "Ocultar Traço, Dom, Heranças e Dissonância"
+                                : "Ver Traço, Dom, Heranças e Dissonância"}
+                            </button>
+                            {expanded ? (
+                              <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-white/65">
+                                {readableCanon(next.optionDetails?.[option] ?? "")}
+                              </p>
+                            ) : null}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {(next.kind === "yes" ? ["Confirmo a proficiência"] : next.options).map(
+                        (option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            disabled={sending}
+                            onClick={() => void choose(next.kind === "yes" ? true : option)}
+                            className="min-h-10 rounded-lg border border-white/20 px-3 text-left hover:border-[color:var(--gold)]/70 disabled:opacity-50"
+                          >
+                            {option}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  )
                 ) : null}
                 {next.kind === "multi" ? (
                   <>

@@ -42,11 +42,11 @@ type Step = {
   max?: number;
 };
 const stepList: Step[] = [
+  { path: "povo", label: "Povo", kind: "choice", options: () => CHARACTER_PEOPLES },
   { path: "nome", label: "nome do personagem", kind: "text" },
   { path: "conceito.identidade", label: "identidade do conceito", kind: "text" },
   { path: "conceito.objetivo", label: "objetivo do conceito", kind: "text" },
   { path: "conceito.perda", label: "perda do conceito", kind: "text" },
-  { path: "povo", label: "Povo", kind: "choice", options: () => CHARACTER_PEOPLES },
   ...Object.entries(catalog.peopleChoices).flatMap(([people, choices]) =>
     choices.map((choice) => ({
       path: `escolhasPovo.${choice.key}`,
