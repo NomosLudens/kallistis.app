@@ -460,6 +460,7 @@ export async function handleChatRoute(request: Request): Promise<Response> {
     let responseText: string;
     try {
       responseText = await runKallistisZeroClawTurn({
+        requestId,
         system: `${prepared.system}${characterMemory}`,
         messages: prepared.modelMessages,
         signal: request.signal,
