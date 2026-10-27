@@ -1223,7 +1223,7 @@ export function ChatView({ threadId }: ChatViewProps) {
         className="shrink-0 border-b px-3 py-2 sm:px-4"
         style={{ borderColor: theme.chipBorder }}
       >
-        <div className="mx-auto flex max-w-3xl flex-wrap gap-2">
+        <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           <button
             type="button"
             onClick={() => void navigate({ to: "/chat", search: { scope: "general" } })}
@@ -1234,10 +1234,10 @@ export function ChatView({ threadId }: ChatViewProps) {
           </button>
           {chatCharacters.length > 0 && chatScope !== "master" && (
             <label
-              className="flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm text-[color:var(--ivory-dim)]"
+              className="col-span-2 flex min-w-0 w-full items-center gap-2 rounded-xl border px-3 py-1.5 text-sm text-[color:var(--ivory-dim)] sm:w-auto"
               style={{ borderColor: theme.chipBorder }}
             >
-              <span>Personagem</span>
+              <span className="hidden sm:inline">Personagem</span>
               <select
                 aria-label="Personagem ativa no chat"
                 value={activeCharacterId ?? ""}
@@ -1269,7 +1269,7 @@ export function ChatView({ threadId }: ChatViewProps) {
                     setCharacterBusy(false);
                   }
                 }}
-                className="min-w-48 max-w-[min(24rem,60vw)] rounded-md border border-white/15 bg-[#17131f] px-2 py-1.5 text-sm text-[#F3EBDD] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+                className="w-full min-w-0 rounded-md border border-white/15 bg-[#17131f] px-2 py-1.5 text-sm text-[#F3EBDD] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] sm:w-auto sm:min-w-48 sm:max-w-[min(24rem,60vw)]"
                 style={{ colorScheme: "dark" }}
               >
                 <option value="" style={{ backgroundColor: "#17131f", color: "#F3EBDD" }}>
@@ -1314,11 +1314,11 @@ export function ChatView({ threadId }: ChatViewProps) {
           <p
             role="status"
             aria-live="polite"
-            className="mx-auto mt-2 max-w-3xl text-xs text-[color:var(--ivory-dim)]"
+            className="mx-auto mt-1 max-w-3xl text-[11px] leading-snug text-[color:var(--ivory-dim)] sm:mt-2 sm:text-xs"
           >
             Ficha ativa:{" "}
             <strong className="text-[color:var(--gold)]">{activeCharacter.name}</strong>. KALLISTIS
-            usa esta ficha e as regras canônicas para responder dúvidas e opções de ação.
+            usa esta ficha e o cânone como contexto.
           </p>
         )}
       </nav>

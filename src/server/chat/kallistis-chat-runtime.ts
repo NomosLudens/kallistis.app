@@ -927,7 +927,12 @@ export async function prepareKallistisTurn(input: {
   const currentIdentity = input.runtime.identity
     ? await input.runtime.identity.getForUser(input.userId)
     : null;
-  let directAssistantReply = resolveDirectAssistantReply(text, input.requestId, scope);
+  // A character-bound conversation must retain its persisted character context.
+  // The direct canonical excerpt path is keyword-based and can otherwise return
+  // unrelated rule sections instead of answering about the selected character.
+  let directAssistantReply = currentThread.activeCharacterId
+    ? null
+    : resolveDirectAssistantReply(text, input.requestId, scope);
   if (scope === "character_creation" && input.runtime.mutations?.listPendingMutations) {
     const normalizedConfirmation = text
       .normalize("NFD")

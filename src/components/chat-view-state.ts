@@ -13,7 +13,8 @@ export function resolveInitialActiveCharacterId(input: {
   hasMesa: boolean;
   availableCharacterIds: string[];
 }): string | null {
-  if (input.scope === "character_creation") return null;
+  if (input.scope === "character_creation")
+    return input.selectedExists ? input.selectedCharacterId : null;
   if (input.scope === "master") return input.selectedCharacterId;
   if (input.selectedExists) return input.selectedCharacterId;
   if (input.mesaCharacterIds.length === 1) return input.mesaCharacterIds[0]!;
