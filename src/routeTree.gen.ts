@@ -20,6 +20,7 @@ import { Route as ApiRefugioRouteImport } from './routes/api/refugio'
 import { Route as ApiProfileRouteImport } from './routes/api/profile'
 import { Route as ApiPrivateMessagesRouteImport } from './routes/api/private-messages'
 import { Route as ApiPresenceRouteImport } from './routes/api/presence'
+import { Route as ApiNexoCharacterCreationRouteImport } from './routes/api/nexo-character-creation'
 import { Route as ApiMesasRouteImport } from './routes/api/mesas'
 import { Route as ApiInviteRouteImport } from './routes/api/invite'
 import { Route as ApiGenerateInfograficoRouteImport } from './routes/api/generate-infografico'
@@ -148,6 +149,12 @@ const ApiPresenceRoute = ApiPresenceRouteImport.update({
   path: '/api/presence',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNexoCharacterCreationRoute =
+  ApiNexoCharacterCreationRouteImport.update({
+    id: '/api/nexo-character-creation',
+    path: '/api/nexo-character-creation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMesasRoute = ApiMesasRouteImport.update({
   id: '/api/mesas',
   path: '/api/mesas',
@@ -565,6 +572,7 @@ export interface FileRoutesByFullPath {
   '/api/generate-infografico': typeof ApiGenerateInfograficoRoute
   '/api/invite': typeof ApiInviteRoute
   '/api/mesas': typeof ApiMesasRoute
+  '/api/nexo-character-creation': typeof ApiNexoCharacterCreationRoute
   '/api/presence': typeof ApiPresenceRoute
   '/api/private-messages': typeof ApiPrivateMessagesRoute
   '/api/profile': typeof ApiProfileRouteWithChildren
@@ -650,6 +658,7 @@ export interface FileRoutesByTo {
   '/api/generate-infografico': typeof ApiGenerateInfograficoRoute
   '/api/invite': typeof ApiInviteRoute
   '/api/mesas': typeof ApiMesasRoute
+  '/api/nexo-character-creation': typeof ApiNexoCharacterCreationRoute
   '/api/presence': typeof ApiPresenceRoute
   '/api/private-messages': typeof ApiPrivateMessagesRoute
   '/api/profile': typeof ApiProfileRouteWithChildren
@@ -737,6 +746,7 @@ export interface FileRoutesById {
   '/api/generate-infografico': typeof ApiGenerateInfograficoRoute
   '/api/invite': typeof ApiInviteRoute
   '/api/mesas': typeof ApiMesasRoute
+  '/api/nexo-character-creation': typeof ApiNexoCharacterCreationRoute
   '/api/presence': typeof ApiPresenceRoute
   '/api/private-messages': typeof ApiPrivateMessagesRoute
   '/api/profile': typeof ApiProfileRouteWithChildren
@@ -824,6 +834,7 @@ export interface FileRouteTypes {
     | '/api/generate-infografico'
     | '/api/invite'
     | '/api/mesas'
+    | '/api/nexo-character-creation'
     | '/api/presence'
     | '/api/private-messages'
     | '/api/profile'
@@ -909,6 +920,7 @@ export interface FileRouteTypes {
     | '/api/generate-infografico'
     | '/api/invite'
     | '/api/mesas'
+    | '/api/nexo-character-creation'
     | '/api/presence'
     | '/api/private-messages'
     | '/api/profile'
@@ -995,6 +1007,7 @@ export interface FileRouteTypes {
     | '/api/generate-infografico'
     | '/api/invite'
     | '/api/mesas'
+    | '/api/nexo-character-creation'
     | '/api/presence'
     | '/api/private-messages'
     | '/api/profile'
@@ -1066,6 +1079,7 @@ export interface RootRouteChildren {
   ApiGenerateInfograficoRoute: typeof ApiGenerateInfograficoRoute
   ApiInviteRoute: typeof ApiInviteRoute
   ApiMesasRoute: typeof ApiMesasRoute
+  ApiNexoCharacterCreationRoute: typeof ApiNexoCharacterCreationRoute
   ApiPresenceRoute: typeof ApiPresenceRoute
   ApiPrivateMessagesRoute: typeof ApiPrivateMessagesRoute
   ApiProfileRoute: typeof ApiProfileRouteWithChildren
@@ -1184,6 +1198,13 @@ declare module '@tanstack/react-router' {
       path: '/api/presence'
       fullPath: '/api/presence'
       preLoaderRoute: typeof ApiPresenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/nexo-character-creation': {
+      id: '/api/nexo-character-creation'
+      path: '/api/nexo-character-creation'
+      fullPath: '/api/nexo-character-creation'
+      preLoaderRoute: typeof ApiNexoCharacterCreationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mesas': {
@@ -1826,6 +1847,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGenerateInfograficoRoute: ApiGenerateInfograficoRoute,
   ApiInviteRoute: ApiInviteRoute,
   ApiMesasRoute: ApiMesasRoute,
+  ApiNexoCharacterCreationRoute: ApiNexoCharacterCreationRoute,
   ApiPresenceRoute: ApiPresenceRoute,
   ApiPrivateMessagesRoute: ApiPrivateMessagesRoute,
   ApiProfileRoute: ApiProfileRouteWithChildren,

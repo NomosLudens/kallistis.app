@@ -8,6 +8,7 @@ type Character = {
   id: string;
   name: string;
   status: string;
+  ruleset?: string;
   snapshot?: Record<string, unknown>;
   mesas?: Array<{ name: string }>;
   version: number;
@@ -118,6 +119,36 @@ function PersonagensPage() {
 }
 function CharacterCard({ character }: { character: Character }) {
   const snapshot = character.snapshot ?? {};
+  if (character.ruleset === "KALLISTIS_NEXO_FINAL") {
+    const fields = snapshot.fields && typeof snapshot.fields === "object"
+      ? snapshot.fields as Record<string, unknown>
+      : {};
+    const canonical = snapshot.canonical && typeof snapshot.canonical === "object"
+      ? snapshot.canonical as Record<string, unknown>
+      : {};
+    const complete = snapshot.creationStatus === "complete";
+    const metadata = [text(fields.povo), fields.origemTrocado === true ? "Trocado · " + text(fields.modoTrocado) : "", text(fields.oficio), text(fields.papel), fields.marco ? "Marco " + String(fields.marco) : ""].filter(Boolean).join(" · ");
+    return (
+      <article className="rounded-2xl border border-white/10 bg-[#111016] p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="serif text-2xl">{character.name || text(fields.concept) || "Personagem em construção"}</h2>
+            <p className="mt-2 text-xs text-[#F3EBDD]/50">{metadata || "Ficha NEXO FINAL"}</p>
+          </div>
+          <span className="rounded-full border border-[color:var(--gold)]/35 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-[color:var(--gold)]">
+            {complete ? "Ficha pronta" : "Rascunho"}
+          </span>
+        </div>
+        <p className="mt-4 text-sm text-[#F3EBDD]/65">
+          {complete ? "Criação confirmada na revisão " + text(canonical.revision) + "." : "Continue a criação conversacional salva neste personagem."}
+        </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link to={"/personagem/" + encodeURIComponent(character.id) + "/ficha" as never} className="rounded-lg border border-white/15 px-3 py-2 text-xs">Abrir ficha</Link>
+          <Link to={"/criar-personagem?characterId=" + encodeURIComponent(character.id) as never} className="rounded-lg border border-[color:var(--gold)]/40 px-3 py-2 text-xs text-[color:var(--gold)]">Editar</Link>
+        </div>
+      </article>
+    );
+  }
   const trail = activeTrail(snapshot);
   const state = deriveCharacterDisplayState({
     status: character.status,

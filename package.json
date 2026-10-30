@@ -12,6 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "canonical:genesis:index": "bun scripts/generate-genesis-canonical-core.mjs",
+    "test:canonical-core": "vitest run src/server/canonical/genesis-canonical-core.test.ts",
     "test:e2e": "playwright test",
     "provision:local-user": "bun scripts/provision-local-user.ts",
     "test:watch": "vitest",

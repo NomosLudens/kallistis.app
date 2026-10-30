@@ -13,7 +13,7 @@ import {
   listCommunityChatMessages,
 } from "@/server/local-core/community-chat";
 import { sanitizeAssistantOutput } from "@/lib/sanitize-assistant-output";
-import { buildKallistisCommunitySystem } from "@/server/chat/kallistis-chat-runtime";
+import { buildKallistisCommunitySystem } from "@/server/chat/community-chat-system";
 import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
 
 const headers = { "Cache-Control": "no-store" };
@@ -110,6 +110,9 @@ export const Route = createFileRoute("/api/community-chat")({
               abortSignal: request.signal,
               timeout: { totalMs: chatProviderTimeoutMs() },
             });
+            if (result.finishReason !== "stop") {
+              throw new Error("community_chat_incomplete_assistant");
+            }
             const answer = sanitizeAssistantOutput(result.text.trim());
             if (!answer) throw new Error("community_chat_empty_assistant");
             const assistant = await insertCommunityChatMessage(sql, {

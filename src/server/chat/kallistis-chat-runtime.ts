@@ -562,52 +562,6 @@ export async function buildKallistisSystem(
   }
 }
 
-/**
- * The General room is persisted in community_chat_messages, not chat_threads.
- * It still uses this runtime's canonical identity, prompt contract, safety
- * guard, and rule lookup; only the conversational persistence scope differs.
- */
-export async function buildKallistisCommunitySystem(
-  runtime: LocalChatRuntime,
-  userId: string,
-  requestId: string,
-  question = "",
-) {
-  try {
-    const identity = await runtime.identity?.getForUser(userId);
-    const baseSystem = buildKallistisSystemPrompt(
-      "",
-      resolveIdentityRoute({
-        userId,
-        profileId: identity?.profile?.id,
-        profileLabel: identity?.profile?.display_name,
-        profilePronouns: identity?.profile?.pronouns,
-        role: identity?.systemRole,
-        surface: "GENERAL",
-      }),
-    );
-    const ruleContext = renderCanonicalRuleContext(question);
-    return (
-      baseSystem +
-      CHAT_IDENTITY_REINFORCEMENT_BLOCK +
-      (ruleContext ? `\n\n${ruleContext}` : "") +
-      INJECTION_GUARD +
-      "\n\n=== CHAT GERAL COMPARTILHADO ===\n" +
-      "Esta é uma sala pública única para todas as pessoas autenticadas. " +
-      "Responda apenas à mensagem que mencionou @kallistis. Nunca revele dados " +
-      "privados, memórias conversacionais, rascunhos, fichas ou contexto de outro usuário. " +
-      `Request id: ${requestId}.`
-    );
-  } catch (error) {
-    if (error instanceof KallistisChatError) throw error;
-    throw new KallistisChatError({
-      code: "community_context_unavailable",
-      status: 503,
-      stage: "persistence",
-    });
-  }
-}
-
 export type InspectedKallistisTurn =
   | { kind: "blocked"; message: string }
   | { kind: "ready"; latestUserText: string };

@@ -1620,23 +1620,6 @@ describe("selectHistoryMessages", () => {
     }
   });
 
-  it("injeta apenas os pronomes do chamador no chat geral", async () => {
-    const { buildKallistisCommunitySystem } = await setupRuntime();
-    const { runtime } = prepareSupabase();
-    (runtime as any).identity = {
-      getForUser: vi.fn(async () => ({
-        profile: { id: "caller", display_name: "Tony", pronouns: "ele/dele" },
-        systemRole: null,
-        activeMembershipCount: 0,
-        mesa: null,
-      })),
-    };
-    const prompt = await buildKallistisCommunitySystem(runtime, "caller", "req", "@kallistis oi");
-    expect(prompt).toContain("pronomes=ele/dele");
-    expect(prompt).toContain("Nunca revele dados privados");
-    expect(prompt).not.toContain("other-user");
-  });
-
   it("injeta a ficha no Chat de Personagem sem trocar a identidade KALLISTIS", async () => {
     const { buildKallistisSystem } = await setupRuntime();
     const { runtime } = prepareSupabase();
