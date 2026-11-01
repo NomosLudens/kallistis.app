@@ -15,11 +15,12 @@ type BunSqlClient = {
     statement: string,
     parameters?: readonly unknown[],
   ): Promise<readonly T[]>;
-  close(): void;
   begin?<T>(fn: (transaction: BunSqlClient) => Promise<T>): Promise<T>;
 };
 
 type BunRuntime = { SQL?: new (url: string) => BunSqlClient };
+
+const bunSqlClients = new Map<string, BunSqlClient>();
 
 export function createWorkerPostgresExecutor(connectionString: string): SqlExecutor {
   const client = new Client({ connectionString });
@@ -70,10 +71,15 @@ export function createBunPostgresExecutor(databaseUrl: string): SqlExecutor {
 
   const runtime = (globalThis as unknown as { Bun?: BunRuntime }).Bun;
   if (!runtime?.SQL) return createWorkerPostgresExecutor(databaseUrl);
-  const client = new runtime.SQL(databaseUrl);
+  let client = bunSqlClients.get(databaseUrl);
+  if (!client) {
+    client = new runtime.SQL(databaseUrl);
+    bunSqlClients.set(databaseUrl, client);
+  }
   return {
     query: (statement, parameters) => client.unsafe(statement, parameters),
-    close: () => client.close(),
+    // Bun.SQL owns a process-wide pool; request-scoped executors must not close it.
+    close: () => undefined,
     transaction: client.begin
       ? (fn) =>
           client.begin!(async (transaction) =>
