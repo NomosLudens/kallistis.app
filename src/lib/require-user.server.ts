@@ -20,6 +20,11 @@ function unavailable(error: string): { error: Response } {
 export async function requireUser(
   request: Request,
 ): Promise<{ userId: string } | { error: Response }> {
+  const runtimeEnv = getRuntimeEnv();
+  const supabasePartiallyConfigured =
+    Boolean(runtimeEnv.supabaseUrl) !== Boolean(runtimeEnv.supabasePublishableKey);
+  if (supabasePartiallyConfigured) return unavailable("supabase_auth_not_configured");
+
   if (hasSupabaseAuthRuntime()) {
     const token = readSupabaseAccessToken(request);
     if (!token) {
@@ -67,12 +72,13 @@ export async function requireUser(
       ),
     };
   }
-  const runtimeEnv = getRuntimeEnv();
-  if (runtimeEnv.workerRuntime || runtimeEnv.appEnv !== "development") {
+  if (runtimeEnv.workerRuntime) {
     return unavailable("supabase_auth_not_configured");
   }
   const databaseUrl = getRuntimeDatabaseUrl();
-  if (!databaseUrl) return unavailable("local_auth_not_configured");
+  if (!databaseUrl || !runtimeEnv.credentialLookupKey) {
+    return unavailable("local_auth_not_configured");
+  }
 
   let sql: ReturnType<typeof createBunPostgresExecutor>;
   try {

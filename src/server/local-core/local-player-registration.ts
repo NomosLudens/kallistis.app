@@ -22,7 +22,7 @@ export async function registerLocalPlayer(
     throw new Error("registration_identity_invalid");
   }
   const credential = normalizeCredential(input.credential);
-  if (credential.length < 8) throw new Error("registration_credential_too_short");
+  if (credential.length < 7) throw new Error("registration_credential_too_short");
   const credentialHash = await hashCredential(credential);
   const lookupDigest = credentialLookupDigest(credential, lookupKey);
 

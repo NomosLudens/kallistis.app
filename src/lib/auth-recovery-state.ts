@@ -13,7 +13,7 @@ export function validatePasswordRecoveryInput(
   password: string,
   confirmation: string,
 ): string | null {
-  if (password.length < 8) return "A nova senha precisa ter pelo menos 8 caracteres.";
+  if (password.trim().length < 7) return "A nova frase de acesso precisa ter pelo menos 7 caracteres.";
   if (password !== confirmation) return "As senhas não conferem.";
   return null;
 }

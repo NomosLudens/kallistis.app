@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 import { ContinuidadeKallistis } from "@/components/continuidade-kallistis";
 import { PlayerAvatarPlaceholder } from "@/components/PlayerAvatarPlaceholder";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { PronounSelector } from "@/components/PronounSelector";
 import { RouteErrorBoundary, RouteNotFoundBoundary } from "@/components/loading-states";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -405,19 +406,15 @@ function PerfilPage() {
           </section>
 
           <section className="space-y-2">
-            <label
-              htmlFor="pronomes"
-              className="block text-[10px] tracking-[0.22em] uppercase text-[color:var(--ivory-dim)]"
-            >
-              Pronomes
-            </label>
-            <input
+            <PronounSelector
               id="pronomes"
+              label="Pronomes"
               value={pronomes}
-              onChange={(e) => setPronomes(e.target.value)}
-              maxLength={80}
-              placeholder="Como devo me referir a você?"
-              className="w-full rounded-xl bg-card border border-[color:var(--border)] px-4 py-3 outline-none focus:border-[color:var(--gold)] text-base"
+              onChange={setPronomes}
+              selectClassName="w-full rounded-xl bg-card border border-[color:var(--border)] px-4 py-3 outline-none focus:border-[color:var(--gold)] text-base"
+              inputClassName="mt-2 w-full rounded-xl bg-card border border-[color:var(--border)] px-4 py-3 outline-none focus:border-[color:var(--gold)] text-base"
+              labelClassName="block text-[10px] tracking-[0.22em] uppercase text-[color:var(--ivory-dim)]"
+              helperClassName="text-xs text-[color:var(--ivory-dim)]"
             />
           </section>
 

@@ -14,8 +14,8 @@ describe("auth recovery state", () => {
     expect(shouldNavigateAfterAuthEvent("SIGNED_IN", true, true)).toBe(false);
   });
 
-  it("senha menor que 8 caracteres é recusada", () => {
-    expect(validatePasswordRecoveryInput("1234567", "1234567")).toContain("8 caracteres");
+  it("frase menor que 7 caracteres é recusada", () => {
+    expect(validatePasswordRecoveryInput("123456", "123456")).toContain("7 caracteres");
   });
 
   it("confirmação diferente é recusada", () => {

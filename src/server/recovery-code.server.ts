@@ -289,7 +289,7 @@ export async function recoverWithCode(
     typeof input.credential !== "string" ||
     typeof input.recoveryCode !== "string" ||
     typeof input.newPassword !== "string" ||
-    input.newPassword.length < 8 ||
+    input.newPassword.trim().length < 7 ||
     input.newPassword.length > 1024
   ) {
     return genericRecoveryResponse();

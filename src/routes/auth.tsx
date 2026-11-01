@@ -2,6 +2,7 @@ import { kallistisWordmark } from "@/lib/brand-assets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PronounSelector } from "@/components/PronounSelector";
 import { validatePasswordRecoveryInput } from "@/lib/auth-recovery-state";
 import {
   isSupabaseClientConfigured,
@@ -210,8 +211,8 @@ function AuthPage() {
 
   async function handleRegistrationSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (registrationCredential.length < 8) {
-      toast.error("A palavra precisa ter pelo menos 8 caracteres.");
+    if (registrationCredential.trim().length < 7) {
+      toast.error("A frase de acesso precisa ter pelo menos 7 caracteres.");
       return;
     }
     if (registrationCredential !== registrationCredentialConfirmation) {
@@ -315,19 +316,16 @@ function AuthPage() {
                 className="auth-card__input"
               />
             </div>
-            <div>
-              <Label htmlFor="google-player-pronouns">Pronomes</Label>
-              <Input
-                id="google-player-pronouns"
-                name="pronouns"
-                type="text"
-                maxLength={80}
-                required
-                value={playerPronouns}
-                onChange={(event) => setPlayerPronouns(event.target.value)}
-                className="auth-card__input"
-              />
-            </div>
+            <PronounSelector
+              id="google-player-pronouns"
+              label="Pronomes"
+              value={playerPronouns}
+              onChange={setPlayerPronouns}
+              required
+              selectClassName="auth-card__input"
+              inputClassName="auth-card__input"
+              helperClassName="mt-1 text-xs text-[color:var(--ivory-dim)]"
+            />
             {sessionError ? (
               <p role="alert" className="text-sm text-red-300">
                 {sessionError}
@@ -387,26 +385,23 @@ function AuthPage() {
                 className="auth-card__input"
               />
             </div>
+            <PronounSelector
+              id="registration-pronouns"
+              label="Pronomes"
+              value={registrationPronouns}
+              onChange={setRegistrationPronouns}
+              required
+              selectClassName="auth-card__input"
+              inputClassName="auth-card__input"
+              helperClassName="mt-1 text-xs text-[color:var(--ivory-dim)]"
+            />
             <div>
-              <Label htmlFor="registration-pronouns">Pronomes</Label>
-              <Input
-                id="registration-pronouns"
-                name="pronouns"
-                type="text"
-                maxLength={80}
-                required
-                value={registrationPronouns}
-                onChange={(event) => setRegistrationPronouns(event.target.value)}
-                className="auth-card__input"
-              />
-            </div>
-            <div>
-              <Label htmlFor="registration-credential">Sua palavra de acesso</Label>
+              <Label htmlFor="registration-credential">Sua frase de acesso</Label>
               <Input
                 id="registration-credential"
                 name="new-password"
                 type="password"
-                minLength={8}
+                minLength={7}
                 maxLength={256}
                 autoComplete="new-password"
                 required
@@ -416,12 +411,12 @@ function AuthPage() {
               />
             </div>
             <div>
-              <Label htmlFor="registration-credential-confirmation">Confirme sua palavra</Label>
+              <Label htmlFor="registration-credential-confirmation">Confirme sua frase</Label>
               <Input
                 id="registration-credential-confirmation"
                 name="new-password-confirmation"
                 type="password"
-                minLength={8}
+                minLength={7}
                 maxLength={256}
                 autoComplete="new-password"
                 required
@@ -475,7 +470,7 @@ function AuthPage() {
                 name="new-password"
                 type="password"
                 required
-                minLength={8}
+                minLength={7}
                 autoComplete="new-password"
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
@@ -489,7 +484,7 @@ function AuthPage() {
                 name="new-password-confirmation"
                 type="password"
                 required
-                minLength={8}
+                minLength={7}
                 autoComplete="new-password"
                 value={newPasswordConfirmation}
                 onChange={(event) => setNewPasswordConfirmation(event.target.value)}
@@ -542,7 +537,7 @@ function AuthPage() {
               ) : null}
               <div>
                 <Label htmlFor="auth-credential">
-                  {hasSupabaseAuth ? "Palavra" : "Palavra de acesso"}
+                  {hasSupabaseAuth ? "Senha" : "Frase de acesso"}
                 </Label>
                 <Input
                   id="auth-credential"
