@@ -44,9 +44,10 @@ Credenciais, sessões de autenticação, convites, estados OAuth, confirmações
 ## Verificação funcional
 
 - Após a importação, o serviço `kallistis-genesis.service` foi reiniciado uma vez, permaneceu ativo e `https://genesis.kallistis.app/api/public/health` respondeu `200`.
-- No navegador Chromium, uma conta administrativa abriu a ficha NEXO prioritária pela interface real de Mestre; a versão 19 foi exibida e permaneceu após recarga. O endpoint de Mestre confirmou a mesma ficha e versão.
-- O banco confirma a propriedade pela conta correta, 19 versões, 19 eventos e 8 mensagens de criação para essa ficha.
-- A autenticação como proprietária e a visualização de seu histórico completo pela interface ainda dependem da entrada privada de sua frase; ela não foi copiada, redefinida nem registrada.
+- Com a autenticação privada da proprietária, a lista real exibiu três fichas; a ficha NEXO prioritária abriu, mostrou a versão 19 e manteve os dados após recarga. A conversa de criação salva também foi exibida pela interface.
+- O banco confirma a propriedade pela conta correta, 19 versões, 19 eventos e 8 mensagens de criação para essa ficha. A interface atual não apresenta uma lista/navegação para abrir versões históricas individualmente; essa parte permanece sem prova visual.
+- Na administração real da mesa de teste, a interface mostrou dois vínculos de Mestre e quatro de jogador. A frase de acesso foi digitada apenas na página de login; não foi copiada, redefinida nem registrada.
+- Durante a consulta da Central do Mestre, um painel exibiu erro de limite de conexões PostgreSQL; a lista de membros da mesa carregou. Esse erro não foi investigado nem alterado nesta consolidação.
 
 ## Proteção e continuidade
 
