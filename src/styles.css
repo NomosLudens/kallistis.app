@@ -3104,3 +3104,77 @@
     max-width: calc(100% - 2rem);
   }
 }
+.nexo-sheet-route { min-height: 100vh; background: #0c0b10; color: #f3ebdd; }
+.nexo-sheet { width: min(100%, 76rem); margin: 0 auto; padding: 1.5rem; }
+.nexo-sheet__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; justify-content: space-between; padding: 1rem max(1rem, calc((100vw - 76rem) / 2)); border-bottom: 1px solid #ffffff20; color: #d8c18d; font-size: .9rem; }
+.nexo-sheet__toolbar div { display: flex; gap: .6rem; }
+.nexo-sheet__toolbar button, .nexo-action button { border: 1px solid #c6a45b88; border-radius: .55rem; padding: .6rem .9rem; color: #f0d78e; background: #141218; }
+.nexo-sheet__hero, .nexo-sheet__section { border: 1px solid #ffffff20; border-radius: 1rem; padding: clamp(1rem, 3vw, 1.6rem); background: #131117; margin-bottom: 1rem; }
+.nexo-sheet__hero > p:first-child, .nexo-sheet__eyebrow { color: #d1b56c; font-size: .72rem; letter-spacing: .16em; }
+.nexo-sheet__hero h1 { font-family: Georgia, serif; font-size: clamp(2rem, 6vw, 3.5rem); margin: .35rem 0; }
+.nexo-sheet__hero > p:not(:first-child), .nexo-sheet__story { color: #d8d2c7; line-height: 1.65; }
+.nexo-sheet__identity { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
+.nexo-sheet__identity span { border: 1px solid #ffffff25; border-radius: 999px; padding: .4rem .7rem; color: #e9dfcb; font-size: .82rem; }
+.nexo-sheet__section h2 { font: 1.45rem Georgia, serif; color: #e2c881; margin: 0 0 .8rem; }
+.nexo-sheet__section details { margin-top: .7rem; font-size: .85rem; color: #c5bdaf; }
+.nexo-sheet__history-details { display:grid; gap:.6rem; margin-top:.7rem; }
+.nexo-sheet__history-details > div { display:grid; grid-template-columns:minmax(8rem,.3fr) 1fr; gap:.8rem; }
+.nexo-sheet__history-details dt { color:#e6d29a; }
+.nexo-sheet__history-details dd { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.nexo-sheet__columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.nexo-sheet__subsection { padding: .7rem 0; border-top: 1px solid #ffffff15; }
+.nexo-sheet__subsection h3 { font-size: .88rem; color: #f1e9da; margin: 0 0 .35rem; }
+.nexo-sheet__list { margin: 0; padding-left: 1.1rem; color: #d4cdc0; font-size: .9rem; line-height: 1.6; }
+.nexo-sheet__muted, .nexo-action__hint { color: #aaa49b; font-size: .88rem; line-height: 1.55; }
+.nexo-sheet__shadow { display: flex; justify-content: space-between; border-bottom: 1px solid #ffffff20; padding-bottom: .7rem; }
+.nexo-action__heading { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+.nexo-action__heading h2 { margin-bottom:0; }
+.nexo-action__form, .nexo-action__master-form { display: grid; gap: .8rem; margin-top: 1rem; padding: 1rem; border:1px solid #ffffff20; border-radius:.7rem; }
+.nexo-action__master-form { grid-template-columns: 1fr 1fr auto; align-items:end; background:#0c0b10; }
+.nexo-action__master-form h3 { grid-column:1/-1; margin:0; font-size:1rem; }
+.nexo-action label { display:grid; gap:.35rem; color:#d8d2c7; font-size:.82rem; }
+.nexo-action input, .nexo-action textarea { min-height:2.65rem; width:100%; border:1px solid #ffffff30; border-radius:.5rem; background:#0b0a0f; color:#f3ebdd; padding:.65rem; }
+.nexo-action textarea { min-height:5rem; }
+.nexo-action__args { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.8rem; }
+.nexo-action__resistance { color:#e5cc8f; font-weight:600; }
+.nexo-action__calc { color:#aaa49b; font-size:.82rem; }
+.nexo-action__list { display:grid; gap:.7rem; margin-top:1rem; }
+.nexo-action__card { border-top:1px solid #ffffff20; padding:1rem 0; }
+.nexo-action__card h3 { font:1.1rem Georgia,serif; }
+.nexo-action__argument { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.5rem; padding:.45rem 0; }
+.nexo-action__argument p { margin:0; color:#d4cdc0; }
+.nexo-action__argument div { display:flex; gap:.45rem; }
+.nexo-action__argument button[aria-pressed="true"] { background:#3c351e; }
+.nexo-action__notice { color:#e5cc8f; font-size:.88rem; }
+.nexo-action__result { font-weight:700; color:#f3ebdd; }
+.nexo-action__consequence { margin-top:.65rem; padding:.8rem; border-left:2px solid #d1b56c; color:#e1dacb; background:#0b0a0f; line-height:1.6; }
+.nexo-action__consequence-form { display:grid; gap:.6rem; margin-top:.7rem; }
+.nexo-print { display:none; }
+@media (max-width: 720px) {
+  .nexo-sheet { padding:.75rem; }
+  .nexo-sheet__toolbar { align-items:flex-start; }
+  .nexo-sheet__toolbar div { width:100%; flex-wrap:wrap; }
+  .nexo-sheet__columns, .nexo-action__args, .nexo-action__master-form { grid-template-columns:1fr; }
+  .nexo-action__master-form h3 { grid-column:auto; }
+}
+@page { size: A4 portrait; margin: 12mm; }
+@media print {
+  body.nexo-print-context * { visibility: hidden !important; }
+  body.nexo-print-context .nexo-print,
+  body.nexo-print-context .nexo-print * { visibility: visible !important; }
+  body.nexo-print-context .nexo-print { display:block; position:absolute; inset:0 auto auto 0; width:100%; background:white; color:#111; font:9pt/1.35 Arial,sans-serif; }
+  body.nexo-print-context .nexo-print header { display:flex; justify-content:space-between; border-bottom:2px solid #111; padding-bottom:4mm; font-size:8pt; letter-spacing:.08em; }
+  body.nexo-print-context .nexo-print h1 { font:22pt Georgia,serif; margin:4mm 0 1mm; }
+  body.nexo-print-context .nexo-print h2 { font:12pt Georgia,serif; margin:0 0 2mm; }
+  body.nexo-print-context .nexo-print h3 { font-size:8pt; margin:0 0 1mm; }
+  body.nexo-print-context .nexo-print p { margin:0; overflow-wrap:anywhere; }
+  body.nexo-print-context .nexo-print__concept { margin-bottom:3mm !important; }
+  body.nexo-print-context .nexo-print__identity, body.nexo-print-context .nexo-print__columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2mm 5mm; }
+  body.nexo-print-context .nexo-print__field { margin:2mm 0; break-inside:avoid; }
+  body.nexo-print-context .nexo-print__field strong { display:block; font-size:7.5pt; text-transform:uppercase; letter-spacing:.04em; }
+  body.nexo-print-context .nexo-print__field p { min-height:4mm; }
+  body.nexo-print-context .nexo-print__writing { border-bottom:1px solid #888; margin:1mm 0; }
+  body.nexo-print-context .nexo-print__action { border:1px solid #555; padding:3mm; margin-top:2mm; break-inside:avoid; }
+  body.nexo-print-context .nexo-print__action h2 { text-align:center; }
+  body.nexo-print-context .nexo-print footer { display:block; border-top:1px solid #aaa; margin-top:3mm; padding-top:2mm; font-size:7pt; }
+}

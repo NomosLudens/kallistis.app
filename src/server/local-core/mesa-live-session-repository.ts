@@ -123,7 +123,7 @@ export async function getAuthorizedMasterMesa(
   const rows = await sql.query<MesaRow>(
     `SELECT m.id::text,m.slug,m.name
        FROM public.mesas m
-      WHERE m.id=$1
+      WHERE m.id=$1 AND m.ruleset IS NULL
         AND (
           EXISTS (
             SELECT 1 FROM public.system_roles sr

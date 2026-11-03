@@ -1,6 +1,6 @@
 import { getRuntimeDatabaseUrl, getRuntimeEnv } from "@/server/runtime/context";
 // Server-only authentication boundary. Supabase Auth is the Worker authority;
-// the local Bun session remains available only for local development.
+// Bun services use the configured PostgreSQL-backed KALLISTIS session.
 import { requireUser as requireLocalUser } from "@/server/local-core/auth-service";
 import { readSessionCookie } from "@/server/local-core/cookies";
 import { createBunPostgresExecutor } from "@/server/local-core/postgres";
@@ -68,7 +68,7 @@ export async function requireUser(
     };
   }
   const runtimeEnv = getRuntimeEnv();
-  if (runtimeEnv.workerRuntime || runtimeEnv.appEnv !== "development") {
+  if (runtimeEnv.workerRuntime) {
     return unavailable("supabase_auth_not_configured");
   }
   const databaseUrl = getRuntimeDatabaseUrl();

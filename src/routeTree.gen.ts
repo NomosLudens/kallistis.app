@@ -20,6 +20,7 @@ import { Route as ApiRefugioRouteImport } from './routes/api/refugio'
 import { Route as ApiProfileRouteImport } from './routes/api/profile'
 import { Route as ApiPrivateMessagesRouteImport } from './routes/api/private-messages'
 import { Route as ApiPresenceRouteImport } from './routes/api/presence'
+import { Route as ApiNexoRouteImport } from './routes/api/nexo'
 import { Route as ApiMesasRouteImport } from './routes/api/mesas'
 import { Route as ApiInviteRouteImport } from './routes/api/invite'
 import { Route as ApiGenerateInfograficoRouteImport } from './routes/api/generate-infografico'
@@ -37,6 +38,7 @@ import { Route as AuthenticatedRefugioRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPersonagensRouteImport } from './routes/_authenticated/personagens'
 import { Route as AuthenticatedPerfisRouteImport } from './routes/_authenticated/perfis'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedNexoRouteImport } from './routes/_authenticated/nexo'
 import { Route as AuthenticatedMicroappRouteImport } from './routes/_authenticated/microapp'
 import { Route as AuthenticatedMestreRouteImport } from './routes/_authenticated/mestre'
 import { Route as AuthenticatedMapasRouteImport } from './routes/_authenticated/mapas'
@@ -52,6 +54,12 @@ import { Route as ApiVttHandoffRouteImport } from './routes/api/vtt/handoff'
 import { Route as ApiPublicReadyRouteImport } from './routes/api/public/ready'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiProfileAvatarRouteImport } from './routes/api/profile.avatar'
+import { Route as ApiNexoSessionsRouteImport } from './routes/api/nexo/sessions'
+import { Route as ApiNexoMesasRouteImport } from './routes/api/nexo/mesas'
+import { Route as ApiNexoCoroRouteImport } from './routes/api/nexo/coro'
+import { Route as ApiNexoCharacterMesasRouteImport } from './routes/api/nexo/character-mesas'
+import { Route as ApiNexoCampaignsRouteImport } from './routes/api/nexo/campaigns'
+import { Route as ApiNexoActionsRouteImport } from './routes/api/nexo/actions'
 import { Route as ApiMasterStateRouteImport } from './routes/api/master/state'
 import { Route as ApiMasterPrivateMessagesRouteImport } from './routes/api/master/private-messages'
 import { Route as ApiMasterPresenceRouteImport } from './routes/api/master/presence'
@@ -148,6 +156,11 @@ const ApiPresenceRoute = ApiPresenceRouteImport.update({
   path: '/api/presence',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNexoRoute = ApiNexoRouteImport.update({
+  id: '/api/nexo',
+  path: '/api/nexo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMesasRoute = ApiMesasRouteImport.update({
   id: '/api/mesas',
   path: '/api/mesas',
@@ -235,6 +248,11 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNexoRoute = AuthenticatedNexoRouteImport.update({
+  id: '/nexo',
+  path: '/nexo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMicroappRoute = AuthenticatedMicroappRouteImport.update({
   id: '/microapp',
   path: '/microapp',
@@ -311,6 +329,36 @@ const ApiProfileAvatarRoute = ApiProfileAvatarRouteImport.update({
   id: '/avatar',
   path: '/avatar',
   getParentRoute: () => ApiProfileRoute,
+} as any)
+const ApiNexoSessionsRoute = ApiNexoSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => ApiNexoRoute,
+} as any)
+const ApiNexoMesasRoute = ApiNexoMesasRouteImport.update({
+  id: '/mesas',
+  path: '/mesas',
+  getParentRoute: () => ApiNexoRoute,
+} as any)
+const ApiNexoCoroRoute = ApiNexoCoroRouteImport.update({
+  id: '/coro',
+  path: '/coro',
+  getParentRoute: () => ApiNexoRoute,
+} as any)
+const ApiNexoCharacterMesasRoute = ApiNexoCharacterMesasRouteImport.update({
+  id: '/character-mesas',
+  path: '/character-mesas',
+  getParentRoute: () => ApiNexoRoute,
+} as any)
+const ApiNexoCampaignsRoute = ApiNexoCampaignsRouteImport.update({
+  id: '/campaigns',
+  path: '/campaigns',
+  getParentRoute: () => ApiNexoRoute,
+} as any)
+const ApiNexoActionsRoute = ApiNexoActionsRouteImport.update({
+  id: '/actions',
+  path: '/actions',
+  getParentRoute: () => ApiNexoRoute,
 } as any)
 const ApiMasterStateRoute = ApiMasterStateRouteImport.update({
   id: '/api/master/state',
@@ -548,6 +596,7 @@ export interface FileRoutesByFullPath {
   '/mapas': typeof AuthenticatedMapasRoute
   '/mestre': typeof AuthenticatedMestreRoute
   '/microapp': typeof AuthenticatedMicroappRoute
+  '/nexo': typeof AuthenticatedNexoRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/perfis': typeof AuthenticatedPerfisRoute
   '/personagens': typeof AuthenticatedPersonagensRoute
@@ -565,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/api/generate-infografico': typeof ApiGenerateInfograficoRoute
   '/api/invite': typeof ApiInviteRoute
   '/api/mesas': typeof ApiMesasRoute
+  '/api/nexo': typeof ApiNexoRouteWithChildren
   '/api/presence': typeof ApiPresenceRoute
   '/api/private-messages': typeof ApiPrivateMessagesRoute
   '/api/profile': typeof ApiProfileRouteWithChildren
@@ -609,6 +659,12 @@ export interface FileRoutesByFullPath {
   '/api/master/presence': typeof ApiMasterPresenceRoute
   '/api/master/private-messages': typeof ApiMasterPrivateMessagesRoute
   '/api/master/state': typeof ApiMasterStateRoute
+  '/api/nexo/actions': typeof ApiNexoActionsRoute
+  '/api/nexo/campaigns': typeof ApiNexoCampaignsRoute
+  '/api/nexo/character-mesas': typeof ApiNexoCharacterMesasRoute
+  '/api/nexo/coro': typeof ApiNexoCoroRoute
+  '/api/nexo/mesas': typeof ApiNexoMesasRoute
+  '/api/nexo/sessions': typeof ApiNexoSessionsRoute
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ready': typeof ApiPublicReadyRoute
@@ -633,6 +689,7 @@ export interface FileRoutesByTo {
   '/mapas': typeof AuthenticatedMapasRoute
   '/mestre': typeof AuthenticatedMestreRoute
   '/microapp': typeof AuthenticatedMicroappRoute
+  '/nexo': typeof AuthenticatedNexoRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/perfis': typeof AuthenticatedPerfisRoute
   '/personagens': typeof AuthenticatedPersonagensRoute
@@ -650,6 +707,7 @@ export interface FileRoutesByTo {
   '/api/generate-infografico': typeof ApiGenerateInfograficoRoute
   '/api/invite': typeof ApiInviteRoute
   '/api/mesas': typeof ApiMesasRoute
+  '/api/nexo': typeof ApiNexoRouteWithChildren
   '/api/presence': typeof ApiPresenceRoute
   '/api/private-messages': typeof ApiPrivateMessagesRoute
   '/api/profile': typeof ApiProfileRouteWithChildren
@@ -694,6 +752,12 @@ export interface FileRoutesByTo {
   '/api/master/presence': typeof ApiMasterPresenceRoute
   '/api/master/private-messages': typeof ApiMasterPrivateMessagesRoute
   '/api/master/state': typeof ApiMasterStateRoute
+  '/api/nexo/actions': typeof ApiNexoActionsRoute
+  '/api/nexo/campaigns': typeof ApiNexoCampaignsRoute
+  '/api/nexo/character-mesas': typeof ApiNexoCharacterMesasRoute
+  '/api/nexo/coro': typeof ApiNexoCoroRoute
+  '/api/nexo/mesas': typeof ApiNexoMesasRoute
+  '/api/nexo/sessions': typeof ApiNexoSessionsRoute
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ready': typeof ApiPublicReadyRoute
@@ -720,6 +784,7 @@ export interface FileRoutesById {
   '/_authenticated/mapas': typeof AuthenticatedMapasRoute
   '/_authenticated/mestre': typeof AuthenticatedMestreRoute
   '/_authenticated/microapp': typeof AuthenticatedMicroappRoute
+  '/_authenticated/nexo': typeof AuthenticatedNexoRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/perfis': typeof AuthenticatedPerfisRoute
   '/_authenticated/personagens': typeof AuthenticatedPersonagensRoute
@@ -737,6 +802,7 @@ export interface FileRoutesById {
   '/api/generate-infografico': typeof ApiGenerateInfograficoRoute
   '/api/invite': typeof ApiInviteRoute
   '/api/mesas': typeof ApiMesasRoute
+  '/api/nexo': typeof ApiNexoRouteWithChildren
   '/api/presence': typeof ApiPresenceRoute
   '/api/private-messages': typeof ApiPrivateMessagesRoute
   '/api/profile': typeof ApiProfileRouteWithChildren
@@ -781,6 +847,12 @@ export interface FileRoutesById {
   '/api/master/presence': typeof ApiMasterPresenceRoute
   '/api/master/private-messages': typeof ApiMasterPrivateMessagesRoute
   '/api/master/state': typeof ApiMasterStateRoute
+  '/api/nexo/actions': typeof ApiNexoActionsRoute
+  '/api/nexo/campaigns': typeof ApiNexoCampaignsRoute
+  '/api/nexo/character-mesas': typeof ApiNexoCharacterMesasRoute
+  '/api/nexo/coro': typeof ApiNexoCoroRoute
+  '/api/nexo/mesas': typeof ApiNexoMesasRoute
+  '/api/nexo/sessions': typeof ApiNexoSessionsRoute
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ready': typeof ApiPublicReadyRoute
@@ -807,6 +879,7 @@ export interface FileRouteTypes {
     | '/mapas'
     | '/mestre'
     | '/microapp'
+    | '/nexo'
     | '/perfil'
     | '/perfis'
     | '/personagens'
@@ -824,6 +897,7 @@ export interface FileRouteTypes {
     | '/api/generate-infografico'
     | '/api/invite'
     | '/api/mesas'
+    | '/api/nexo'
     | '/api/presence'
     | '/api/private-messages'
     | '/api/profile'
@@ -868,6 +942,12 @@ export interface FileRouteTypes {
     | '/api/master/presence'
     | '/api/master/private-messages'
     | '/api/master/state'
+    | '/api/nexo/actions'
+    | '/api/nexo/campaigns'
+    | '/api/nexo/character-mesas'
+    | '/api/nexo/coro'
+    | '/api/nexo/mesas'
+    | '/api/nexo/sessions'
     | '/api/profile/avatar'
     | '/api/public/health'
     | '/api/public/ready'
@@ -892,6 +972,7 @@ export interface FileRouteTypes {
     | '/mapas'
     | '/mestre'
     | '/microapp'
+    | '/nexo'
     | '/perfil'
     | '/perfis'
     | '/personagens'
@@ -909,6 +990,7 @@ export interface FileRouteTypes {
     | '/api/generate-infografico'
     | '/api/invite'
     | '/api/mesas'
+    | '/api/nexo'
     | '/api/presence'
     | '/api/private-messages'
     | '/api/profile'
@@ -953,6 +1035,12 @@ export interface FileRouteTypes {
     | '/api/master/presence'
     | '/api/master/private-messages'
     | '/api/master/state'
+    | '/api/nexo/actions'
+    | '/api/nexo/campaigns'
+    | '/api/nexo/character-mesas'
+    | '/api/nexo/coro'
+    | '/api/nexo/mesas'
+    | '/api/nexo/sessions'
     | '/api/profile/avatar'
     | '/api/public/health'
     | '/api/public/ready'
@@ -978,6 +1066,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mapas'
     | '/_authenticated/mestre'
     | '/_authenticated/microapp'
+    | '/_authenticated/nexo'
     | '/_authenticated/perfil'
     | '/_authenticated/perfis'
     | '/_authenticated/personagens'
@@ -995,6 +1084,7 @@ export interface FileRouteTypes {
     | '/api/generate-infografico'
     | '/api/invite'
     | '/api/mesas'
+    | '/api/nexo'
     | '/api/presence'
     | '/api/private-messages'
     | '/api/profile'
@@ -1039,6 +1129,12 @@ export interface FileRouteTypes {
     | '/api/master/presence'
     | '/api/master/private-messages'
     | '/api/master/state'
+    | '/api/nexo/actions'
+    | '/api/nexo/campaigns'
+    | '/api/nexo/character-mesas'
+    | '/api/nexo/coro'
+    | '/api/nexo/mesas'
+    | '/api/nexo/sessions'
     | '/api/profile/avatar'
     | '/api/public/health'
     | '/api/public/ready'
@@ -1066,6 +1162,7 @@ export interface RootRouteChildren {
   ApiGenerateInfograficoRoute: typeof ApiGenerateInfograficoRoute
   ApiInviteRoute: typeof ApiInviteRoute
   ApiMesasRoute: typeof ApiMesasRoute
+  ApiNexoRoute: typeof ApiNexoRouteWithChildren
   ApiPresenceRoute: typeof ApiPresenceRoute
   ApiPrivateMessagesRoute: typeof ApiPrivateMessagesRoute
   ApiProfileRoute: typeof ApiProfileRouteWithChildren
@@ -1184,6 +1281,13 @@ declare module '@tanstack/react-router' {
       path: '/api/presence'
       fullPath: '/api/presence'
       preLoaderRoute: typeof ApiPresenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/nexo': {
+      id: '/api/nexo'
+      path: '/api/nexo'
+      fullPath: '/api/nexo'
+      preLoaderRoute: typeof ApiNexoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mesas': {
@@ -1305,6 +1409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/nexo': {
+      id: '/_authenticated/nexo'
+      path: '/nexo'
+      fullPath: '/nexo'
+      preLoaderRoute: typeof AuthenticatedNexoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/microapp': {
       id: '/_authenticated/microapp'
       path: '/microapp'
@@ -1409,6 +1520,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/profile/avatar'
       preLoaderRoute: typeof ApiProfileAvatarRouteImport
       parentRoute: typeof ApiProfileRoute
+    }
+    '/api/nexo/sessions': {
+      id: '/api/nexo/sessions'
+      path: '/sessions'
+      fullPath: '/api/nexo/sessions'
+      preLoaderRoute: typeof ApiNexoSessionsRouteImport
+      parentRoute: typeof ApiNexoRoute
+    }
+    '/api/nexo/mesas': {
+      id: '/api/nexo/mesas'
+      path: '/mesas'
+      fullPath: '/api/nexo/mesas'
+      preLoaderRoute: typeof ApiNexoMesasRouteImport
+      parentRoute: typeof ApiNexoRoute
+    }
+    '/api/nexo/coro': {
+      id: '/api/nexo/coro'
+      path: '/coro'
+      fullPath: '/api/nexo/coro'
+      preLoaderRoute: typeof ApiNexoCoroRouteImport
+      parentRoute: typeof ApiNexoRoute
+    }
+    '/api/nexo/character-mesas': {
+      id: '/api/nexo/character-mesas'
+      path: '/character-mesas'
+      fullPath: '/api/nexo/character-mesas'
+      preLoaderRoute: typeof ApiNexoCharacterMesasRouteImport
+      parentRoute: typeof ApiNexoRoute
+    }
+    '/api/nexo/campaigns': {
+      id: '/api/nexo/campaigns'
+      path: '/campaigns'
+      fullPath: '/api/nexo/campaigns'
+      preLoaderRoute: typeof ApiNexoCampaignsRouteImport
+      parentRoute: typeof ApiNexoRoute
+    }
+    '/api/nexo/actions': {
+      id: '/api/nexo/actions'
+      path: '/actions'
+      fullPath: '/api/nexo/actions'
+      preLoaderRoute: typeof ApiNexoActionsRouteImport
+      parentRoute: typeof ApiNexoRoute
     }
     '/api/master/state': {
       id: '/api/master/state'
@@ -1710,6 +1863,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMapasRoute: typeof AuthenticatedMapasRoute
   AuthenticatedMestreRoute: typeof AuthenticatedMestreRoute
   AuthenticatedMicroappRoute: typeof AuthenticatedMicroappRoute
+  AuthenticatedNexoRoute: typeof AuthenticatedNexoRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedPerfisRoute: typeof AuthenticatedPerfisRoute
   AuthenticatedPersonagensRoute: typeof AuthenticatedPersonagensRoute
@@ -1737,6 +1891,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMapasRoute: AuthenticatedMapasRoute,
   AuthenticatedMestreRoute: AuthenticatedMestreRoute,
   AuthenticatedMicroappRoute: AuthenticatedMicroappRoute,
+  AuthenticatedNexoRoute: AuthenticatedNexoRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedPerfisRoute: AuthenticatedPerfisRoute,
   AuthenticatedPersonagensRoute: AuthenticatedPersonagensRoute,
@@ -1799,6 +1954,27 @@ const ApiGalleryRouteWithChildren = ApiGalleryRoute._addFileChildren(
   ApiGalleryRouteChildren,
 )
 
+interface ApiNexoRouteChildren {
+  ApiNexoActionsRoute: typeof ApiNexoActionsRoute
+  ApiNexoCampaignsRoute: typeof ApiNexoCampaignsRoute
+  ApiNexoCharacterMesasRoute: typeof ApiNexoCharacterMesasRoute
+  ApiNexoCoroRoute: typeof ApiNexoCoroRoute
+  ApiNexoMesasRoute: typeof ApiNexoMesasRoute
+  ApiNexoSessionsRoute: typeof ApiNexoSessionsRoute
+}
+
+const ApiNexoRouteChildren: ApiNexoRouteChildren = {
+  ApiNexoActionsRoute: ApiNexoActionsRoute,
+  ApiNexoCampaignsRoute: ApiNexoCampaignsRoute,
+  ApiNexoCharacterMesasRoute: ApiNexoCharacterMesasRoute,
+  ApiNexoCoroRoute: ApiNexoCoroRoute,
+  ApiNexoMesasRoute: ApiNexoMesasRoute,
+  ApiNexoSessionsRoute: ApiNexoSessionsRoute,
+}
+
+const ApiNexoRouteWithChildren =
+  ApiNexoRoute._addFileChildren(ApiNexoRouteChildren)
+
 interface ApiProfileRouteChildren {
   ApiProfileAvatarRoute: typeof ApiProfileAvatarRoute
 }
@@ -1826,6 +2002,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGenerateInfograficoRoute: ApiGenerateInfograficoRoute,
   ApiInviteRoute: ApiInviteRoute,
   ApiMesasRoute: ApiMesasRoute,
+  ApiNexoRoute: ApiNexoRouteWithChildren,
   ApiPresenceRoute: ApiPresenceRoute,
   ApiPrivateMessagesRoute: ApiPrivateMessagesRoute,
   ApiProfileRoute: ApiProfileRouteWithChildren,

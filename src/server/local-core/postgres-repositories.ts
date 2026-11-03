@@ -1217,7 +1217,7 @@ export function createPostgresCampaignRepository(sql: SqlExecutor): CampaignRepo
         "SELECT c.id, c.mesa_id, m.name AS mesa_name, c.name, c.status, c.created_at, c.updated_at " +
           "FROM public.campaigns c " +
           "JOIN public.mesas m ON m.id = c.mesa_id " +
-          "WHERE c.status = 'active' AND (" +
+          "WHERE c.status = 'active' AND m.ruleset IS NULL AND (" +
           systemMasterPredicate("$1") +
           " OR EXISTS (SELECT 1 FROM public.mesa_members mm " +
           "WHERE mm.mesa_id = c.mesa_id AND mm.user_id = $1 AND mm.membership_status = 'active')) " +
@@ -1230,7 +1230,7 @@ export function createPostgresCampaignRepository(sql: SqlExecutor): CampaignRepo
       const rows = await sql.query<CampaignRow>(
         "SELECT c.id, c.mesa_id, m.name AS mesa_name, c.name, c.status, c.created_at, c.updated_at " +
           "FROM public.campaigns c JOIN public.mesas m ON m.id=c.mesa_id " +
-          "WHERE c.status='active' AND (" +
+          "WHERE c.status='active' AND m.ruleset IS NULL AND (" +
           systemMasterPredicate("$1") +
           " OR EXISTS (SELECT 1 FROM public.mesa_members mm WHERE mm.mesa_id=c.mesa_id AND mm.user_id=$1 AND mm.member_role='mestre' AND mm.membership_status='active')) " +
           "ORDER BY c.created_at ASC, c.id ASC",
@@ -1247,9 +1247,9 @@ export function createPostgresCampaignRepository(sql: SqlExecutor): CampaignRepo
           "FROM public.mesas m " +
           "LEFT JOIN public.mesa_members mm ON mm.mesa_id = m.id " +
           "AND mm.user_id = $1 AND mm.membership_status = 'active' " +
-          "WHERE " +
+          "WHERE m.ruleset IS NULL AND (" +
           systemMasterPredicate("$1") +
-          " OR mm.member_role = 'mestre' " +
+          " OR mm.member_role = 'mestre') " +
           "ORDER BY m.name ASC, m.id ASC",
         [userId],
       );
@@ -1265,7 +1265,7 @@ export function createPostgresCampaignRepository(sql: SqlExecutor): CampaignRepo
         "SELECT c.id, c.mesa_id, m.name AS mesa_name, c.name, c.status, c.created_at, c.updated_at " +
           "FROM public.campaigns c " +
           "JOIN public.mesas m ON m.id = c.mesa_id " +
-          "WHERE c.id = $1 AND c.status = 'active' AND (" +
+          "WHERE c.id = $1 AND c.status = 'active' AND m.ruleset IS NULL AND (" +
           systemMasterPredicate("$2") +
           " OR EXISTS (SELECT 1 FROM public.mesa_members mm " +
           "WHERE mm.mesa_id = c.mesa_id AND mm.user_id = $2 AND mm.membership_status = 'active')) " +
@@ -1278,7 +1278,7 @@ export function createPostgresCampaignRepository(sql: SqlExecutor): CampaignRepo
       const rows = await sql.query<CampaignRow>(
         "SELECT c.id, c.mesa_id, m.name AS mesa_name, c.name, c.status, c.created_at, c.updated_at " +
           "FROM public.campaigns c JOIN public.mesas m ON m.id = c.mesa_id " +
-          "WHERE c.id = $1 AND c.status = 'active' AND (" +
+          "WHERE c.id = $1 AND c.status = 'active' AND m.ruleset IS NULL AND (" +
           systemMasterPredicate("$2") +
           " OR EXISTS (SELECT 1 FROM public.mesa_members mm WHERE mm.mesa_id=c.mesa_id AND mm.user_id=$2 AND mm.member_role='mestre' AND mm.membership_status='active')) LIMIT 1",
         [campaignId, userId],
@@ -1288,8 +1288,7 @@ export function createPostgresCampaignRepository(sql: SqlExecutor): CampaignRepo
     async create(userId, mesaId, name) {
       const rows = await sql.query<{ id: string }>(
         "INSERT INTO public.campaigns (mesa_id, name) " +
-          "SELECT $2, $3 " +
-          "WHERE (" +
+          "SELECT m.id, $3 FROM public.mesas m WHERE m.id=$2 AND m.ruleset IS NULL AND (" +
           systemMasterPredicate("$1") +
           " OR EXISTS (SELECT 1 FROM public.mesa_members mm " +
           "WHERE mm.mesa_id = $2 AND mm.user_id = $1 AND mm.membership_status = 'active' " +

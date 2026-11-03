@@ -32,6 +32,7 @@ function publicMasterCharacter(character: CharacterRecord) {
     id: character.id,
     ownerUserId: character.ownerUserId,
     name: character.name,
+    ruleset: character.ruleset,
     playerName: character.playerName,
     ownerDisplayName: character.ownerDisplayName ?? "",
     status: character.status,

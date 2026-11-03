@@ -5,6 +5,15 @@ import { describe, expect, it } from "vitest";
 const migrationsDirectory = fileURLToPath(new URL("../../../db/migrations", import.meta.url));
 
 describe("migrations locais", () => {
+  it("adiciona a declaração de ação, narrativa única do Coro e Resistência de uso único", () => {
+    const fix = readFileSync(`${migrationsDirectory}/0069_nexo_simplification_fix.sql`, "utf8");
+    expect(fix).toContain("ADD COLUMN IF NOT EXISTS action_description");
+    expect(fix).toContain("ADD COLUMN IF NOT EXISTS narrative");
+    expect(fix).toContain("nexo_resistance_assignments_one_pending");
+    expect(fix).toContain("consumed_at IS NULL");
+    expect(fix).not.toMatch(/DROP TABLE|DELETE FROM/i);
+  });
+
   it("mantêm a ordem mínima, sem autoridade Supabase", () => {
     const agenda = readFileSync(migrationsDirectory + "/0035_agenda_multiscope.sql", "utf8");
     expect(agenda).toContain("scope_type IN ('PRIVATE','MESA','GLOBAL','PLAYER')");
