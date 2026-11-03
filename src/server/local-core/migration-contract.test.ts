@@ -6,12 +6,69 @@ const migrationsDirectory = fileURLToPath(new URL("../../../db/migrations", impo
 
 describe("migrations locais", () => {
   it("adiciona a declaração de ação, narrativa única do Coro e Resistência de uso único", () => {
-    const fix = readFileSync(`${migrationsDirectory}/0069_nexo_simplification_fix.sql`, "utf8");
+    const fix = readFileSync(`${migrationsDirectory}/0075_nexo_simplification_fix.sql`, "utf8");
     expect(fix).toContain("ADD COLUMN IF NOT EXISTS action_description");
     expect(fix).toContain("ADD COLUMN IF NOT EXISTS narrative");
     expect(fix).toContain("nexo_resistance_assignments_one_pending");
     expect(fix).toContain("consumed_at IS NULL");
     expect(fix).not.toMatch(/DROP TABLE|DELETE FROM/i);
+  });
+
+  it("mantém o ledger local legado e usa uma faixa NEXO sem colisão", () => {
+    const mappings = [
+      {
+        legacyVersion: "0065",
+        version: "0071",
+        legacyFile: "0065_nexo_ruleset_core.sql",
+        file: "0071_nexo_ruleset_core.sql",
+        checksum: "4279c02b1ffe8adff53b68a1fe48b2419eddbfd6654b5730175a659a5ea41950",
+      },
+      {
+        legacyVersion: "0066",
+        version: "0072",
+        legacyFile: "0066_nexo_coro_contributions.sql",
+        file: "0072_nexo_coro_contributions.sql",
+        checksum: "9b437cac715e07050f99a6a716d839c6c240b75696d59c04c393f04b2e9ee43e",
+      },
+      {
+        legacyVersion: "0067",
+        version: "0073",
+        legacyFile: "0067_nexo_coro_solo_master_adjudication.sql",
+        file: "0073_nexo_coro_solo_master_adjudication.sql",
+        checksum: "35ccf19f06fd96de7ca69a4e15ec429360792128c6e614d18e42b4ddb88b408b",
+      },
+      {
+        legacyVersion: "0068",
+        version: "0074",
+        legacyFile: "0068_nexo_coro_manifestations.sql",
+        file: "0074_nexo_coro_manifestations.sql",
+        checksum: "34037c595fe2b952cdd70d24cd1e15ea918305be7ed82c94e65d6e4b992a3e4d",
+      },
+      {
+        legacyVersion: "0069",
+        version: "0075",
+        legacyFile: "0069_nexo_simplification_fix.sql",
+        file: "0075_nexo_simplification_fix.sql",
+        checksum: "22b92f4693f0df0dd7ee82ef6fab2e8f34c09e12be6e29867b40b9831931e526",
+      },
+      {
+        legacyVersion: "0070",
+        version: "0076",
+        legacyFile: "0070_nexo_action_argument_adjudication.sql",
+        file: "0076_nexo_action_argument_adjudication.sql",
+        checksum: "8349862cfc2b0bf23ae2eb32e779a332737f9c27559bd2327179f0ec7f7b3803",
+      },
+    ];
+
+    for (const mapping of mappings) {
+      const sql = readFileSync(`${migrationsDirectory}/${mapping.file}`, "utf8");
+      expect(sql).toContain(`version = '${mapping.legacyVersion}'`);
+      expect(sql).toContain(`filename = '${mapping.legacyFile}'`);
+      expect(sql).toContain(`checksum_sha256 = '${mapping.checksum}'`);
+      expect(sql).toContain(`version = '${mapping.version}'`);
+      expect(sql).toContain(`nexo_migration_${mapping.version}_already_registered`);
+      expect(sql).not.toMatch(/DELETE FROM public\.kallistis_schema_migrations/i);
+    }
   });
 
   it("mantêm a ordem mínima, sem autoridade Supabase", () => {

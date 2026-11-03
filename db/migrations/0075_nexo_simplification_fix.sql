@@ -1,5 +1,23 @@
 BEGIN;
 
+DO $nexo_migration_guard$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0069'
+      AND (filename = '0069_nexo_simplification_fix.sql' OR checksum_sha256 = '22b92f4693f0df0dd7ee82ef6fab2e8f34c09e12be6e29867b40b9831931e526')
+  ) THEN
+    RAISE EXCEPTION 'nexo_legacy_migration_0069_already_applied_do_not_replay';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0075' OR filename = '0075_nexo_simplification_fix.sql'
+  ) THEN
+    RAISE EXCEPTION 'nexo_migration_0075_already_registered';
+  END IF;
+END
+$nexo_migration_guard$;
+
 ALTER TABLE public.nexo_rolls
   ADD COLUMN IF NOT EXISTS action_description text NOT NULL DEFAULT ''
   CHECK (length(action_description) <= 1000);

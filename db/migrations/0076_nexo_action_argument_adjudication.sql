@@ -1,5 +1,23 @@
 BEGIN;
 
+DO $nexo_migration_guard$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0070'
+      AND (filename = '0070_nexo_action_argument_adjudication.sql' OR checksum_sha256 = '8349862cfc2b0bf23ae2eb32e779a332737f9c27559bd2327179f0ec7f7b3803')
+  ) THEN
+    RAISE EXCEPTION 'nexo_legacy_migration_0070_already_applied_do_not_replay';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0076' OR filename = '0076_nexo_action_argument_adjudication.sql'
+  ) THEN
+    RAISE EXCEPTION 'nexo_migration_0076_already_registered';
+  END IF;
+END
+$nexo_migration_guard$;
+
 -- Keep old NEXO rows valid while accepting the canonical final identifier.
 ALTER TABLE public.mesas DROP CONSTRAINT mesas_ruleset_check;
 ALTER TABLE public.campaigns DROP CONSTRAINT campaigns_ruleset_check;

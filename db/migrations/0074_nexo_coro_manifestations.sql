@@ -1,5 +1,23 @@
 BEGIN;
 
+DO $nexo_migration_guard$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0068'
+      AND (filename = '0068_nexo_coro_manifestations.sql' OR checksum_sha256 = '34037c595fe2b952cdd70d24cd1e15ea918305be7ed82c94e65d6e4b992a3e4d')
+  ) THEN
+    RAISE EXCEPTION 'nexo_legacy_migration_0068_already_applied_do_not_replay';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0074' OR filename = '0074_nexo_coro_manifestations.sql'
+  ) THEN
+    RAISE EXCEPTION 'nexo_migration_0074_already_registered';
+  END IF;
+END
+$nexo_migration_guard$;
+
 CREATE TABLE public.nexo_coro_manifestations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   mesa_id uuid NOT NULL REFERENCES public.mesas(id) ON DELETE RESTRICT,

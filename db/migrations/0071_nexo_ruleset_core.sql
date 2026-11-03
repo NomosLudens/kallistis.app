@@ -1,5 +1,23 @@
 BEGIN;
 
+DO $nexo_migration_guard$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0065'
+      AND (filename = '0065_nexo_ruleset_core.sql' OR checksum_sha256 = '4279c02b1ffe8adff53b68a1fe48b2419eddbfd6654b5730175a659a5ea41950')
+  ) THEN
+    RAISE EXCEPTION 'nexo_legacy_migration_0065_already_applied_do_not_replay';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.kallistis_schema_migrations
+    WHERE version = '0071' OR filename = '0071_nexo_ruleset_core.sql'
+  ) THEN
+    RAISE EXCEPTION 'nexo_migration_0071_already_registered';
+  END IF;
+END
+$nexo_migration_guard$;
+
 -- Additive ruleset boundary: NULL means the pre-existing campaign/table/session
 -- and therefore keeps its historical rules. No legacy row is converted here.
 ALTER TABLE public.mesas ADD COLUMN IF NOT EXISTS ruleset text;
