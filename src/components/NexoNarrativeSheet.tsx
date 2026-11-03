@@ -41,6 +41,10 @@ const text = (value: unknown) =>
 function entries(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
 }
+function fieldEntries(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value;
+  return typeof value === "string" && value.trim() ? [value] : [];
+}
 function describe(value: unknown): string {
   const item = object(value);
   if (!Object.keys(item).length) return text(value);
@@ -78,7 +82,46 @@ function List({ values }: { values: unknown }) {
 
 export function NexoNarrativeSheet({ character }: { character: Character }) {
   const [printBlank, setPrintBlank] = useState(false);
-  const snapshot = character.snapshot ?? {};
+  const source = character.snapshot ?? {};
+  const fields = object(source.fields);
+  const snapshot = Object.keys(fields).length
+    ? {
+        ...source,
+        nome: fields.name ?? source.nome,
+        conceito: fields.concept ?? source.conceito,
+        povo: fields.povo ?? source.povo,
+        origem: fields.origem ?? source.origem,
+        oficio: fields.oficio ?? source.oficio,
+        especializacao: fields.especializacao ?? source.especializacao,
+        marco: fields.marco ?? source.marco,
+        historia: {
+          promessa: fields.promessa,
+          vinculo: fields.vinculo,
+          experiencia: fields.experiencia,
+          feridaMarcante: fields.feridaMarcante,
+          relacoes: fields.relacoes,
+          perguntaPessoal: fields.perguntaPessoal,
+          manifestacaoPessoal: fields.manifestacaoPessoal,
+        },
+        influencia: { luz: fields.luz, escuridao: fields.escuridao },
+        capacidades: {
+          tecnicas: entries(source.learnedCapabilities).length
+            ? entries(source.learnedCapabilities)
+            : fieldEntries(fields.tecnicas),
+          dons: [
+            ...fieldEntries(fields.capacidades ?? fields.conhecimentos),
+            ...fieldEntries(fields.herancaPovo).map((value) => ({
+              name: "Herança de Povo",
+              description: value,
+            })),
+          ],
+          formas: entries(fields.formas),
+          evocoes: entries(fields.evocoes),
+          chaves: fieldEntries(fields.chave),
+          equipamentos: fieldEntries(fields.equipamento),
+        },
+      }
+    : source;
   const narrative = object(snapshot.historia);
   const capabilities = object(snapshot.capacidades);
   const state = object(snapshot.estado);
@@ -207,6 +250,7 @@ export function NexoNarrativeSheet({ character }: { character: Character }) {
         </div>
         <Printable
           character={character}
+          snapshot={snapshot}
           blank={printBlank}
           history={historyText}
           identity={identity}
@@ -222,6 +266,7 @@ export function NexoNarrativeSheet({ character }: { character: Character }) {
 
 function Printable({
   character,
+  snapshot,
   blank,
   history,
   identity,
@@ -231,6 +276,7 @@ function Printable({
   influence,
 }: {
   character: Character;
+  snapshot: Record<string, unknown>;
   blank: boolean;
   history: string;
   identity: string;
@@ -263,14 +309,14 @@ function Printable({
         <span>KALLÍSTIS · NEXO</span>
         <small>Ficha narrativa</small>
       </header>
-      <h1>{blank ? "Minha ficha" : text(character.snapshot.nome ?? character.name)}</h1>
-      {!blank && text(character.snapshot.conceito) ? (
-        <p className="nexo-print__concept">{text(character.snapshot.conceito)}</p>
+      <h1>{blank ? "Minha ficha" : text(snapshot.nome ?? character.name)}</h1>
+      {!blank && text(snapshot.conceito) ? (
+        <p className="nexo-print__concept">{text(snapshot.conceito)}</p>
       ) : null}
       <section className="nexo-print__identity">
         {lines("Povo / Origem", identity, 1)}
         {lines("Ofício / Especialização", craft, 1)}
-        {lines("Marco", text(character.snapshot.marco), 1)}
+        {lines("Marco", text(snapshot.marco), 1)}
         {lines(
           "Influência · Luz / Escuridão",
           `${text(influence.luz)} / ${text(influence.escuridao)}`,
