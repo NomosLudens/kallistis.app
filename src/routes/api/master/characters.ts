@@ -27,7 +27,11 @@ function runtime() {
   return url ? createBunPostgresExecutor(url) : null;
 }
 
-function publicMasterCharacter(character: CharacterRecord) {
+function publicMasterCharacter(
+  character: CharacterRecord,
+  ownerIsSystemMaster = false,
+  canReadPrivateSource = false,
+) {
   return {
     id: character.id,
     ownerUserId: character.ownerUserId,
@@ -35,6 +39,8 @@ function publicMasterCharacter(character: CharacterRecord) {
     ruleset: character.ruleset,
     playerName: character.playerName,
     ownerDisplayName: character.ownerDisplayName ?? "",
+    ownerIsSystemMaster,
+    canReadPrivateSource,
     status: character.status,
     snapshot: character.snapshot,
     kallistis: character.kallistis,
@@ -58,6 +64,42 @@ export const Route = createFileRoute("/api/master/characters")({
           const systemMaster = await isSystemMaster(sql, auth.userId);
           const url = new URL(request.url);
           const exportRequested = url.searchParams.get("export") === "gravewright";
+          const privateSourceFor = url.searchParams.get("privateSourceFor");
+          if (privateSourceFor) {
+            if (!systemMaster)
+              return Response.json({ error: "forbidden" }, { status: 403, headers });
+            const custody = await sql.query<{ id: string }>(
+              `SELECT id FROM public.characters
+                WHERE id=$1 AND owner_user_id=$2 AND master_user_id=$2`,
+              [privateSourceFor, auth.userId],
+            );
+            if (!custody.length)
+              return Response.json({ error: "forbidden" }, { status: 403, headers });
+            const source = await sql.query<{
+              source_key: string;
+              source_sha256: string;
+              source_row: number;
+              private_payload: Record<string, unknown>;
+            }>(
+              `SELECT source_key,source_sha256,source_row,private_payload
+                 FROM public.character_master_source_notes
+                WHERE character_id=$1 LIMIT 1`,
+              [privateSourceFor],
+            );
+            if (!source[0])
+              return Response.json({ error: "private_source_not_found" }, { status: 404, headers });
+            return Response.json(
+              {
+                privateSource: {
+                  sourceKey: source[0].source_key,
+                  sourceSha256: source[0].source_sha256,
+                  sourceRow: Number(source[0].source_row),
+                  payload: source[0].private_payload,
+                },
+              },
+              { headers },
+            );
+          }
           if (!systemMaster && !mesas.length && !exportRequested)
             return Response.json({ error: "forbidden" }, { status: 403, headers });
           const characterId = url.searchParams.get("characterId");
@@ -99,7 +141,20 @@ export const Route = createFileRoute("/api/master/characters")({
                 throw error;
               }
             }
-            return Response.json({ character: publicMasterCharacter(character) }, { headers });
+            const ownerIsSystemMaster =
+              systemMaster && (await isSystemMaster(sql, character.ownerUserId));
+            const canReadPrivateSource =
+              ownerIsSystemMaster && character.ownerUserId === auth.userId;
+            return Response.json(
+              {
+                character: publicMasterCharacter(
+                  character,
+                  ownerIsSystemMaster,
+                  canReadPrivateSource,
+                ),
+              },
+              { headers },
+            );
           }
           const accessClause = systemMaster
             ? "TRUE"
@@ -138,12 +193,33 @@ export const Route = createFileRoute("/api/master/characters")({
           const includeArchived =
             new URL(request.url).searchParams.get("includeArchived") === "true";
           const characters = await repo.listForAuthorizedMaster(auth.userId, includeArchived);
+          const ownerIds = [...new Set(characters.map((character) => character.ownerUserId))];
+          const systemMasterOwners =
+            systemMaster && ownerIds.length
+              ? new Set(
+                  (
+                    await sql.query<{ user_id: string }>(
+                      `SELECT user_id::text FROM public.system_roles
+                      WHERE system_role='system_master' AND user_id=ANY($1::uuid[])`,
+                      [ownerIds],
+                    )
+                  ).map((row) => row.user_id),
+                )
+              : new Set<string>();
           return Response.json(
             {
               mesas,
               players,
               campaigns,
-              characters: characters.map(publicMasterCharacter),
+              characters: characters.map((character) =>
+                publicMasterCharacter(
+                  character,
+                  systemMasterOwners.has(character.ownerUserId),
+                  systemMaster &&
+                    character.ownerUserId === auth.userId &&
+                    systemMasterOwners.has(character.ownerUserId),
+                ),
+              ),
               canEditCharacters: systemMaster,
             },
             { headers },

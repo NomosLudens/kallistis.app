@@ -10,6 +10,8 @@ type MasterCharacter = {
   name: string;
   playerName: string;
   ownerDisplayName?: string;
+  ownerIsSystemMaster?: boolean;
+  canReadPrivateSource?: boolean;
   status: string;
   snapshot: Snapshot;
   mesas: Mesa[];
@@ -238,10 +240,9 @@ export function MasterSheetsPanel({
             {visibleCharacters.map((character) => {
               const snapshot = record(character.snapshot);
               const trail = activeTrail(snapshot);
-              const player = label(
-                character.playerName || character.ownerDisplayName,
-                "Jogador não identificado",
-              );
+              const player = character.ownerIsSystemMaster
+                ? "Custódia administrativa TAL · sem jogador definitivo"
+                : label(character.playerName, "Jogador não identificado");
               return (
                 <button
                   key={character.id}
@@ -267,12 +268,12 @@ export function MasterSheetsPanel({
                       <p className="mt-1 text-sm text-white/65">Jogador: {player}</p>
                     </div>
                     <span className="rounded-full border border-white/15 px-2 py-1 text-[10px] uppercase tracking-wider text-white/55">
-                      {
-                        deriveCharacterDisplayState({
-                          status: character.status,
-                          completo: record(character.snapshot).completo === true,
-                        }).masterLabel
-                      }
+                      {character.ownerIsSystemMaster
+                        ? "Aguardando atribuição"
+                        : deriveCharacterDisplayState({
+                            status: character.status,
+                            completo: record(character.snapshot).completo === true,
+                          }).masterLabel}
                     </span>
                   </div>
                   <p className="mt-3 text-xs text-white/55">
@@ -309,6 +310,41 @@ function MasterCharacterSheet({ character }: { character: MasterCharacter }) {
   const [exportPreview, setExportPreview] = useState<ExportPreview | null>(null);
   const [exportLoading, setExportLoading] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [privateSource, setPrivateSource] = useState<Record<string, unknown> | null>(null);
+  const [privateSourceError, setPrivateSourceError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!character.canReadPrivateSource) {
+      setPrivateSource(null);
+      setPrivateSourceError(null);
+      return;
+    }
+    let cancelled = false;
+    const query = new URLSearchParams({ privateSourceFor: character.id });
+    void fetch(`/api/master/characters?${query.toString()}`, {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => ({}))) as {
+          privateSource?: { payload?: Record<string, unknown> };
+          error?: string;
+        };
+        if (cancelled) return;
+        if (!response.ok) {
+          if (response.status !== 404)
+            setPrivateSourceError(payload.error || "private_source_failed");
+          return;
+        }
+        setPrivateSource(payload.privateSource?.payload ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setPrivateSourceError("private_source_failed");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [character.id, character.canReadPrivateSource]);
 
   async function prepareExport() {
     setExportLoading(true);
@@ -350,23 +386,48 @@ function MasterCharacterSheet({ character }: { character: MasterCharacter }) {
       </p>
       <h3 className="mt-2 text-2xl font-semibold">{label(character.name, "Sem nome")}</h3>
       <p className="mt-1 text-sm text-white/65">
-        Jogador: {label(character.playerName || character.ownerDisplayName, "Não identificado")} ·{" "}
-        {characterMesaLabel(character)}
+        {character.ownerIsSystemMaster
+          ? "Custódia administrativa TAL · aguardando atribuição a jogador"
+          : `Jogador: ${label(character.playerName, "Não identificado")}`}{" "}
+        · {characterMesaLabel(character)}
       </p>
       <p className="mt-2 text-xs text-white/50">
         Status:{" "}
-        {
-          deriveCharacterDisplayState({
-            status: character.status,
-            completo: record(character.snapshot).completo === true,
-          }).masterLabel
-        }{" "}
+        {character.ownerIsSystemMaster
+          ? "Aguardando atribuição"
+          : deriveCharacterDisplayState({
+              status: character.status,
+              completo: record(character.snapshot).completo === true,
+            }).masterLabel}{" "}
         · versão persistida {character.version}
       </p>
       <p className="mt-4 rounded border border-white/10 bg-black/20 p-3 text-sm text-white/60">
         A ficha completa é mantida em uma única superfície canônica. Abra o Character Forge para
         consultar ou editar conforme sua permissão.
       </p>
+      {character.canReadPrivateSource ? (
+        <section className="mt-4 rounded border border-[color:var(--gold)]/25 bg-black/20 p-4">
+          <h4 className="text-xs uppercase tracking-[0.18em] text-[color:var(--gold)]">
+            Informações privadas do Mestre
+          </h4>
+          {privateSourceError ? (
+            <p role="alert" className="mt-2 text-sm text-red-200">
+              Não foi possível consultar as observações privadas.
+            </p>
+          ) : privateSource ? (
+            <dl className="mt-3 grid gap-2 text-sm text-white/75">
+              {Object.entries(privateSource).map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-xs text-white/45">{key}</dt>
+                  <dd className="whitespace-pre-wrap">
+                    {typeof value === "string" ? value : JSON.stringify(value)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </section>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         <a
           className="inline-flex rounded border border-[color:var(--gold)]/40 bg-[color:var(--gold)]/15 px-4 py-2 text-sm text-[color:var(--ivory)] hover:border-[color:var(--gold)]"

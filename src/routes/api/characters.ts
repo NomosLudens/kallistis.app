@@ -109,9 +109,14 @@ export const Route = createFileRoute("/api/characters")({
             const character = await repo.get(auth.userId, id);
             if (!character)
               return Response.json({ error: "character_not_found" }, { status: 404, headers });
+            const ownerIsSystemMaster =
+              (await isSystemMaster(sql, auth.userId)) &&
+              (await isSystemMaster(sql, character.ownerUserId));
+            const canReadPrivateSource =
+              ownerIsSystemMaster && character.ownerUserId === auth.userId;
             return Response.json(
               {
-                character,
+                character: { ...character, ownerIsSystemMaster, canReadPrivateSource },
                 events: await repo.events(auth.userId, id),
                 versions: await repo.versions(auth.userId, id),
                 messages: await repo.messages(auth.userId, id),

@@ -18,6 +18,7 @@ type CharacterRecord = {
   name: string;
   playerName: string;
   ownerDisplayName?: string;
+  ownerIsSystemMaster?: boolean;
   status: string;
   snapshot: JsonObject;
   kallistis?: {
@@ -313,6 +314,7 @@ function Quote({ label, value }: { label: string; value: unknown }) {
 function CharacterContent({ character }: { character: CharacterRecord }) {
   const snapshot = asRecord(character.snapshot);
   const trail = activeTrail(snapshot);
+  const complete = snapshot.completo === true;
   const kallistis = character.kallistis;
   const derived = useMemo(() => canonicalDerived(snapshot), [snapshot]);
   const skills = useMemo(() => skillEntries(snapshot, trail), [snapshot, trail]);
@@ -325,8 +327,12 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
   const evoked = asList(trail.vinculosEvocados);
   const links = asList(snapshot.vinculos);
   const name = firstText(snapshot.nome, character.name) || "Personagem sem nome";
-  const player = firstText(snapshot.jogador, character.playerName, character.ownerDisplayName);
-  const trailName = [firstText(trail.oficio), firstText(trail.papel)].filter(Boolean).join(" · ");
+  const player = character.ownerIsSystemMaster
+    ? ""
+    : firstText(snapshot.jogador, character.playerName, character.ownerDisplayName);
+  const trailName = complete
+    ? [firstText(trail.oficio), firstText(trail.papel)].filter(Boolean).join(" · ")
+    : firstText(snapshot.oficioNarrativo);
 
   const resourceRows = [
     ["Vitalidade", "vitalidade", derived.vitalidade],
@@ -344,15 +350,21 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
   );
   const originHasContent = [
     snapshot.origem,
+    snapshot.origemDescricao,
     snapshot.origemDetalhe,
     snapshot.origemBeneficio,
     snapshot.dividaComunitaria,
     ...Object.values(origin),
   ].some((value) => Boolean(displayValue(value)));
   const peopleHasContent =
-    [snapshot.povo, snapshot.heranca, snapshot.pericaLivre, ...Object.values(peopleChoices)].some(
-      (value) => Boolean(displayValue(value)),
-    ) || ["traco", "dom", "dissonancia"].some((key) => Boolean(readableItem(snapshot[key])));
+    [
+      snapshot.povo,
+      snapshot.povoDescricao,
+      snapshot.heranca,
+      snapshot.pericaLivre,
+      ...Object.values(peopleChoices),
+    ].some((value) => Boolean(displayValue(value))) ||
+    ["traco", "dom", "dissonancia"].some((key) => Boolean(readableItem(snapshot[key])));
   const equipmentHasContent =
     ["arma", "armadura", "ferramenta"].some((key) => Boolean(readableItem(equipment[key]))) ||
     displayList(equipment.consumiveis).length > 0 ||
@@ -398,7 +410,7 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
                 firstText(snapshot.povo),
                 firstText(snapshot.origem),
                 trailName,
-                derived.milestone ? "Marco " + derived.milestone : "",
+                complete && derived.milestone ? "Marco " + derived.milestone : "",
               ]
                 .filter(Boolean)
                 .join("  ·  ") || "Identidade canônica"}
@@ -407,133 +419,166 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
           </div>
           <div className="character-sheet__identity-stamp">
             <span>
-              {
-                deriveCharacterDisplayState({
-                  status: character.status,
-                  completo: character.snapshot.completo === true,
-                }).playerLabel
-              }
+              {character.ownerIsSystemMaster
+                ? "Aguardando atribuição"
+                : deriveCharacterDisplayState({
+                    status: character.status,
+                    completo: character.snapshot.completo === true,
+                  }).playerLabel}
             </span>
             <small>versão {character.version}</small>
           </div>
         </div>
 
-        <div className="character-sheet__columns character-sheet__columns--lead">
-          <Section eyebrow="Atual / máximo" title="Recursos">
-            <div className="character-sheet__resource-grid">
-              {resourceRows.map(([label, key, maximum]) => {
-                const current = asNumber(resources[key]) ?? (key === "determinacao" ? 1 : maximum);
-                const progress = maximum > 0 ? Math.max(0, Math.min(1, current / maximum)) : 0;
-                return (
-                  <div className="character-sheet__meter" key={key}>
-                    <div>
-                      <span>{label}</span>
-                      <strong>
-                        {current} <small>/ {maximum}</small>
-                      </strong>
+        {complete ? (
+          <div className="character-sheet__columns character-sheet__columns--lead">
+            <Section eyebrow="Atual / máximo" title="Recursos">
+              <div className="character-sheet__resource-grid">
+                {resourceRows.map(([label, key, maximum]) => {
+                  const current =
+                    asNumber(resources[key]) ?? (key === "determinacao" ? 1 : maximum);
+                  const progress = maximum > 0 ? Math.max(0, Math.min(1, current / maximum)) : 0;
+                  return (
+                    <div className="character-sheet__meter" key={key}>
+                      <div>
+                        <span>{label}</span>
+                        <strong>
+                          {current} <small>/ {maximum}</small>
+                        </strong>
+                      </div>
+                      <i style={{ width: progress * 100 + "%" }} />
                     </div>
-                    <i style={{ width: progress * 100 + "%" }} />
-                  </div>
-                );
-              })}
-            </div>
-          </Section>
-
-          <Section eyebrow="Identidade singular" title="Manifestação Pessoal · Fulgor">
-            <Quote label="Manifestação Pessoal" value={snapshot.manifestacao_pessoal} />
-            <div className="character-sheet__subcard">
-              <span>Fulgor</span>
-              <strong>
-                {Number.isInteger(snapshot.fulgor)
-                  ? Math.max(0, Math.min(5, Number(snapshot.fulgor)))
-                  : 0}{" "}
-                / 5{snapshot.fulgor === 5 ? " · FULGOR PLENO" : ""}
-              </strong>
-            </div>
-            <p className="character-sheet__fineprint">
-              Marcador narrativo sem bônus ou modificador mecânico.
-            </p>
-          </Section>
-
-          <Section eyebrow="Prontidão" title="Defesas">
-            <div className="character-sheet__stat-grid">
-              {[
-                ["Guarda", derived.guarda],
-                ["Fortitude", derived.fortitude],
-                ["Integridade", derived.integridade],
-                ["Proteção", derived.protection],
-                ["Carga", derived.carga],
-              ].map(([label, value]) => (
-                <div className="character-sheet__stat" key={label}>
-                  <span>{label}</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
-            </div>
-            <p className="character-sheet__fineprint">Movimento · {derived.movimento}</p>
-          </Section>
-        </div>
-
-        <Section
-          eyebrow="Fundação"
-          title="Atributos"
-          className="character-sheet__section--attributes"
-        >
-          <div className="character-sheet__attribute-grid">
-            {ATTRIBUTE_ORDER.map((attribute) => (
-              <div className="character-sheet__attribute" key={attribute}>
-                <span>{attribute}</span>
-                <strong>{derived.attributes[attribute] ?? "—"}</strong>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        </Section>
+            </Section>
 
-        <div className="character-sheet__columns">
-          <Section eyebrow="Domínio" title="Perícias" className="character-sheet__section--skills">
-            <div className="character-sheet__skill-list">
-              {skills.map((skill) => (
-                <div className="character-sheet__skill" key={skill.name}>
-                  <span>{skill.name}</span>
-                  <strong>{skill.value ?? "—"}</strong>
-                  {skill.source ? <small title={skill.source}>fonte canônica</small> : null}
-                </div>
-              ))}
-            </div>
-          </Section>
+            <Section eyebrow="Identidade singular" title="Manifestação Pessoal · Fulgor">
+              <Quote label="Manifestação Pessoal" value={snapshot.manifestacao_pessoal} />
+              <div className="character-sheet__subcard">
+                <span>Fulgor</span>
+                <strong>
+                  {Number.isInteger(snapshot.fulgor)
+                    ? Math.max(0, Math.min(5, Number(snapshot.fulgor)))
+                    : 0}{" "}
+                  / 5{snapshot.fulgor === 5 ? " · FULGOR PLENO" : ""}
+                </strong>
+              </div>
+              <p className="character-sheet__fineprint">
+                Marcador narrativo sem bônus ou modificador mecânico.
+              </p>
+            </Section>
 
-          <Section
-            eyebrow="Traço ativo"
-            title={trailName || "Trilha"}
-            className="character-sheet__section--trail"
-          >
-            <div className="character-sheet__info-list">
-              <InfoLine label="Ofício" value={trail.oficio} />
-              <InfoLine label="Papel" value={trail.papel} />
-              <InfoLine label="Marco" value={trail.marco} />
-              <InfoLine label="Chave" value={firstText(trail.chaveNome, trail.chave)} />
-              <InfoLine label="Técnica inicial" value={asList(trail.tecnicas)[0]} />
-              <InfoLine label="Perícia livre" value={snapshot.pericaLivre} />
-              <InfoLine
-                label="Proficiências"
-                value={firstText(trail.proficiencias, snapshot.proficiencias)}
-              />
-            </div>
-            {displayList(trail.especializacoes).length ? (
-              <div className="character-sheet__tag-row">
-                {displayList(trail.especializacoes).map((item) => (
-                  <span key={item}>{item}</span>
+            <Section eyebrow="Prontidão" title="Defesas">
+              <div className="character-sheet__stat-grid">
+                {[
+                  ["Guarda", derived.guarda],
+                  ["Fortitude", derived.fortitude],
+                  ["Integridade", derived.integridade],
+                  ["Proteção", derived.protection],
+                  ["Carga", derived.carga],
+                ].map(([label, value]) => (
+                  <div className="character-sheet__stat" key={label}>
+                    <span>{label}</span>
+                    <strong>{value}</strong>
+                  </div>
                 ))}
               </div>
-            ) : null}
-            {readableItem(snapshot.tecnicaHeranca) ? (
-              <div className="character-sheet__subcard">
-                <span>Técnica de herança</span>
-                <strong>{readableItem(snapshot.tecnicaHeranca)?.name}</strong>
-              </div>
-            ) : null}
+              <p className="character-sheet__fineprint">Movimento · {derived.movimento}</p>
+            </Section>
+          </div>
+        ) : (
+          <div className="character-sheet__columns character-sheet__columns--lead">
+            <Section
+              eyebrow={
+                character.ownerIsSystemMaster ? "Custódia administrativa" : "Estado da ficha"
+              }
+              title={character.ownerIsSystemMaster ? "Aguardando atribuição" : "Em construção"}
+            >
+              {character.ownerIsSystemMaster ? (
+                <p className="character-sheet__fineprint">
+                  Esta personagem está sob custódia de TAL. Nenhuma conta de jogador foi vinculada.
+                </p>
+              ) : null}
+              <p className="character-sheet__fineprint">
+                Escolhas mecânicas pendentes: Trilha, Papel, Marco, atributos, perícias,
+                capacidades, técnica e equipamento.
+              </p>
+            </Section>
+            <Section eyebrow="Narrativa fornecida" title="Manifestação pessoal">
+              <Quote label="Quando usa suas capacidades" value={snapshot.manifestacao_pessoal} />
+            </Section>
+          </div>
+        )}
+
+        {complete ? (
+          <Section
+            eyebrow="Fundação"
+            title="Atributos"
+            className="character-sheet__section--attributes"
+          >
+            <div className="character-sheet__attribute-grid">
+              {ATTRIBUTE_ORDER.map((attribute) => (
+                <div className="character-sheet__attribute" key={attribute}>
+                  <span>{attribute}</span>
+                  <strong>{derived.attributes[attribute] ?? "—"}</strong>
+                </div>
+              ))}
+            </div>
           </Section>
-        </div>
+        ) : null}
+
+        {complete ? (
+          <div className="character-sheet__columns">
+            <Section
+              eyebrow="Domínio"
+              title="Perícias"
+              className="character-sheet__section--skills"
+            >
+              <div className="character-sheet__skill-list">
+                {skills.map((skill) => (
+                  <div className="character-sheet__skill" key={skill.name}>
+                    <span>{skill.name}</span>
+                    <strong>{skill.value ?? "—"}</strong>
+                    {skill.source ? <small title={skill.source}>fonte canônica</small> : null}
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section
+              eyebrow="Traço ativo"
+              title={trailName || "Trilha"}
+              className="character-sheet__section--trail"
+            >
+              <div className="character-sheet__info-list">
+                <InfoLine label="Ofício" value={trail.oficio} />
+                <InfoLine label="Papel" value={trail.papel} />
+                <InfoLine label="Marco" value={trail.marco} />
+                <InfoLine label="Chave" value={firstText(trail.chaveNome, trail.chave)} />
+                <InfoLine label="Técnica inicial" value={asList(trail.tecnicas)[0]} />
+                <InfoLine label="Perícia livre" value={snapshot.pericaLivre} />
+                <InfoLine
+                  label="Proficiências"
+                  value={firstText(trail.proficiencias, snapshot.proficiencias)}
+                />
+              </div>
+              {displayList(trail.especializacoes).length ? (
+                <div className="character-sheet__tag-row">
+                  {displayList(trail.especializacoes).map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
+                </div>
+              ) : null}
+              {readableItem(snapshot.tecnicaHeranca) ? (
+                <div className="character-sheet__subcard">
+                  <span>Técnica de herança</span>
+                  <strong>{readableItem(snapshot.tecnicaHeranca)?.name}</strong>
+                </div>
+              ) : null}
+            </Section>
+          </div>
+        ) : null}
       </div>
 
       <div className="character-sheet__page character-sheet__page--two">
@@ -545,6 +590,7 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
           >
             <div className="character-sheet__info-list character-sheet__info-list--three">
               <InfoLine label="Povo" value={snapshot.povo} />
+              <InfoLine label="Descrição do Povo" value={snapshot.povoDescricao} />
               <InfoLine label="Herança" value={snapshot.heranca} />
               <InfoLine label="Perícia livre" value={snapshot.pericaLivre} />
             </div>
@@ -570,6 +616,7 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
           <Section eyebrow="Percurso" title="Origem" className="character-sheet__section--origin">
             <div className="character-sheet__info-list character-sheet__info-list--three">
               <InfoLine label="Origem" value={snapshot.origem} />
+              <InfoLine label="Descrição da Origem" value={snapshot.origemDescricao} />
               <InfoLine label="Detalhe" value={snapshot.origemDetalhe} />
               <InfoLine label="Benefício" value={snapshot.origemBeneficio} />
               <InfoLine label="Dívida comunitária" value={snapshot.dividaComunitaria} />
@@ -722,6 +769,8 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
           snapshot.biografia,
           snapshot.aparencia,
           snapshot.descricao,
+          snapshot.memoria,
+          snapshot.oficioDescricao,
           snapshot.notasNarrativasPublicas,
         ].some((value) => Boolean(asText(value))) ? (
           <Section eyebrow="Registro" title="Biografia" className="character-sheet__section--bio">
@@ -733,6 +782,8 @@ function CharacterContent({ character }: { character: CharacterRecord }) {
               <Quote label="Biografia" value={snapshot.biografia} />
               <Quote label="Aparência" value={snapshot.aparencia} />
               <Quote label="Descrição" value={snapshot.descricao} />
+              <Quote label="Descrição do Ofício" value={snapshot.oficioDescricao} />
+              <Quote label="Memória" value={snapshot.memoria} />
               <Quote label="Notas narrativas públicas" value={snapshot.notasNarrativasPublicas} />
             </div>
           </Section>
