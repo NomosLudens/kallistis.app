@@ -47,6 +47,7 @@ const putHandler = (Route.options as any).server.handlers.PUT as (input: {
 describe("contrato da API de personagens", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    state.validateCharacterSnapshot.mockReturnValue({ ok: true, errors: [], warnings: [] });
     state.validatePartialInitialDistributions.mockReturnValue([]);
     state.repo.progression.mockResolvedValue({
       id: "progression-request-1",
