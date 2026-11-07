@@ -32,6 +32,13 @@ type ActionRecord = {
   bonus?: number;
   consequence_text?: string | null;
 };
+type ProgressionEvent = {
+  id: string;
+  type: "nexo_narrative_progression" | "nexo_marco_advanced" | "nexo_specialization_selected";
+  actorName: string;
+  createdAt: string;
+  payload: Record<string, unknown>;
+};
 const object = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -380,6 +387,10 @@ export function NexoActionBoard({ character, mesaId }: { character: Character; m
   >({});
   const [results, setResults] = useState<Record<string, Record<string, unknown>>>({});
   const [consequenceDrafts, setConsequenceDrafts] = useState<Record<string, string>>({});
+  const [progressionEvents, setProgressionEvents] = useState<ProgressionEvent[]>([]);
+  const [narrativeCategory, setNarrativeCategory] = useState("historia");
+  const [narrativeDescription, setNarrativeDescription] = useState("");
+  const [marcoRationale, setMarcoRationale] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const activeSession = useMemo(
@@ -389,7 +400,7 @@ export function NexoActionBoard({ character, mesaId }: { character: Character; m
 
   const reload = useCallback(async () => {
     if (!mesaId) return;
-    const [actionResponse, coroResponse, sessionResponse] = await Promise.all([
+    const [actionResponse, coroResponse, sessionResponse, progressionResponse] = await Promise.all([
       fetch(`/api/nexo/actions?mesaId=${encodeURIComponent(mesaId)}`, {
         credentials: "same-origin",
         cache: "no-store",
@@ -402,11 +413,16 @@ export function NexoActionBoard({ character, mesaId }: { character: Character; m
         credentials: "same-origin",
         cache: "no-store",
       }),
+      fetch(
+        `/api/nexo/progression?mesaId=${encodeURIComponent(mesaId)}&characterId=${encodeURIComponent(character.id)}`,
+        { credentials: "same-origin", cache: "no-store" },
+      ),
     ]);
-    const [actionData, coroData, sessionData] = await Promise.all([
+    const [actionData, coroData, sessionData, progressionData] = await Promise.all([
       actionResponse.json(),
       coroResponse.json(),
       sessionResponse.json(),
+      progressionResponse.json(),
     ]);
     if (actionResponse.ok) {
       setActions(actionData.actions ?? []);
@@ -414,7 +430,11 @@ export function NexoActionBoard({ character, mesaId }: { character: Character; m
     }
     if (coroResponse.ok) setResistances(coroData.resistanceAssignments ?? []);
     if (sessionResponse.ok) setSessions(sessionData.sessions ?? []);
-  }, [mesaId]);
+    if (progressionResponse.ok) {
+      const events = progressionData.events ?? [];
+      setProgressionEvents(events);
+    }
+  }, [character.id, mesaId]);
   useEffect(() => {
     void reload();
   }, [reload]);
@@ -560,6 +580,61 @@ export function NexoActionBoard({ character, mesaId }: { character: Character; m
       setBusy(false);
     }
   }
+  async function recordNarrativeProgression(event: React.FormEvent) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      const response = await fetch("/api/nexo/progression", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "record_narrative",
+          mesaId,
+          characterId: character.id,
+          category: narrativeCategory,
+          description: narrativeDescription,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Falha ao registrar a mudança narrativa");
+      setNarrativeDescription("");
+      setNotice("Mudança narrativa registrada sem alterar Marco ou capacidades.");
+      await reload();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Falha ao registrar a mudança narrativa");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function advanceMarco(event: React.FormEvent) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      const response = await fetch("/api/nexo/progression", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "advance_marco",
+          mesaId,
+          characterId: character.id,
+          expectedVersion: character.version,
+          rationale: marcoRationale,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Falha ao registrar o novo Marco");
+      window.location.reload();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Falha ao registrar o novo Marco");
+      setBusy(false);
+    }
+  }
   if (!mesaId)
     return (
       <section className="nexo-sheet__section">
@@ -676,6 +751,88 @@ export function NexoActionBoard({ character, mesaId }: { character: Character; m
           os argumentos enviados.
         </p>
       )}
+      <section className="nexo-action__progression">
+        <h3>Progressão da personagem</h3>
+        <div className="nexo-action__progression-copy">
+          <p>
+            <strong>Narrativa:</strong> registre uma mudança em história, vínculo, conhecimento ou
+            consequência. Esse registro não altera valores.
+          </p>
+          <p>
+            <strong>Mecânica:</strong> o Mestre confirma o avanço de Marco após uma escolha ou
+            consequência que mude a trajetória. O avanço altera apenas o Marco e seu peso NEXO;
+            capacidades exigem aprendizagem real e registro separado.
+          </p>
+        </div>
+        {canAdjudicate ? (
+          Number(character.snapshot.marco) < 15 ? (
+            <form className="nexo-action__progression-form" onSubmit={(event) => void advanceMarco(event)}>
+              <label>
+                Justificativa da mudança significativa de trajetória
+                <textarea
+                  required
+                  minLength={10}
+                  maxLength={1500}
+                  value={marcoRationale}
+                  onChange={(event) => setMarcoRationale(event.target.value)}
+                />
+              </label>
+              <button disabled={busy || marcoRationale.trim().length < 10}>
+                Mestre: confirmar Marco {Number(character.snapshot.marco) + 1}
+              </button>
+            </form>
+          ) : (
+            <p className="nexo-action__hint">Marco 15 é o limite jogável; Marco 16 permanece narrativo.</p>
+          )
+        ) : (
+          <form
+            className="nexo-action__progression-form"
+            onSubmit={(event) => void recordNarrativeProgression(event)}
+          >
+            <label>
+              Tipo de mudança narrativa
+              <select
+                value={narrativeCategory}
+                onChange={(event) => setNarrativeCategory(event.target.value)}
+              >
+                <option value="historia">História</option>
+                <option value="vinculo">Vínculo</option>
+                <option value="conhecimento">Conhecimento</option>
+                <option value="consequencia">Consequência</option>
+              </select>
+            </label>
+            <label>
+              O que mudou na trajetória?
+              <textarea
+                required
+                minLength={5}
+                maxLength={1500}
+                value={narrativeDescription}
+                onChange={(event) => setNarrativeDescription(event.target.value)}
+              />
+            </label>
+            <button disabled={busy || narrativeDescription.trim().length < 5}>
+              Registrar mudança narrativa
+            </button>
+          </form>
+        )}
+        {progressionEvents.length ? (
+          <ol className="nexo-action__progression-list">
+            {progressionEvents.map((entry) => {
+              const payload = object(entry.payload);
+              const narrative = entry.type === "nexo_narrative_progression";
+              const specialization = entry.type === "nexo_specialization_selected";
+              return (
+                <li key={entry.id}>
+                  <strong>{narrative ? historyLabel(text(payload.category)) : specialization ? `Especialização registrada em M${text(payload.marco)}` : `Marco ${text(payload.fromMarco)} → ${text(payload.toMarco)}`}</strong>
+                  <span>{text(payload.description ?? payload.rationale ?? payload.specialization)}</span>
+                  <small>{entry.actorName} · {new Date(entry.createdAt).toLocaleDateString("pt-BR")}</small>
+                </li>
+              );
+            })}
+          </ol>
+        ) : null}
+      </section>
       {notice ? (
         <p role="status" className="nexo-action__notice">
           {notice}

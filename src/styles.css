@@ -3178,3 +3178,14 @@
   body.nexo-print-context .nexo-print__action h2 { text-align:center; }
   body.nexo-print-context .nexo-print footer { display:block; border-top:1px solid #aaa; margin-top:3mm; padding-top:2mm; font-size:7pt; }
 }
+.nexo-action__progression { display:grid; gap:.75rem; margin-top:1.1rem; padding-top:.9rem; border-top:1px solid #aa9c88; }
+.nexo-action__progression h3 { margin:0; font:600 1.35rem "Cormorant Garamond", Georgia, serif; }
+.nexo-action__progression-copy { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.8rem; }
+.nexo-action__progression-copy p { margin:0; padding:.7rem; border:1px solid #aa9c88; color:#51483e; font-size:.86rem; line-height:1.5; }
+.nexo-action__progression-form { display:grid; gap:.7rem; padding:.85rem; border:1px solid #aa9c88; }
+.nexo-action__progression-list { display:grid; gap:.6rem; margin:0; padding-left:1.2rem; }
+.nexo-action__progression-list li { display:grid; gap:.2rem; padding:.6rem; background:#f0e8dc; }
+.nexo-action__progression-list small { color:#71695f; }
+@media (max-width: 720px) {
+  .nexo-action__progression-copy { grid-template-columns: 1fr; }
+}
