@@ -5,6 +5,7 @@ import {
   characterArmorOptionsForOffice,
   characterToolOptionsForOffice,
   characterWeaponOptionsForOffice,
+  isSpecializationEligibleAtMarco,
   universalMagicGradeMax,
 } from "./character-canon";
 
@@ -335,6 +336,7 @@ export function characterChoiceOptions(
   if (path === "trilhas[].especializacoes") {
     const trails = Array.isArray(snapshot.trilhas) ? snapshot.trilhas : [];
     const trail = trails[Number(snapshot.trilhaAtiva) || 0];
+    if (!isSpecializationEligibleAtMarco(Number(trail?.marco))) return [];
     const office = forgeCatalog.offices.find((entry) => entry.name === String(trail?.oficio ?? ""));
     return office?.specializations.map((item) => item.name) ?? [];
   }

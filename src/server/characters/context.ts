@@ -11,6 +11,7 @@ import {
   universalMagicGradeMax,
 } from "./character-canon";
 import { projectKallistisCharacter } from "./presentation";
+import { isNexoRuleset } from "@/server/nexo/engine";
 const obj = (v: unknown): Record<string, unknown> | null =>
   v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
@@ -18,8 +19,27 @@ const text = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
 const strings = (v: unknown) => arr(v).map(text).filter(Boolean).join(" · ") || "—";
 const jsonText = (v: unknown) => (v && typeof v === "object" ? JSON.stringify(v) : text(v) || "—");
 export function buildCharacterContext(record: CharacterRecord): string {
-  const c = record.snapshot,
-    trail = activeTrail(c),
+  const c = record.snapshot;
+  if (isNexoRuleset(record.ruleset)) {
+    const history = obj(c.historia) ?? {};
+    const capacities = obj(c.capacidades) ?? {};
+    const state = obj(c.estado) ?? {};
+    const influence = obj(c.influencia) ?? {};
+    return [
+      "## PERSONAGEM KALLISTIS NEXO — ESTADO PERSISTIDO",
+      "> Fonte autoritativa: personagem salvo no PostgreSQL. Regras NEXO v1. Não importe atributos, perícias, reservas ou efeitos mecânicos da edição legada.",
+      "> Você pode conversar sobre a narrativa; nunca adjudique rolagens, progressão ou efeitos. As operações mecânicas são calculadas e validadas pelo servidor.",
+      `**Nome:** ${record.name || "—"}`,
+      `**Status / versão:** ${record.status} / ${record.version}`,
+      `**Conceito:** ${text(c.conceito) || "—"}`,
+      `**Identidade:** ${text(c.povo)} · ${text(c.origem)} · ${text(c.oficio)} — ${text(c.especializacao)} · Marco ${String(c.marco ?? "—")}`,
+      `**Influência:** Luz ${String(influence.luz ?? "—")} · Escuridão ${String(influence.escuridao ?? "—")}`,
+      `**História:** promessa ${text(history.promessa) || text(c.promessa) || "—"}; vínculo ${text(history.vinculo) || text(c.vinculo) || "—"}; experiência ${text(history.experiencia) || text(c.experiencia) || "—"}; ferida ${text(history.feridaMarcante) || text(c.feridaMarcante) || "—"}`,
+      `**Capacidades aprendidas:** dons ${strings(capacities.dons)}; técnicas ${strings(capacities.tecnicas)}; formas ${strings(capacities.formas)}; evocações ${strings(capacities.evocoes)}; chaves ${strings(capacities.chaves)}; equipamentos ${strings(capacities.equipamentos)}`,
+      `**Estado:** Marcas de Sombra ${String(state.marcasSombra ?? 0)} de 6; ferimentos ${strings(state.ferimentos)}; condições ${strings(state.condicoes)}`,
+    ].join("\n");
+  }
+  const trail = activeTrail(c),
     concept = obj(c.conceito),
     marco = activeMarco(c),
     knownForms = arr(trail?.knownForms).filter((value) => obj(value)?.formId),

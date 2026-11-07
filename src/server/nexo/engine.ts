@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { isSpecializationEligibleAtMarco } from "@/server/characters/character-canon";
 
 export const NEXO_RULESET = "KALLISTIS_NEXO_1" as const;
 export const NEXO_RULESETS = [NEXO_RULESET, "KALLISTIS_NEXO_FINAL"] as const;
@@ -141,10 +142,13 @@ export function validateNexoCharacter(value: unknown): string[] {
   if (!value || typeof value !== "object" || Array.isArray(value)) return ["invalid_character"];
   const s = value as Record<string, unknown>;
   const errors: string[] = [];
-  const required = ["nome", "conceito", "povo", "origem", "oficio", "especializacao", "promessa", "vinculo", "experiencia"];
+  const required = ["nome", "conceito", "povo", "origem", "oficio", "promessa", "vinculo", "experiencia"];
   for (const key of required) if (typeof s[key] !== "string" || !String(s[key]).trim()) errors.push(`${key}_required`);
   if (s.feridaMarcante !== undefined && typeof s.feridaMarcante !== "string") errors.push("feridaMarcante_invalid");
   if (!Number.isInteger(s.marco) || Number(s.marco) < 1 || Number(s.marco) > 15) errors.push("invalid_marco");
+  const specialization = typeof s.especializacao === "string" ? s.especializacao.trim() : "";
+  if (specialization && !isNexoSpecializationEligible(Number(s.marco))) errors.push("specialization_locked_before_marco_3");
+  if (!specialization && isNexoSpecializationEligible(Number(s.marco))) errors.push("especializacao_required");
   const influence = s.influencia as Record<string, unknown> | undefined;
   if (!influence || !Number.isInteger(influence.luz) || !Number.isInteger(influence.escuridao) || Number(influence.luz) < 0 || Number(influence.escuridao) < 0 || Number(influence.luz) + Number(influence.escuridao) !== 10) errors.push("influences_must_sum_10");
   const state = s.estado as Record<string, unknown> | undefined;
@@ -156,6 +160,10 @@ export function validateNexoCharacter(value: unknown): string[] {
   return errors;
 }
 
+export function isNexoSpecializationEligible(marco: number): boolean {
+  return isSpecializationEligibleAtMarco(marco);
+}
+
 export function validateNexoCanon(snapshot: unknown, canon: {
   peoples: readonly { name: string }[]; origins: readonly string[]; offices: readonly { name: string; specializations: readonly { name: string }[] }[];
 }): string[] {
@@ -165,7 +173,17 @@ export function validateNexoCanon(snapshot: unknown, canon: {
   if (!canon.peoples.some((entry) => entry.name === s.povo)) errors.push("noncanonical_people");
   if (!canon.origins.includes(String(s.origem))) errors.push("noncanonical_origin");
   const office = canon.offices.find((entry) => entry.name === s.oficio);
+  const specialization = typeof s.especializacao === "string" ? s.especializacao.trim() : "";
   if (!office) errors.push("noncanonical_office");
-  else if (!office.specializations.some((entry) => entry.name === s.especializacao)) errors.push("noncanonical_specialization");
+  else if (specialization && !office.specializations.some((entry) => entry.name === specialization)) errors.push("noncanonical_specialization");
+  return errors;
+}
+
+export function validateNexoCharacterCreation(snapshot: unknown, canon: {
+  peoples: readonly { name: string }[]; origins: readonly string[]; offices: readonly { name: string; specializations: readonly { name: string }[] }[];
+}): string[] {
+  const errors = validateNexoCanon(snapshot, canon);
+  if (!snapshot || typeof snapshot !== "object" || Number((snapshot as Record<string, unknown>).marco) !== 1)
+    errors.push("nexo_creation_must_start_at_marco_1");
   return errors;
 }

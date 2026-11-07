@@ -99,6 +99,37 @@ describe("contrato da API de personagens", () => {
     expect(state.repo.create).not.toHaveBeenCalled();
   });
 
+  it("rejeita pela API uma Especialização antecipada sem persistir", async () => {
+    state.repo.get.mockResolvedValue(null);
+    state.validateCharacterSnapshot.mockReturnValue({
+      ok: false,
+      errors: ["specialization_locked_before_marco_3"],
+      warnings: [],
+    });
+    const request = new Request("https://kallistis.app/api/characters", {
+      method: "PUT",
+      headers: { origin: "https://kallistis.app", "content-type": "application/json" },
+      body: JSON.stringify({
+        id: "qa-character-1",
+        snapshot: {
+          nome: "QA parcial",
+          completo: false,
+          trilhaAtiva: 0,
+          trilhas: [{ oficio: "Guardião", marco: 1, especializacoes: ["Sentinela"] }],
+        },
+      }),
+    });
+
+    const response = await putHandler({ request });
+
+    expect(response.status).toBe(422);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "character_invalid",
+      validation: { ok: false, errors: ["specialization_locked_before_marco_3"] },
+    });
+    expect(state.repo.create).not.toHaveBeenCalled();
+  });
+
   it("permite persistir um rascunho QA parcial dentro dos limites", async () => {
     state.repo.get.mockResolvedValue(null);
     const request = new Request("https://kallistis.app/api/characters", {

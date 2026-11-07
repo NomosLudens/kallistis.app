@@ -8,7 +8,7 @@ import { createPostgresCharacterRepository } from "@/server/characters/repositor
 import { CHARACTER_FORGE_CHOICE_CATALOG } from "@/server/characters/character-choice-registry";
 import { mechanicalFingerprint } from "@/server/characters/character-canon";
 import { MAGIC_FORMS } from "@/server/characters/magic-forms";
-import { NEXO_RULESET, NEXO_RULESETS, isNexoRuleset, rollNexo, validateAcceptedArguments, validateLearnedForms, validateNexoCanon } from "@/server/nexo/engine";
+import { NEXO_RULESET, NEXO_RULESETS, isNexoRuleset, rollNexo, validateAcceptedArguments, validateLearnedForms, validateNexoCharacterCreation } from "@/server/nexo/engine";
 
 const headers = { "Cache-Control": "no-store" };
 const runtime = () => {
@@ -69,7 +69,7 @@ export const Route = createFileRoute("/api/nexo")({
       try {
         if (input.action === "create_character") {
           const snapshot = input.character;
-          const errors = validateNexoCanon(snapshot, CHARACTER_FORGE_CHOICE_CATALOG);
+          const errors = validateNexoCharacterCreation(snapshot, CHARACTER_FORGE_CHOICE_CATALOG);
           if (errors.length) return Response.json({ error: "nexo_character_invalid", validation: errors }, { status: 422, headers });
           const value = snapshot as Record<string, unknown>;
           const full = {

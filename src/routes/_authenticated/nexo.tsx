@@ -49,6 +49,7 @@ function NexoPage() {
   const [origin, setOrigin] = useState("");
   const [office, setOffice] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [specializationChoice, setSpecializationChoice] = useState<Record<string, string>>({});
   const [promise, setPromise] = useState("");
   const [bond, setBond] = useState("");
   const [experience, setExperience] = useState("");
@@ -107,6 +108,16 @@ function NexoPage() {
     const data = await response.json();
     if (!response.ok) { toast.error(data.error || "Falha ao alterar Sombra"); return; }
     toast.success("Marca de Sombra registrada."); setReason(""); await reload();
+  }
+  async function chooseSpecialization(character: Character) {
+    const choice = specializationChoice[character.id] || "";
+    if (!mesaId || !choice) return;
+    const response = await fetch("/api/nexo/progression", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "choose_specialization", mesaId, characterId: character.id, specialization: choice }) });
+    const data = await response.json();
+    if (!response.ok) { toast.error(data.error || "Falha ao registrar Especialização"); return; }
+    toast.success("Especialização do Marco 3 registrada.");
+    setSpecializationChoice((current) => ({ ...current, [character.id]: "" }));
+    await reload();
   }
   async function createMesa(event: React.FormEvent) {
     event.preventDefault();
@@ -262,7 +273,7 @@ function NexoPage() {
         <Field label="Povo"><select required value={people} onChange={(e) => setPeople(e.target.value)}><option value="">Escolha</option>{catalog?.peoples.map((item) => <option key={item.name}>{item.name}</option>)}</select></Field>
         <Field label="Origem"><select required value={origin} onChange={(e) => setOrigin(e.target.value)}><option value="">Escolha</option>{catalog?.origins.map((item) => <option key={item}>{item}</option>)}</select></Field>
         <Field label="Ofício"><select required value={office} onChange={(e) => { setOffice(e.target.value); setSpecialization(""); }}><option value="">Escolha</option>{catalog?.offices.map((item) => <option key={item.name}>{item.name}</option>)}</select></Field>
-        <Field label="Especialização"><select required value={specialization} onChange={(e) => setSpecialization(e.target.value)}><option value="">Escolha</option>{activeOffice?.specializations.map((item) => <option key={item.name}>{item.name}</option>)}</select></Field>
+        <Field label="Especialização (Marco 3)"><select value={specialization} disabled onChange={(e) => setSpecialization(e.target.value)}><option value="">Disponível ao alcançar o Marco 3</option>{activeOffice?.specializations.map((item) => <option key={item.name}>{item.name}</option>)}</select></Field>
         <Field label="Promessa"><textarea required value={promise} onChange={(e) => setPromise(e.target.value)} /></Field>
         <Field label="Vínculo"><textarea required value={bond} onChange={(e) => setBond(e.target.value)} /></Field>
         <Field label="Experiência"><textarea required value={experience} onChange={(e) => setExperience(e.target.value)} /></Field>
@@ -274,6 +285,7 @@ function NexoPage() {
     <section className="space-y-4"><h2 className="serif text-2xl">Suas fichas NEXO</h2>{loading ? <p className="text-white/60">Carregando do PostgreSQL…</p> : characters.length === 0 ? <p className="rounded-xl border border-dashed border-white/15 p-5 text-white/60">Nenhuma ficha NEXO ainda.</p> : null}
       {characters.map((character) => <article key={character.id} className="space-y-4 rounded-2xl border border-white/10 bg-[#111016] p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="serif text-2xl">{character.name}</h3><p className="text-xs text-white/50">Rascunho · versão {character.version} · Marco {String(character.snapshot.marco)}</p></div><Link to={`/personagem/${encodeURIComponent(character.id)}/ficha` as never} className="rounded border border-white/20 px-3 py-2 text-sm">Abrir ficha</Link></div>
         <NexoActionBoard character={character} mesaId={mesaId} />
+        {Number(character.snapshot.marco) === 3 && !String(character.snapshot.especializacao || "").trim() ? <div className="flex flex-wrap items-end gap-2 rounded-lg border border-[color:var(--gold)]/25 p-3"><Field label="Especialização do Marco 3"><select value={specializationChoice[character.id] || ""} onChange={(event) => setSpecializationChoice((current) => ({ ...current, [character.id]: event.target.value }))}><option value="">Escolha do Ofício ativo</option>{catalog?.offices.find((item) => item.name === character.snapshot.oficio)?.specializations.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}</select></Field><button disabled={!mesaId || !specializationChoice[character.id]} onClick={() => void chooseSpecialization(character)} className="rounded border border-[color:var(--gold)]/40 px-3 py-2 text-sm disabled:opacity-40">Registrar Especialização</button><p className="basis-full text-xs text-white/50">Requer personagem vinculado à Mesa selecionada e Marco 3.</p></div> : null}
         {rollHistory.filter((entry) => entry.character_id === character.id).slice(0, 5).map((entry) => <div key={entry.id} className="rounded bg-black/20 p-2 text-xs text-white/55"><p>{new Date(entry.created_at).toLocaleString("pt-BR")} · {gradeText(entry.grade)} · margem {entry.margin}{entry.resonance ? " · Ressonância" : ""}</p>{entry.action_description ? <p className="mt-1 text-white/70">Ação: {entry.action_description}</p> : null}<details className="mt-1"><summary>Dados da rolagem</summary><p>Luz {entry.light_die} + Escuridão {entry.shadow_die} · total {entry.total}</p></details></div>)}
         <div className="flex flex-wrap items-end gap-2"><Field label="Motivo da mudança de Sombra"><input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Motivo" /></Field><button disabled={reason.trim().length < 3} onClick={() => void changeShadow(character, -1)} className="rounded-lg border border-white/20 px-3 py-2 text-sm disabled:opacity-40">−1 Marca de Sombra</button><button disabled={reason.trim().length < 3} onClick={() => void changeShadow(character, 1)} className="rounded-lg border border-white/20 px-3 py-2 text-sm disabled:opacity-40">+1 Marca de Sombra</button><span className="text-xs text-white/55">Marcas atuais: {String((character.snapshot.estado as Record<string, unknown>)?.marcasSombra ?? 0)} / 6</span></div>
       </article>)}

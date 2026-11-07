@@ -1,6 +1,6 @@
 import { MAGIC_FORMS } from "./magic-forms";
 import type { CharacterSnapshot } from "./character-canon";
-import { retrieveCanonicalRules } from "@/lib/canonical-rules.server";
+import { retrieveCanonicalBook } from "@/lib/canonical-rules.server";
 
 export const PERSONAL_MANIFESTATION_MAX = 20_000;
 export const ABILITY_MANIFESTATION_MAX = 10_000;
@@ -99,13 +99,71 @@ function customDescriptions(snapshot: CharacterSnapshot): Record<string, string>
   );
 }
 
+function canonicalPassage(textValue: string, name: string): string {
+  const lines = textValue.split(/\r?\n/);
+  const normalizedName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const startsCapability = (line: string) => {
+    const plain = line
+      .replace(/^#{1,6}\s*/, "")
+      .replace(/\*\*/g, "")
+      .replace(/[_`]/g, "")
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    return (
+      plain === normalizedName ||
+      /^(traco|dom|dissonancia|tecnica inicial|tecnica|especializacao|herancas)\s*[—:-]\s*/.test(
+        plain,
+      ) && plain.endsWith(normalizedName) ||
+      plain.startsWith(`${normalizedName}.`) ||
+      plain.startsWith(`${normalizedName} —`) ||
+      plain.startsWith(`${normalizedName} –`)
+    );
+  };
+  const start = lines.findIndex(startsCapability);
+  if (start < 0) return "";
+  const heading = /^\s*#{1,6}\s/.test(lines[start]) ||
+    /^(?:Traço|Dom|Dissonância|Técnica|Heranças)\s*[—:-]/i.test(
+      lines[start].replace(/^\s*#{1,6}\s*/, ""),
+    );
+  const selected: string[] = [];
+  for (let index = heading ? start + 1 : start; index < lines.length; index += 1) {
+    const line = lines[index].trim();
+    if (!line) {
+      if (selected.length) break;
+      continue;
+    }
+    if (/^#{1,6}\s/.test(line)) break;
+    if (
+      selected.length &&
+      (/^(?:Traço|Dom|Dissonância|Heranças|Técnica inicial|Técnicas da Trilha|Especializações)(?:\s*[—:-]|$)/i.test(
+        line,
+      ) || /^\*\*[^*]+\.\*\*/.test(line))
+    )
+      break;
+    selected.push(line);
+  }
+  let passage = selected.join(" ").replace(/\s+/g, " ").trim();
+  if (!heading) {
+    const nextNamedEntry = passage.search(
+      /\.\s+[A-ZÀ-Ý][\p{L}]+(?:\s+(?:[A-ZÀ-Ý][\p{L}]+|de|do|da|dos|das|e)){1,3}\.\s/u,
+    );
+    if (nextNamedEntry > 0) passage = passage.slice(0, nextNamedEntry + 1);
+  }
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return passage.replace(new RegExp(`^${escapedName}(?:\\.|\\s*[—–:-])\\s*`, "iu"), "");
+}
+
 function canonicalSummary(value: unknown, name: string): string {
   const item = record(value);
   const direct = text(item?.texto) || text(item?.efeito) || text(item?.summary) || text(item?.g0);
+  const extracted = retrieveCanonicalBook(name, "LIVRO III — SISTEMA")
+    .map((context) => canonicalPassage(context.text, name))
+    .find(Boolean);
+  if (extracted) return extracted;
   if (direct) return direct;
-  return (
-    retrieveCanonicalRules(name)[0]?.text || "Definição canônica registrada por ID no KALLISTIS."
-  );
+  return "Definição canônica registrada por ID no KALLISTIS.";
 }
 
 function capability(
@@ -130,18 +188,21 @@ function capability(
 }
 
 export function kallistisCapabilities(snapshot: CharacterSnapshot): KallistisCapability[] {
+  const fields = record(snapshot.fields) ?? {};
   const descriptions = customDescriptions(snapshot);
   const capabilities: KallistisCapability[] = [];
   const seen = new Set<string>();
   const add = (item: KallistisCapability) => {
     const key = capabilityKey(item.type, item.id);
-    if (!seen.has(key)) {
+    const nameKey = `${item.type}:${slug(item.name)}`;
+    if (!seen.has(key) && !seen.has(nameKey)) {
       seen.add(key);
+      seen.add(nameKey);
       capabilities.push(item);
     }
   };
 
-  const peopleCapabilities = PEOPLE_CAPABILITIES[text(snapshot.povo)];
+  const peopleCapabilities = PEOPLE_CAPABILITIES[text(snapshot.povo) || text(fields.povo)];
   for (const [type, name] of peopleCapabilities
     ? ([
         ["ability", peopleCapabilities.trait],
@@ -156,8 +217,8 @@ export function kallistisCapabilities(snapshot: CharacterSnapshot): KallistisCap
     const name = text(item?.nome || item?.name);
     if (name) add(capability("ability", slug(name), name, item, descriptions));
   }
-  const heritage = text(snapshot.heranca);
-  const people = text(snapshot.povo);
+  const heritage = text(snapshot.heranca) || text(fields.herancaPovo);
+  const people = text(snapshot.povo) || text(fields.povo);
   const heritageItem = record(snapshot.herancaDefinicao);
   if (heritage)
     add(capability("ability", slug(heritage), heritage, heritageItem || heritage, descriptions));
@@ -207,6 +268,24 @@ export function kallistisCapabilities(snapshot: CharacterSnapshot): KallistisCap
         add(capability("magic", formId, canonical.canonicalName, canonical, descriptions));
     }
   }
+  const office = text(snapshot.oficio) || text(fields.oficio);
+  for (const rawTechnique of list(snapshot.learnedCapabilities)) {
+    const item = record(rawTechnique);
+    const name = text(item?.nome || item?.name || rawTechnique);
+    if (name)
+      add(
+        capability(
+          "technique",
+          `${slug(office) || "trilha"}.${slug(name)}`,
+          name,
+          item,
+          descriptions,
+        ),
+      );
+  }
+  const specialization = text(snapshot.especializacao) || text(fields.especializacao);
+  if (specialization)
+    add(capability("ability", slug(specialization), specialization, specialization, descriptions));
   return capabilities;
 }
 

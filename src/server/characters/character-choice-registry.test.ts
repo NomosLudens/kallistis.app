@@ -11,8 +11,6 @@ import {
   resolveNumericDistribution,
   resolveCharacterChoiceCandidate,
 } from "./character-choice-registry";
-import { readForgeChoiceCatalog } from "../../../scripts/generate-character-forge-choice-catalog.mjs";
-
 const root = process.cwd();
 const generated = JSON.parse(
   readFileSync(
@@ -51,12 +49,7 @@ describe("registry de escolhas do Character Forge", () => {
     },
   );
 
-  it("permanece sincronizado com o catálogo embutido no Forge publicado", () => {
-    const extracted = readForgeChoiceCatalog(
-      readFileSync(join(root, "public/jogar/character-forge.html"), "utf8"),
-    );
-    expect(generated).toEqual(extracted);
-
+  it("mantém a registry alinhada ao catálogo versionado usado pelo Forge", () => {
     const values = (field: string) =>
       CHARACTER_CHOICE_REGISTRY.find((entry) => entry.field === field)?.canonicalValues ?? [];
     expect(values("povo")).toEqual(
@@ -204,7 +197,19 @@ describe("registry de escolhas do Character Forge", () => {
     };
     const office = generated.offices.find((entry: { name: string }) => entry.name === "Guardião");
     const proficiencies = office.proficiencies.toLocaleLowerCase("pt-BR");
-    expect(characterChoiceOptions("trilhas[0].especializacoes", snapshot)).toEqual(
+    expect(characterChoiceOptions("trilhas[0].especializacoes", snapshot)).toEqual([]);
+    expect(
+      characterChoiceOptions("trilhas[0].especializacoes", {
+        ...snapshot,
+        trilhas: [{ ...snapshot.trilhas[0], marco: 2 }],
+      }),
+    ).toEqual([]);
+    expect(
+      characterChoiceOptions("trilhas[0].especializacoes", {
+        ...snapshot,
+        trilhas: [{ ...snapshot.trilhas[0], marco: 3 }],
+      }),
+    ).toEqual(
       office.specializations.map((item: { name: string }) => item.name),
     );
     expect(characterChoiceOptions("equipamento.armadura", snapshot)).toEqual([

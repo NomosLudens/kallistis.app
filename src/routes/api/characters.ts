@@ -187,6 +187,11 @@ export const Route = createFileRoute("/api/characters")({
               !current && snapshot.completo === true
                 ? validateCharacterSnapshot(snapshot, true)
                 : validateCharacterSnapshot(snapshot, false);
+            if (validation.errors.includes("specialization_locked_before_marco_3"))
+              return Response.json(
+                { error: "character_invalid", validation },
+                { status: 422, headers },
+              );
             if (!current && snapshot.completo === true && !validation.ok)
               return Response.json(
                 { error: "character_invalid", validation },

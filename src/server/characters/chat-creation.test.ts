@@ -116,6 +116,12 @@ describe("criação por Chat", () => {
     const validPartial = buildCharacterDraft("", "Livres", "Curador");
     expect(validateCharacterCreationDraftSnapshot(validPartial).ok).toBe(true);
 
+    const lockedSpecialization = buildCharacterDraft("", "Livres", "Curador");
+    (lockedSpecialization.trilhas[0] as Record<string, unknown>).especializacoes = ["Preparação"];
+    expect(validateCharacterCreationDraftSnapshot(lockedSpecialization).errors).toContain(
+      "specialization_locked_before_marco_3",
+    );
+
     const invalidPartial = buildCharacterDraft("", "Povo inventado", "Ofício inventado");
     expect(validateCharacterCreationDraftSnapshot(invalidPartial).ok).toBe(false);
   });

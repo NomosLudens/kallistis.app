@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { argumentBonus, canSoloMasterAdjudicateOwnCoroAction, evocationCallNeedsRoll, gradeForMargin, maxCoroBars, maximumLearnedForms, resolveOpposition, resolveRoll, resolveVanguardContest, validateAcceptedArguments, validateLearnedForms, validateNexoCharacter, validateEvocationProfile } from "./engine";
+import { argumentBonus, canSoloMasterAdjudicateOwnCoroAction, evocationCallNeedsRoll, gradeForMargin, maxCoroBars, maximumLearnedForms, resolveOpposition, resolveRoll, resolveVanguardContest, validateAcceptedArguments, validateLearnedForms, validateNexoCharacter, validateNexoCanon, validateNexoCharacterCreation, validateEvocationProfile } from "./engine";
 
 describe("NEXO core", () => {
   it("calculates the approved Marco bonus", () => {
@@ -48,13 +48,22 @@ describe("NEXO core", () => {
   });
 
   it("rejects traditional mechanics and invalid influence totals in an NEXO sheet", () => {
-    const base = { nome: "Teste", conceito: "Conceito", povo: "Aelvari", origem: "Criado na Luz", oficio: "Curador", especializacao: "Amparo", marco: 1, influencia: { luz: 5, escuridao: 5 }, promessa: "Promessa", vinculo: "Vínculo", experiencia: "Experiência", feridaMarcante: "Ferida", capacidades: { dons: [], tecnicas: [], formas: [], evocoes: [], chaves: [], equipamentos: [] }, estado: { marcasSombra: 0 } };
+    const base = { nome: "Teste", conceito: "Conceito", povo: "Aelvari", origem: "Criado na Luz", oficio: "Curador", especializacao: "", marco: 1, influencia: { luz: 5, escuridao: 5 }, promessa: "Promessa", vinculo: "Vínculo", experiencia: "Experiência", feridaMarcante: "Ferida", capacidades: { dons: [], tecnicas: [], formas: [], evocoes: [], chaves: [], equipamentos: [] }, estado: { marcasSombra: 0 } };
     expect(validateNexoCharacter(base)).toEqual([]);
     const { feridaMarcante, ...withoutWound } = base;
     void feridaMarcante;
     expect(validateNexoCharacter(withoutWound)).toEqual([]);
     expect(validateNexoCharacter({ ...withoutWound, feridaMarcante: 42 })).toContain("feridaMarcante_invalid");
     expect(validateNexoCharacter({ ...base, atributos: { corpo: 3 }, influencia: { luz: 2, escuridao: 2 } })).toContain("legacy_or_collective_fields_forbidden");
+    expect(validateNexoCharacter({ ...base, especializacao: "Amparo" })).toContain("specialization_locked_before_marco_3");
+    expect(validateNexoCharacter({ ...base, marco: 3, especializacao: "Amparo" })).toEqual([]);
+    expect(validateNexoCharacter({ ...base, marco: 3, especializacao: "" })).toContain("especializacao_required");
+    const canon = { peoples: [{ name: "Aelvari" }], origins: ["Criado na Luz"], offices: [{ name: "Curador", specializations: [{ name: "Amparo" }] }] };
+    expect(validateNexoCanon(base, canon)).toEqual([]);
+    expect(validateNexoCanon({ ...base, especializacao: "Amparo" }, canon)).toContain("specialization_locked_before_marco_3");
+    expect(validateNexoCanon({ ...base, marco: 3, especializacao: "Amparo" }, canon)).toEqual([]);
+    expect(validateNexoCharacterCreation(base, canon)).toEqual([]);
+    expect(validateNexoCharacterCreation({ ...base, marco: 3, especializacao: "Amparo" }, canon)).toContain("nexo_creation_must_start_at_marco_1");
   });
 
   it("requires provenance for learned forms and the canonical evocation profile", () => {

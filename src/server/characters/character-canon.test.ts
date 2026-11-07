@@ -291,6 +291,28 @@ describe("contrato de criação do Marco 1", () => {
     );
   });
 
+  it("bloqueia Especializações em M1/M2 e aceita uma escolha válida em M3", () => {
+    const m1 = snapshot(1);
+    expect(validateCharacterSnapshot(m1, true).ok).toBe(true);
+    (m1.trilhas[0] as Record<string, unknown>).especializacoes = ["Sentinela"];
+    expect(validateCharacterSnapshot(m1, true).errors).toContain(
+      "specialization_locked_before_marco_3",
+    );
+    expect(validateCharacterSnapshot(m1, false).errors).toContain(
+      "specialization_locked_before_marco_3",
+    );
+
+    const m2 = snapshot(2);
+    (m2.trilhas[0] as Record<string, unknown>).especializacoes = ["Sentinela"];
+    expect(validateCharacterSnapshot(m2, false).errors).toContain(
+      "specialization_locked_before_marco_3",
+    );
+
+    const m3 = snapshot(3);
+    (m3.trilhas[0] as Record<string, unknown>).especializacoes = ["Sentinela"];
+    expect(validateCharacterSnapshot(m3, true)).toMatchObject({ ok: true, errors: [] });
+  });
+
   it("aceita perícia de Ofício já no valor 3 sem inventar bônus acima do limite", () => {
     const candidate = snapshot();
     candidate.periciasBase.Atletismo = 2;

@@ -55,6 +55,7 @@ import { Route as ApiPublicReadyRouteImport } from './routes/api/public/ready'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiProfileAvatarRouteImport } from './routes/api/profile.avatar'
 import { Route as ApiNexoSessionsRouteImport } from './routes/api/nexo/sessions'
+import { Route as ApiNexoProgressionRouteImport } from './routes/api/nexo/progression'
 import { Route as ApiNexoMesasRouteImport } from './routes/api/nexo/mesas'
 import { Route as ApiNexoCoroRouteImport } from './routes/api/nexo/coro'
 import { Route as ApiNexoCharacterMesasRouteImport } from './routes/api/nexo/character-mesas'
@@ -333,6 +334,11 @@ const ApiProfileAvatarRoute = ApiProfileAvatarRouteImport.update({
 const ApiNexoSessionsRoute = ApiNexoSessionsRouteImport.update({
   id: '/sessions',
   path: '/sessions',
+  getParentRoute: () => ApiNexoRoute,
+} as any)
+const ApiNexoProgressionRoute = ApiNexoProgressionRouteImport.update({
+  id: '/progression',
+  path: '/progression',
   getParentRoute: () => ApiNexoRoute,
 } as any)
 const ApiNexoMesasRoute = ApiNexoMesasRouteImport.update({
@@ -664,6 +670,7 @@ export interface FileRoutesByFullPath {
   '/api/nexo/character-mesas': typeof ApiNexoCharacterMesasRoute
   '/api/nexo/coro': typeof ApiNexoCoroRoute
   '/api/nexo/mesas': typeof ApiNexoMesasRoute
+  '/api/nexo/progression': typeof ApiNexoProgressionRoute
   '/api/nexo/sessions': typeof ApiNexoSessionsRoute
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -757,6 +764,7 @@ export interface FileRoutesByTo {
   '/api/nexo/character-mesas': typeof ApiNexoCharacterMesasRoute
   '/api/nexo/coro': typeof ApiNexoCoroRoute
   '/api/nexo/mesas': typeof ApiNexoMesasRoute
+  '/api/nexo/progression': typeof ApiNexoProgressionRoute
   '/api/nexo/sessions': typeof ApiNexoSessionsRoute
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -852,6 +860,7 @@ export interface FileRoutesById {
   '/api/nexo/character-mesas': typeof ApiNexoCharacterMesasRoute
   '/api/nexo/coro': typeof ApiNexoCoroRoute
   '/api/nexo/mesas': typeof ApiNexoMesasRoute
+  '/api/nexo/progression': typeof ApiNexoProgressionRoute
   '/api/nexo/sessions': typeof ApiNexoSessionsRoute
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -947,6 +956,7 @@ export interface FileRouteTypes {
     | '/api/nexo/character-mesas'
     | '/api/nexo/coro'
     | '/api/nexo/mesas'
+    | '/api/nexo/progression'
     | '/api/nexo/sessions'
     | '/api/profile/avatar'
     | '/api/public/health'
@@ -1040,6 +1050,7 @@ export interface FileRouteTypes {
     | '/api/nexo/character-mesas'
     | '/api/nexo/coro'
     | '/api/nexo/mesas'
+    | '/api/nexo/progression'
     | '/api/nexo/sessions'
     | '/api/profile/avatar'
     | '/api/public/health'
@@ -1134,6 +1145,7 @@ export interface FileRouteTypes {
     | '/api/nexo/character-mesas'
     | '/api/nexo/coro'
     | '/api/nexo/mesas'
+    | '/api/nexo/progression'
     | '/api/nexo/sessions'
     | '/api/profile/avatar'
     | '/api/public/health'
@@ -1526,6 +1538,13 @@ declare module '@tanstack/react-router' {
       path: '/sessions'
       fullPath: '/api/nexo/sessions'
       preLoaderRoute: typeof ApiNexoSessionsRouteImport
+      parentRoute: typeof ApiNexoRoute
+    }
+    '/api/nexo/progression': {
+      id: '/api/nexo/progression'
+      path: '/progression'
+      fullPath: '/api/nexo/progression'
+      preLoaderRoute: typeof ApiNexoProgressionRouteImport
       parentRoute: typeof ApiNexoRoute
     }
     '/api/nexo/mesas': {
@@ -1960,6 +1979,7 @@ interface ApiNexoRouteChildren {
   ApiNexoCharacterMesasRoute: typeof ApiNexoCharacterMesasRoute
   ApiNexoCoroRoute: typeof ApiNexoCoroRoute
   ApiNexoMesasRoute: typeof ApiNexoMesasRoute
+  ApiNexoProgressionRoute: typeof ApiNexoProgressionRoute
   ApiNexoSessionsRoute: typeof ApiNexoSessionsRoute
 }
 
@@ -1969,6 +1989,7 @@ const ApiNexoRouteChildren: ApiNexoRouteChildren = {
   ApiNexoCharacterMesasRoute: ApiNexoCharacterMesasRoute,
   ApiNexoCoroRoute: ApiNexoCoroRoute,
   ApiNexoMesasRoute: ApiNexoMesasRoute,
+  ApiNexoProgressionRoute: ApiNexoProgressionRoute,
   ApiNexoSessionsRoute: ApiNexoSessionsRoute,
 }
 

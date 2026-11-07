@@ -668,8 +668,6 @@ function validateCreationContract(
     errors.push("office_second_skill_required");
   if (!rule.optionalSkills.length && string(trail.pericaEscolhida))
     errors.push("office_second_skill_invalid");
-  const specializations = array(trail.especializacoes).filter((value) => string(value));
-  if (marco < 3 && specializations.length) errors.push("specialization_locked_before_marco_3");
   const heritage = string(c.heranca);
   if (!heritage || !(PEOPLE_HERITAGES[povo] ?? []).includes(heritage))
     errors.push("heritage_invalid");
@@ -785,6 +783,11 @@ function validateCreationContract(
 }
 
 export type CharacterValidation = { ok: boolean; errors: string[]; warnings: string[] };
+
+export function isSpecializationEligibleAtMarco(marco: number): boolean {
+  return Number.isInteger(marco) && marco >= 3 && marco <= 15;
+}
+
 export function validateCharacterSnapshot(
   snapshot: unknown,
   requireComplete = true,
@@ -811,6 +814,9 @@ export function validateCharacterSnapshot(
     const marco = number(trail?.marco);
     if (marco === null || !Number.isInteger(marco) || marco < 1 || marco > 15)
       errors.push(`marco_invalid_${index}`);
+    const specializations = array(trail?.especializacoes).filter((value) => string(value));
+    if (specializations.length && !isSpecializationEligibleAtMarco(marco ?? 0))
+      errors.push("specialization_locked_before_marco_3");
   }
   if (requireComplete) validateCreationContract(c, active ?? {}, errors);
   errors.push(...validateMagicChoices(c, requireComplete));
