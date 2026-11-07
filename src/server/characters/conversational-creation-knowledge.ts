@@ -113,6 +113,7 @@ export type CreationConversationMemory = {
 };
 
 type BookChunkRow = {
+  source_sha256?: string;
   chunk_id: string;
   book_title: string;
   chapter: string;
@@ -175,7 +176,7 @@ export async function searchCreationBook(
   const graph = resolveBookMemoryEntities(normalized);
   const terms = searchTerms(normalized);
   const candidates = await sql.query<BookChunkRow>(
-    `SELECT c.chunk_id, c.book_title, c.chapter, c.section, c.heading_path, c.start_line, c.end_line,
+    `SELECT c.source_sha256, c.chunk_id, c.book_title, c.chapter, c.section, c.heading_path, c.start_line, c.end_line,
             c.route4_id, c.route10_id, c.route50_id, c.keywords, c.entities, c.rule_tags,
             c.related_chunk_ids,
             ts_rank_cd(c.search_document, websearch_to_tsquery('simple', $1)) AS lexical_score,
@@ -197,8 +198,9 @@ export async function searchCreationBook(
       LIMIT 200`,
     [normalized, terms, ruleTagsForQuery(normalized), BOOK_SOURCE_SHA256, graph.chunkIds],
   );
-  if (!candidates.length) return [];
-  const r1 = routeR1Candidates(candidates, graph.chunkIds);
+  const currentCandidates = candidates.filter((candidate) => candidate.source_sha256 === BOOK_SOURCE_SHA256);
+  if (!currentCandidates.length) return [];
+  const r1 = routeR1Candidates(currentCandidates, graph.chunkIds);
   const r2 = routeR2RefineCandidates(r1, normalized, graph.chunkIds);
   const r3 = routeR3SelectChunks(r2, graph.chunkIds);
   if (!r3.length) return [];
@@ -217,7 +219,7 @@ export async function searchCreationBook(
     }
   }
   const rows = await sql.query<BookChunkRow>(
-    `SELECT chunk_id, book_title, chapter, section, heading_path, start_line, end_line, content,
+    `SELECT source_sha256, chunk_id, book_title, chapter, section, heading_path, start_line, end_line, content,
             route4_id, route10_id, route50_id, related_chunk_ids, rule_tags, 0::real AS score
        FROM public.character_creation_book_chunks
       WHERE source_sha256 = $1 AND chunk_id = ANY($2::text[])`,
@@ -226,7 +228,7 @@ export async function searchCreationBook(
   const byId = new Map(rows.map((row) => [row.chunk_id, row]));
   return selected.flatMap((candidate) => {
     const row = byId.get(candidate.chunkId);
-    if (!row) return [];
+    if (!row || row.source_sha256 !== BOOK_SOURCE_SHA256) return [];
     return [
       {
         chunkId: row.chunk_id,

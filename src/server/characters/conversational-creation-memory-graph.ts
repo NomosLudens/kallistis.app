@@ -777,6 +777,11 @@ function phraseMatches(query: string, alias: string) {
 }
 
 export function resolveBookMemoryEntities(query: string) {
+  // This curated graph was extracted from the 2026-10-12 manuscript. Never
+  // relabel those facts or chunk IDs as evidence from the current source.
+  if (String(BOOK_SOURCE_VERSION) !== "KALLISTIS-LIVRO-2026-10-12" ||
+      String(BOOK_SOURCE_SHA256) !== "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7")
+    return { entities: [], matchedEntityIds: [], relations: [], facts: [], chunkIds: [] };
   const normalized = normalize(query);
   const matched = KALLISTIS_BOOK_MEMORY.entities.filter((entity) =>
     [entity.canonicalName, ...entity.aliases].some((alias) => {

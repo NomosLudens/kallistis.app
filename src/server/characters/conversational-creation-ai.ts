@@ -572,10 +572,7 @@ async function answerBookQuestion(input: {
   onStage?: (stage: "primary_generation" | "support_evaluation") => void;
   signal?: AbortSignal;
 }) {
-  const currentStep = creationConversationState(input.snapshot).nextOptions?.path;
-  const characterCatalog = retrieveCanonicalCharacterCatalog(input.userMessage, {
-    creationStep: currentStep,
-  });
+  const characterCatalog = retrieveCanonicalCharacterCatalog(input.userMessage);
   const povoCategory = characterCatalog?.find((category) => category.label === "PARTE II — POVOS");
   const povoRules = povoCategory?.entries.map((entry) => retrieveCanonicalPeopleSection(entry));
   const completePovoCatalog = Boolean(
