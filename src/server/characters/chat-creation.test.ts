@@ -117,7 +117,8 @@ describe("criação por Chat", () => {
     expect(validateCharacterCreationDraftSnapshot(validPartial).ok).toBe(true);
 
     const lockedSpecialization = buildCharacterDraft("", "Livres", "Curador");
-    (lockedSpecialization.trilhas[0] as Record<string, unknown>).especializacoes = ["Preparação"];
+    const lockedTrail = (lockedSpecialization.trilhas as unknown[])[0] as Record<string, unknown>;
+    lockedTrail.especializacoes = ["Preparação"];
     expect(validateCharacterCreationDraftSnapshot(lockedSpecialization).errors).toContain(
       "specialization_locked_before_marco_3",
     );

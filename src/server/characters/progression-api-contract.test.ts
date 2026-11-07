@@ -10,7 +10,7 @@ const state = vi.hoisted(() => ({
   sql: { query: vi.fn(), close: vi.fn() },
   validatePartialInitialDistributions: vi.fn(() => [] as string[]),
   validateMagicChoices: vi.fn(() => [] as string[]),
-  validateCharacterSnapshot: vi.fn(() => ({ ok: true, errors: [], warnings: [] })),
+  validateCharacterSnapshot: vi.fn(() => ({ ok: true, errors: [] as string[], warnings: [] })),
 }));
 
 vi.mock("@/server/runtime/context", () => ({
