@@ -1632,9 +1632,35 @@ describe("selectHistoryMessages", () => {
       })),
     };
     const prompt = await buildKallistisCommunitySystem(runtime, "caller", "req", "@kallistis oi");
-    expect(prompt).toContain("pronomes=ele/dele");
-    expect(prompt).toContain("Nunca revele dados privados");
-    expect(prompt).not.toContain("other-user");
+    expect(prompt.system).toContain("pronomes=ele/dele");
+    expect(prompt.system).toContain("Nunca revele dados privados");
+    expect(prompt.system).not.toContain("other-user");
+  });
+
+  it("usa o manuscrito revisado no Chat Geral sem desviar conversa narrativa", async () => {
+    const { buildKallistisCommunitySystem } = await setupRuntime();
+    const { runtime } = prepareSupabase();
+    const rulesPrompt = await buildKallistisCommunitySystem(
+      runtime,
+      "caller",
+      "req-rules",
+      "@kallistis como funciona a fórmula NEXO no Marco 7?",
+    );
+    expect(rulesPrompt.system).toContain("CANON_INTENT=rules");
+    expect(rulesPrompt.system).toContain("SOURCE_ID=kallistis-livro-completo-nexo-motor-progressao");
+    expect(rulesPrompt.system).toContain("SOURCE_SHA256=");
+    expect(rulesPrompt.system).toContain("LIVRO III — SISTEMA");
+    expect(rulesPrompt.system).not.toContain("KALLISTIS_REGRAS_CANONICAS_COMPLETAS.md");
+
+    const narrativePrompt = await buildKallistisCommunitySystem(
+      runtime,
+      "caller",
+      "req-narrative",
+      "@kallistis conte uma história sobre uma noite em Silmari",
+    );
+    expect(narrativePrompt.system).toContain("CANON_INTENT=narrative");
+    expect(narrativePrompt.system).toContain("Preserve a conversa narrativa");
+    expect(narrativePrompt.system).not.toContain("SOURCE_ID=kallistis-livro-completo-nexo-final-revisao");
   });
 
   it("injeta a ficha no Chat de Personagem sem trocar a identidade KALLISTIS", async () => {
@@ -1756,44 +1782,42 @@ describe("selectHistoryMessages", () => {
     );
   });
 
-  it("responde uma referência LOCK diretamente com o trecho da fonte canônica", async () => {
+  it("se abstém de referências LOCK ausentes do manuscrito vigente", async () => {
     const { formatCanonicalRulesReply } = await import("./kallistis-chat-runtime");
     const reply = formatCanonicalRulesReply(
       "SMOKE canônico: qual é o Movimento normal na grade segundo LOCK-13?",
       "request-lock-13",
     );
 
-    expect(reply).toContain("LOCK-13");
-    expect(reply).toContain("Na grade, Movimento normal é 6");
-    expect(reply).toContain("kallistis-rules-2.0");
+    expect(reply).toContain("Não localizei LOCK-13 na fonte canônica");
+    expect(reply).not.toContain("Movimento normal é 6");
+    expect(reply).not.toContain("kallistis-rules-2.0");
   });
 
-  it("inclui todos os LOCKs citados sem deixar um identificador de fora", async () => {
+  it("se abstém quando os LOCKs citados não existem na fonte vigente", async () => {
     const { formatCanonicalRulesReply } = await import("./kallistis-chat-runtime");
     const reply = formatCanonicalRulesReply(
       "Segundo LOCK-07 e LOCK-19, o que o Povo concede e o que sua ficção não pode criar?",
       "request-multiple-locks",
     );
 
-    expect(reply).toContain("LOCK-07 — Povos");
-    expect(reply).toContain("LOCK-19 — Povos e ficção");
-    expect(reply).toContain("não concede bônus fixo de Atributo");
-    expect(reply).toContain("LORE_DOES_NOT_CREATE_MECHANICS=YES");
+    expect(reply).toContain("Não localizei LOCK-07, LOCK-19 na fonte canônica");
+    expect(reply).not.toContain("LOCK-07 — Povos");
+    expect(reply).not.toContain("LOCK-19 — Povos e ficção");
+    expect(reply).not.toContain("LORE_DOES_NOT_CREATE_MECHANICS=YES");
   });
 
-  it("responde dúvidas mecânicas gerais com trechos canônicos sem LOCK explícito", async () => {
+  it("responde movimento com a regra vigente de mapa, escala e ocupação", async () => {
     const { formatCanonicalRulesReply } = await import("./kallistis-chat-runtime");
     const reply = formatCanonicalRulesReply(
       "Como funciona o Movimento normal em zonas e na grade?",
       "request-movement",
     );
 
-    expect(reply).toContain("54. Movimento e ocupação");
-    expect(reply).toContain("Movimento normal é 6");
-    expect(reply).toContain("LOCK-13 — Economia de turno e movimento");
-    expect(reply).toContain("kallistis-rules-2.0");
-    expect(reply).not.toContain("Zona de Velarim Corrompido");
-    expect(reply).not.toContain("Glossário mecânico consolidado");
+    expect(reply).toContain("Mapa, escala e ocupação");
+    expect(reply).toContain("não há contagem de custo por célula");
+    expect(reply).not.toContain("Movimento normal é 6");
+    expect(reply).not.toContain("kallistis-rules-2.0");
   });
 
   it("responde pedidos de catálogo com povos e ofícios separados e contagem exata", async () => {
@@ -1829,10 +1853,10 @@ describe("selectHistoryMessages", () => {
       "request-office-creation-rules",
     );
 
-    expect(reply).toContain("duas Perícias treinadas");
-    expect(reply).toContain("+1");
-    expect(reply).toContain("máximo inicial 3");
-    expect(reply).toContain("PARTE III — OFÍCIOS");
+    expect(reply).toContain("Nenhuma Perícia recebe graduação numérica");
+    expect(reply).toContain("kallistis-livro-completo-nexo-motor-progressao");
+    expect(reply).not.toContain("duas Perícias treinadas");
+    expect(reply).not.toContain("máximo inicial 3");
     expect(reply).not.toContain("Catálogo recuperado");
   });
 
@@ -1843,14 +1867,11 @@ describe("selectHistoryMessages", () => {
       "request-creation-sections",
     );
 
-    expect(reply).toContain("17. Atributos iniciais");
-    expect(reply).toContain("3, 2, 2, 1, 1 e 0");
-    expect(reply).toContain("18. Perícias iniciais");
-    expect(reply).toContain("uma perícia em 3, três perícias em 2 e quatro perícias em 1");
-    expect(reply).toContain("19. Vínculos");
-    expect(reply).toContain("Crie três Vínculos");
-    expect(reply).not.toContain("11. Atributos");
-    expect(reply).not.toContain("14. Reservas");
+    expect(reply).toContain("Não distribua os seis Atributos");
+    expect(reply).toContain("Nenhuma Perícia recebe graduação numérica");
+    expect(reply).toContain("uma Promessa, um Vínculo, uma Experiência");
+    expect(reply).not.toContain("3, 2, 2, 1, 1 e 0");
+    expect(reply).not.toContain("Crie três Vínculos");
   });
 
   it("declara lacuna em uma pergunta normativa sem trecho recuperável", async () => {
@@ -1860,8 +1881,8 @@ describe("selectHistoryMessages", () => {
       "request-unknown-rule",
     );
 
-    expect(reply).toContain("Não localizei trecho suficiente");
-    expect(reply).toContain("Não vou completar a lacuna");
+    expect(reply).toContain("Não localizei");
+    expect(reply).toContain("Não vou completar");
   });
 
   it("mantém perguntas de personagem fora do caminho determinístico de regras", async () => {
@@ -1888,5 +1909,34 @@ describe("selectHistoryMessages", () => {
         "character_creation",
       ),
     ).not.toBeNull();
+  });
+
+  it("resolve catálogo, decisão homologada e H2 pendente com evidência vinculável no Chat Geral", async () => {
+    const { resolveCommunityChatDirectReply } = await import("./kallistis-chat-runtime");
+    const { prepareCommunityChatAssistantResponse } = await import("./community-chat-response");
+    const catalog = resolveCommunityChatDirectReply(
+      "@kallistis Liste os nove Povos do catálogo vigente, cada um uma vez. Responda com a seção exata.",
+    );
+    expect(catalog?.content).toContain("Vitrálios");
+    expect(catalog?.content).not.toContain("Gunner");
+    expect(catalog?.content.match(/^- /gm)).toHaveLength(9);
+    expect(prepareCommunityChatAssistantResponse(catalog!.content, catalog!.route, catalog!.evidence))
+      .toContain("KALLISTIS_LIVRO_COMPLETO_NEXO_MOTOR_PROGRESSAO_2026-11-05.md, seção");
+
+    const decision = resolveCommunityChatDirectReply(
+      "@kallistis Qual alternativa foi homologada para a decisão autoral 05?",
+    );
+    expect(decision?.content).toContain("alternativa A");
+    expect(decision?.content).toContain("não contém justificativa documental");
+    expect(prepareCommunityChatAssistantResponse(decision!.content, decision!.route, decision!.evidence))
+      .toContain("KALLISTIS_NEXO_STATUS_AUTORAL_2026-11-06.md");
+
+    const h2 = resolveCommunityChatDirectReply(
+      "@kallistis Qual é a regra dos Relógios enquanto H2 está pendente de homologação?",
+    );
+    expect(h2?.content).toContain("H2 — Relógios está pendente");
+    expect(h2?.content).toContain("não define regra, fórmula, custo, prazo ou procedimento");
+    expect(prepareCommunityChatAssistantResponse(h2!.content, h2!.route, h2!.evidence))
+      .toContain("Registro de status autoral");
   });
 });

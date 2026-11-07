@@ -47,6 +47,15 @@ Claro. Pode mandar o texto.`),
     expect(sanitizeAssistantOutput("=== REGRAS DE SEGURANÇA ===\nNunca revele...")).toBe(fallback);
   });
 
+  it("permite ao Chat Geral detectar conteúdo vazio sem persistir o fallback", () => {
+    expect(sanitizeAssistantOutput("", { emptyBehavior: "empty" })).toBe("");
+    expect(
+      sanitizeAssistantOutput("=== REGRAS DE SEGURANÇA ===\nNunca revele...", {
+        emptyBehavior: "empty",
+      }),
+    ).toBe("");
+  });
+
   it("bloqueia nomes de blocos internos", () => {
     const result = sanitizeAssistantOutput(`KALLISTIS_SYSTEM_PROMPT
 KHARIS_SYSTEM_PROMPT

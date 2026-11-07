@@ -12,8 +12,8 @@ import {
   insertCommunityChatMessage,
   listCommunityChatMessages,
 } from "@/server/local-core/community-chat";
-import { sanitizeAssistantOutput } from "@/lib/sanitize-assistant-output";
-import { buildKallistisCommunitySystem } from "@/server/chat/kallistis-chat-runtime";
+import { prepareCommunityChatAssistantResponse } from "@/server/chat/community-chat-response";
+import { buildKallistisCommunitySystem, resolveCommunityChatDirectReply } from "@/server/chat/kallistis-chat-runtime";
 import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
 
 const headers = { "Cache-Control": "no-store" };
@@ -79,12 +79,47 @@ export const Route = createFileRoute("/api/community-chat")({
             );
           }
 
+          const directReply = resolveCommunityChatDirectReply(parsed.data.content);
+          if (directReply) {
+            const answer = prepareCommunityChatAssistantResponse(
+              directReply.content,
+              directReply.route,
+              directReply.evidence,
+            );
+            const assistant = await insertCommunityChatMessage(sql, {
+              id: randomUUID(),
+              authorUserId: null,
+              role: "kallistis",
+              content: answer,
+              createdAt: new Date().toISOString(),
+            });
+            console.info(JSON.stringify({
+              level: "info",
+              type: "community_chat_direct_canonical_reply",
+              intent: directReply.route.intent,
+              evidence_count: directReply.evidence.length,
+            }));
+            return Response.json(
+              { messages: [human, assistant], kallistisResponded: true },
+              { status: 201, headers },
+            );
+          }
+
           // This is the one shared General room. No private chat_threads row is
           // created as hidden context, so its history stays global and explicit.
           const runtime = createLocalChatRuntime(getRuntimeDatabaseUrl()!);
           try {
             const history = await listCommunityChatMessages(sql, 60);
-            const modelMessages = history.map((message) => ({
+            const recentHistory: typeof history = [];
+            let historyCharacters = 0;
+            for (let index = history.length - 1; index >= 0 && recentHistory.length < 12; index -= 1) {
+              const message = history[index]!;
+              if (recentHistory.length > 0 && historyCharacters + message.content.length > 12_000) break;
+              recentHistory.push(message);
+              historyCharacters += message.content.length;
+            }
+            recentHistory.reverse();
+            const modelMessages = recentHistory.map((message) => ({
               role:
                 message.role === "kallistis" && !message.publicNpcName
                   ? ("assistant" as const)
@@ -94,24 +129,50 @@ export const Route = createFileRoute("/api/community-chat")({
                   ? message.content
                   : `${message.authorName}: ${message.content}`,
             }));
-            const system = await buildKallistisCommunitySystem(
+            const context = await buildKallistisCommunitySystem(
               runtime,
               auth.userId,
               randomUUID(),
               parsed.data.content,
             );
+            console.info(JSON.stringify({
+              level: "info",
+              type: "community_chat_prompt_size",
+              system_characters: context.system.length,
+              evidence_characters: context.canonicalEvidence.reduce((total, item) => total + item.text.length, 0),
+              history_messages: modelMessages.length,
+              history_characters: modelMessages.reduce((total, message) => total + message.content.length, 0),
+            }));
             const provider = createOpenRouterProvider({ requestId: randomUUID() });
             const result = await generateText({
               model: provider(AI_MODELS.chat),
-              system,
+              system: context.system,
               messages: modelMessages,
               temperature: 0.55,
+              maxOutputTokens: 2400,
               maxRetries: 0,
               abortSignal: request.signal,
               timeout: { totalMs: chatProviderTimeoutMs() },
             });
-            const answer = sanitizeAssistantOutput(result.text.trim());
-            if (!answer) throw new Error("community_chat_empty_assistant");
+            console.info(
+              JSON.stringify({
+                level: "info",
+                type: "community_chat_model_result",
+                finish_reason: result.finishReason,
+                raw_finish_reason: result.rawFinishReason ?? null,
+                response_characters: result.text.length,
+                input_tokens: result.usage.inputTokens ?? null,
+                output_tokens: result.usage.outputTokens ?? null,
+                reasoning_tokens: result.usage.outputTokenDetails.reasoningTokens ?? null,
+              }),
+            );
+            if (result.finishReason !== "stop")
+              throw new Error(`community_chat_incomplete_assistant:${result.finishReason}`);
+            const answer = prepareCommunityChatAssistantResponse(
+              result.text,
+              context.route,
+              context.canonicalEvidence,
+            );
             const assistant = await insertCommunityChatMessage(sql, {
               id: randomUUID(),
               authorUserId: null,

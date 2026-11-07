@@ -10,15 +10,27 @@ import {
 import type { KallistisSourceChannel } from "@/lib/kallistis-channels";
 import { buildKallistisSystemPrompt } from "@/lib/kallistis-prompt";
 import { loadCanonicalIdentity } from "@/lib/canonical-identity.server";
+import { BOOK_SOURCE_SHA256 } from "@/server/characters/conversational-creation-book-manifest";
 import {
   RULE_SOURCE_ID,
   RULE_SOURCE_VERSION,
+  BOOK_SOURCE_ID,
+  BOOK_SOURCE_VERSION,
+  retrieveCanonicalBookEvidence,
+  retrieveCanonicalCharacterCatalogEvidence,
+  resolveCanonicalAuthorialStatusReply,
+  renderPreparedCanonicalBookContext,
   renderCanonicalRuleContext,
   retrieveCanonicalRules,
   retrieveCanonicalCharacterCatalog,
   retrieveCanonicalCreationSections,
   resolveCanonicalLocks,
 } from "@/lib/canonical-rules.server";
+import {
+  renderCanonicalRouteInstructions,
+  routeCanonicalChatQuestion,
+  type CanonicalChatRoute,
+} from "@/server/chat/canonical-intent-routing";
 import {
   lerContextosAtivos,
   renderConfirmedIdentityBlock,
@@ -586,18 +598,40 @@ export async function buildKallistisCommunitySystem(
         surface: "GENERAL",
       }),
     );
-    const ruleContext = renderCanonicalRuleContext(question);
-    return (
-      baseSystem +
-      CHAT_IDENTITY_REINFORCEMENT_BLOCK +
-      (ruleContext ? `\n\n${ruleContext}` : "") +
-      INJECTION_GUARD +
-      "\n\n=== CHAT GERAL COMPARTILHADO ===\n" +
-      "Esta é uma sala pública única para todas as pessoas autenticadas. " +
-      "Responda apenas à mensagem que mencionou @kallistis. Nunca revele dados " +
-      "privados, memórias conversacionais, rascunhos, fichas ou contexto de outro usuário. " +
-      `Request id: ${requestId}.`
+    const route = routeCanonicalChatQuestion(question);
+    const canonicalEvidence =
+      route.books.length > 0 ? retrieveCanonicalBookEvidence(question, route.books) : [];
+    const ruleContext = renderPreparedCanonicalBookContext(canonicalEvidence);
+    console.info(
+      JSON.stringify({
+        level: "info",
+        type: "community_chat_canonical_route",
+        request_id: requestId,
+        intent: route.intent,
+        destination: route.books,
+        source_id: route.books.length ? BOOK_SOURCE_ID : null,
+        source_version: route.books.length ? BOOK_SOURCE_VERSION : null,
+        source_sha256: route.books.length ? BOOK_SOURCE_SHA256 : null,
+        evidence_available: Boolean(ruleContext),
+        evidence_count: canonicalEvidence.length,
+        evidence_references: canonicalEvidence.map((item) => item.citation),
+      }),
     );
+    return {
+      system:
+        baseSystem +
+        CHAT_IDENTITY_REINFORCEMENT_BLOCK +
+        `\n\n${renderCanonicalRouteInstructions(route)}` +
+        (ruleContext ? `\n\n${ruleContext}` : "") +
+        INJECTION_GUARD +
+        "\n\n=== CHAT GERAL COMPARTILHADO ===\n" +
+        "Esta é uma sala pública única para todas as pessoas autenticadas. " +
+        "Responda apenas à mensagem que mencionou @kallistis. Nunca revele dados " +
+        "privados, memórias conversacionais, rascunhos, fichas ou contexto de outro usuário. " +
+        `Request id: ${requestId}.`,
+      route,
+      canonicalEvidence,
+    };
   } catch (error) {
     if (error instanceof KallistisChatError) throw error;
     throw new KallistisChatError({
@@ -606,6 +640,31 @@ export async function buildKallistisCommunitySystem(
       stage: "persistence",
     });
   }
+}
+
+export function resolveCommunityChatDirectReply(question: string) {
+  const route: CanonicalChatRoute = { intent: "rules", books: [], handling: "answer" };
+  const statusReply = resolveCanonicalAuthorialStatusReply(question);
+  if (statusReply) {
+    return {
+      content: statusReply.content,
+      route,
+      evidence: statusReply.evidence,
+    };
+  }
+  const catalog = retrieveCanonicalCharacterCatalogEvidence(question);
+  if (!catalog) return null;
+  return {
+    content: [
+      "Catálogo recuperado diretamente das seções da fonte canônica KALLISTIS:",
+      ...catalog.map(
+        (category) =>
+          `**${category.section} — ${category.entries.length} ${category.label.endsWith("POVOS") ? "Povos" : "Ofícios"}:**\n${category.entries.map((entry) => `- ${entry}`).join("\n")} [[EVIDENCE:${category.evidence.evidenceId}]]`,
+      ),
+    ].join("\n\n"),
+    route,
+    evidence: catalog.map((category) => category.evidence),
+  };
 }
 
 export type InspectedKallistisTurn =

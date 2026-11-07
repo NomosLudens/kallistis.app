@@ -107,7 +107,12 @@ export function CommunityChatView() {
         });
     } catch (error) {
       setInput(content);
-      toast.error(error instanceof Error ? error.message : "Não foi possível enviar a mensagem.");
+      const message = error instanceof Error ? error.message : "";
+      toast.error(
+        message === "community_chat_failed"
+          ? "Sua mensagem foi salva, mas KALLÍSTIS não respondeu. A pergunta continua sem resposta; o texto ficou no campo para você tentar novamente."
+          : message || "Não foi possível enviar a mensagem.",
+      );
     } finally {
       setSending(false);
     }

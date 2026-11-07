@@ -61,7 +61,11 @@ function stripInternalBlocks(text: string): string {
 
 export function sanitizeAssistantOutput(
   raw: string,
-  options: { isLoading?: boolean; status?: "submitted" | "streaming" | "ready" | "error" } = {},
+  options: {
+    isLoading?: boolean;
+    status?: "submitted" | "streaming" | "ready" | "error";
+    emptyBehavior?: "fallback" | "empty";
+  } = {},
 ): string {
   let text = (raw ?? "").replace(/\r\n?/g, "\n");
 
@@ -86,5 +90,6 @@ export function sanitizeAssistantOutput(
 
   const stillStreaming =
     options.isLoading || options.status === "submitted" || options.status === "streaming";
-  return text || (stillStreaming ? "" : FALLBACK);
+  return text ||
+    (stillStreaming || options.emptyBehavior === "empty" ? "" : FALLBACK);
 }
