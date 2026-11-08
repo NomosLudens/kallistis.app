@@ -1,5 +1,9 @@
 import { extname, normalize, resolve } from "node:path";
-import server from "../dist/server/server.js";
+import { installSensitiveLogRedaction } from "../src/server/local-core/log-redaction";
+
+installSensitiveLogRedaction();
+
+const { default: server } = await import("../dist/server/server.js");
 
 const clientRoot = resolve(import.meta.dir, "../dist/client");
 const mimeTypes: Record<string, string> = {
@@ -50,7 +54,9 @@ Bun.serve({
         return new Response(request.method === "HEAD" ? null : file, {
           headers: {
             "content-type": mimeTypes[extname(path).toLowerCase()] ?? "application/octet-stream",
-            "cache-control": path.includes("/assets/") ? "public, max-age=31536000, immutable" : "public, max-age=300",
+            "cache-control": path.includes("/assets/")
+              ? "public, max-age=31536000, immutable"
+              : "public, max-age=300",
             "x-content-type-options": "nosniff",
           },
         });

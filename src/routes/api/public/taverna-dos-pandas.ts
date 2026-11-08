@@ -57,12 +57,14 @@ export const Route = createFileRoute("/api/public/taverna-dos-pandas")({
                     c.snapshot->>'origemDescricao' AS "originDescription",
                     c.snapshot->>'oficioNarrativo' AS office,
                     c.snapshot->>'oficioDescricao' AS "officeDescription",
-                    c.snapshot->>'aparencia' AS appearance,
+                    CASE WHEN c.id = 'hist-f3f3fbc1967c4c191819-04'
+                         THEN NULL ELSE c.snapshot->>'aparencia' END AS appearance,
                     c.snapshot->>'biografia' AS history,
                     c.snapshot->>'manifestacao_pessoal' AS manifestations,
                     c.snapshot->>'memoria' AS memory,
                     c.snapshot->>'promessa' AS promise,
-                    c.snapshot->>'ferida' AS loss,
+                    CASE WHEN c.id = 'hist-f3f3fbc1967c4c191819-02'
+                         THEN NULL ELSE c.snapshot->>'ferida' END AS loss,
                     c.snapshot->>'pergunta' AS question,
                     COALESCE((c.snapshot->>'completo')::boolean, false) AS complete
                FROM allowed
