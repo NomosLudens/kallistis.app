@@ -15,6 +15,11 @@ const headers = {
   "Content-Type": "application/json; charset=utf-8",
   "X-Content-Type-Options": "nosniff",
 };
+const methodNotAllowed = () =>
+  Response.json(
+    { error: "method_not_allowed" },
+    { status: 405, headers: { ...headers, Allow: "GET" } },
+  );
 
 type PublicCharacterRow = {
   id: string;
@@ -38,6 +43,7 @@ type PublicCharacterRow = {
 export const Route = createFileRoute("/api/public/taverna-dos-pandas")({
   server: {
     handlers: {
+      DELETE: methodNotAllowed,
       GET: async () => {
         const url = getRuntimeDatabaseUrl();
         if (!url)
@@ -95,6 +101,9 @@ export const Route = createFileRoute("/api/public/taverna-dos-pandas")({
           sql.close();
         }
       },
+      PATCH: methodNotAllowed,
+      POST: methodNotAllowed,
+      PUT: methodNotAllowed,
     },
   },
 });
