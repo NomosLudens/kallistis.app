@@ -33,7 +33,7 @@ function buildSecurityHeaders(): Record<string, string> {
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https:"],
     "font-src": ["'self'", "data:"],
-    "media-src": ["'self'", "blob:", "data:"],
+    "media-src": ["'self'", "blob:", "data:", "https://kallistis.app"],
     "connect-src": [
       "'self'",
       supabaseOrigin,

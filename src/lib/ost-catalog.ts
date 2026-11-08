@@ -29,6 +29,8 @@ type CuratedTrack = {
   title: string;
   fileName: string;
   categories: readonly OstCategory[];
+  local?: boolean;
+  assetVersion?: string;
 };
 
 const CATEGORY = {
@@ -46,7 +48,18 @@ const CATEGORY = {
   revelation: "Revelação, escolha e clímax narrativo",
 } satisfies Record<string, OstCategory>;
 
+const OST_MEDIA_ORIGIN = "https://kallistis.app/audio/ost/";
+const OST_LOCAL_PATH = "/audio/ost/";
+
 const CURATED_TRACKS: readonly CuratedTrack[] = [
+  {
+    id: "a-rota-que-ainda-chama",
+    title: "A Rota que Ainda Chama",
+    fileName: "rota-que-ainda-chama.mp3",
+    categories: [CATEGORY.exploration, CATEGORY.travel, CATEGORY.refuge, CATEGORY.revelation],
+    local: true,
+    assetVersion: "3014507af781",
+  },
   {
     id: "alma-de-bronze-coracao-de-nomos",
     title: "Alma de Bronze — Coração de Nomos",
@@ -91,6 +104,14 @@ const CURATED_TRACKS: readonly CuratedTrack[] = [
     categories: [CATEGORY.cosmology, CATEGORY.travel],
   },
   {
+    id: "ecos-entre-mundos",
+    title: "Ecos entre Mundos",
+    fileName: "ecos-entre-mundos.mp3",
+    categories: [CATEGORY.cosmology, CATEGORY.exploration, CATEGORY.travel],
+    local: true,
+    assetVersion: "62b71dc07d18",
+  },
+  {
     id: "garantia-expirada",
     title: "Garantia Expirada",
     fileName: "Garantia Expirada.mp3",
@@ -113,6 +134,14 @@ const CURATED_TRACKS: readonly CuratedTrack[] = [
     title: "LEVANTA! RUGE!",
     fileName: "LEVANTA! RUGE!.mp3",
     categories: [CATEGORY.opening, CATEGORY.combat, CATEGORY.pursuit],
+  },
+  {
+    id: "luz-alem-da-fenda",
+    title: "Luz Além da Fenda",
+    fileName: "luz-alem-da-fenda.mp3",
+    categories: [CATEGORY.cosmology, CATEGORY.travel, CATEGORY.tension, CATEGORY.revelation],
+    local: true,
+    assetVersion: "ec13d90f8bd3",
   },
   {
     id: "mi-nam-mi-raar",
@@ -150,6 +179,14 @@ const CURATED_TRACKS: readonly CuratedTrack[] = [
     title: "O Instante em que Tudo Partiu",
     fileName: "O Instante em que Tudo Partiu.mp3",
     categories: [CATEGORY.cosmology, CATEGORY.tension, CATEGORY.pursuit, CATEGORY.revelation],
+  },
+  {
+    id: "o-limiar-responde",
+    title: "O Limiar Responde",
+    fileName: "limiar-responde.mp3",
+    categories: [CATEGORY.cosmology, CATEGORY.tension, CATEGORY.revelation],
+    local: true,
+    assetVersion: "49f83faae84f",
   },
   {
     id: "o-mundo-nao-sera-um",
@@ -264,7 +301,9 @@ export const OST_CATALOG: readonly OstTrack[] = CURATED_TRACKS.map((track) => ({
   title: track.title,
   subtitle: null,
   artist: "",
-  src: "/audio/ost/" + track.fileName + "?v=curated-1263d115",
+  src: track.local
+    ? `${OST_LOCAL_PATH}${encodeURIComponent(track.fileName)}?v=${track.assetVersion}`
+    : `${OST_MEDIA_ORIGIN}${encodeURIComponent(track.fileName)}?v=curated-1263d115`,
   category: track.categories[0],
   categories: track.categories,
   autoplayAllowed: false,

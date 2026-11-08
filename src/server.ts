@@ -48,7 +48,7 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "media-src 'self' data: blob:",
+  "media-src 'self' data: blob: https://kallistis.app",
   "connect-src 'self' https: wss:",
   "frame-src 'self' https://accounts.google.com https://content.googleapis.com https://docs.google.com",
   "worker-src 'self' blob:",

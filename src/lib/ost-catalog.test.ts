@@ -2,10 +2,15 @@ import { describe, expect, it } from "vitest";
 import { OST_CATALOG } from "./ost-catalog";
 
 describe("catálogo da OST KALLISTIS", () => {
-  it("contém as 28 faixas curadas, com IDs únicos", () => {
-    expect(OST_CATALOG).toHaveLength(28);
-    expect(new Set(OST_CATALOG.map((track) => track.id)).size).toBe(28);
-    expect(OST_CATALOG.every((track) => track.src.startsWith("/audio/ost/"))).toBe(true);
+  it("contém as 32 faixas curadas, com IDs únicos", () => {
+    expect(OST_CATALOG).toHaveLength(32);
+    expect(new Set(OST_CATALOG.map((track) => track.id)).size).toBe(32);
+    expect(
+      OST_CATALOG.every((track) =>
+        track.src.startsWith("https://kallistis.app/audio/ost/") ||
+        track.src.startsWith("/audio/ost/"),
+      ),
+    ).toBe(true);
   });
 
   it("aponta cada faixa curada para seu asset versionado", () => {
