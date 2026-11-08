@@ -703,7 +703,7 @@ async function answerBookQuestion(input: {
       prompt: input.userMessage,
       maxOutputTokens: canonicalCatalogSources.length ? 900 : 1400,
       maxRetries: 0,
-      providerOptions: { openrouter: { reasoning: { effort: "none", exclude: true } } },
+      providerOptions: { openrouter: { reasoningEffort: "minimal" } },
       abortSignal: input.signal,
       timeout: { totalMs: CHARACTER_CREATION_TIMEOUT_MS },
     });
@@ -765,7 +765,7 @@ async function answerBookQuestion(input: {
       prompt: `PERGUNTA:\n${input.userMessage}\n\nRESPOSTA A AVALIAR:\n${answer}\n\nREGRAS EXECUTÁVEIS:\n${canonicalRules}\n\nFONTES DISPONÍVEIS (cite somente IDs e trechos literais):\n${JSON.stringify(evidenceSources.map((source) => ({ id: source.chunkId, kind: source.sourceKind ?? "book", version: source.sourceVersion, sha256: source.sourceHash, text: source.text })))}`,
       maxOutputTokens: 2400,
       maxRetries: 0,
-      providerOptions: { openrouter: { reasoning: { effort: "none", exclude: true } } },
+      providerOptions: { openrouter: { reasoningEffort: "minimal" } },
       abortSignal: input.signal,
       timeout: { totalMs: CHARACTER_CREATION_TIMEOUT_MS },
     });

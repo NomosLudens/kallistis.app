@@ -126,6 +126,7 @@ function ConversationalCreationPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [expandedPeople, setExpandedPeople] = useState<string | null>(null);
+  const [textChoice, setTextChoice] = useState("");
   const [distribution, setDistribution] = useState<Record<string, number>>({});
   const [targetMarco, setTargetMarco] = useState(1);
   const [progressionSelection, setProgressionSelection] = useState<string | string[] | null>(null);
@@ -150,6 +151,7 @@ function ConversationalCreationPage() {
     setSelected([]);
     setDistribution({});
     setExpandedPeople(null);
+    setTextChoice("");
   }, [next?.path]);
   useEffect(() => setProgressionSelection(null), [detail?.progressionChoices?.next?.id]);
 
@@ -698,6 +700,36 @@ function ConversationalCreationPage() {
                   Escolha aqui ou responda livremente na conversa. Toda escolha será apresentada
                   para sua confirmação antes de entrar na ficha.
                 </p>
+                {next.kind === "text" ? (
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void choose(textChoice.trim());
+                    }}
+                    className="mt-3 space-y-2"
+                  >
+                    <label htmlFor="creation-direct-text" className="block text-white/70">
+                      {next.label}
+                    </label>
+                    <textarea
+                      id="creation-direct-text"
+                      value={textChoice}
+                      onChange={(event) => setTextChoice(event.target.value)}
+                      rows={2}
+                      maxLength={12000}
+                      disabled={sending}
+                      placeholder={`Escreva ${next.label.toLocaleLowerCase("pt-BR")}…`}
+                      className="min-h-20 w-full resize-y rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-sm leading-6 outline-none transition focus:border-[color:var(--gold)]/60 focus:ring-2 focus:ring-[color:var(--gold)]/15"
+                    />
+                    <button
+                      type="submit"
+                      disabled={sending || !textChoice.trim()}
+                      className="min-h-10 rounded-lg border border-white/20 px-3 text-left hover:border-[color:var(--gold)]/70 disabled:opacity-50"
+                    >
+                      Revisar valor
+                    </button>
+                  </form>
+                ) : null}
                 {next.kind === "choice" || next.kind === "yes" ? (
                   next.path === "povo" ? (
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">

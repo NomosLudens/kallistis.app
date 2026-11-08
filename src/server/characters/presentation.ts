@@ -11,7 +11,7 @@ export type KallistisCapability = {
   name: string;
   canonical_definition: {
     id: string;
-    source: "KALLISTIS_REGRAS_CANONICAS_2.0";
+      source: "KALLISTIS_LIVRO_COMPLETO_NEXO_MOTOR_PROGRESSAO_2026-11-05";
     summary: string;
   };
   character_manifestation_description: string;
@@ -82,6 +82,15 @@ const PEOPLE_CAPABILITIES: Readonly<
     domain: "Ressonância Prismática",
     dissonance: "Quebra Frequencial",
   },
+};
+
+const NEXO_CANONICAL_SUMMARIES: Readonly<Record<string, string>> = {
+  "Aprendizagem Cruzada":
+    "Escolha uma prática fora de seu Ofício que o Livre tenha aprendido ou exercido. Essa prática é reconhecida como permissão e fundamento quando a ação a exigir; não concede graduação numérica. Depois de cada Marco, pode substituí-la por outra prática que tenha efetivamente aprendido ou exercido.",
+  "Solução Improvisada":
+    "Uma vez por cena, o Livre pode propor um uso inesperado para objeto, contato, costume ou fragmento de conhecimento. Quando suas propriedades e a situação sustentam essa ideia, o Dom permite tentar mesmo sem uma ferramenta básica apropriada; não torna qualquer coisa ferramenta perfeita. Sob incerteza e risco, o Mestre anuncia a consequência e resolve por NEXO, sem bônus fixo.",
+  "Identidade Oferecida":
+    "A Sombra pode oferecer uma identidade sem dúvida como atalho para um objetivo imediato. Aceitar pode garantir esse êxito agora, mas cobra a negação de parte da história, dos vínculos ou da escolha da personagem. O Mestre nomeia a consequência concreta antes da aceitação; o jogador decide. Não há marca numérica obrigatória de Sombra.",
 };
 
 export function capabilityKey(type: KallistisCapability["type"], id: string): string {
@@ -163,6 +172,8 @@ function canonicalSummary(value: unknown, name: string): string {
     .find(Boolean);
   if (extracted) return extracted;
   if (direct) return direct;
+  const nexoCanonical = NEXO_CANONICAL_SUMMARIES[name];
+  if (nexoCanonical) return nexoCanonical;
   return "Definição canônica registrada por ID no KALLISTIS.";
 }
 
@@ -180,7 +191,7 @@ function capability(
     name,
     canonical_definition: {
       id,
-      source: "KALLISTIS_REGRAS_CANONICAS_2.0",
+      source: "KALLISTIS_LIVRO_COMPLETO_NEXO_MOTOR_PROGRESSAO_2026-11-05",
       summary: canonicalSummary(canonical, name),
     },
     character_manifestation_description: descriptions[key] || "",
@@ -269,6 +280,24 @@ export function kallistisCapabilities(snapshot: CharacterSnapshot): KallistisCap
     }
   }
   const office = text(snapshot.oficio) || text(fields.oficio);
+  const nexoCapabilities = record(snapshot.capacidades) ?? {};
+  for (const rawTechnique of list(nexoCapabilities.tecnicas)) {
+    const item = record(rawTechnique);
+    const name = text(item?.nome || item?.name || rawTechnique);
+    if (name)
+      add(capability("technique", `${slug(office) || "trilha"}.${slug(name)}`, name, item || name, descriptions));
+  }
+  for (const rawForm of list(nexoCapabilities.formas)) {
+    const form = record(rawForm);
+    const formId = text(form?.formId || form?.id || rawForm);
+    const canonical = MAGIC_FORMS.find((candidate) => candidate.id === formId);
+    if (canonical) add(capability("magic", formId, canonical.canonicalName, canonical, descriptions));
+  }
+  for (const rawEvocation of list(nexoCapabilities.evocoes)) {
+    const item = record(rawEvocation);
+    const name = text(item?.nome || item?.name || rawEvocation);
+    if (name) add(capability("ability", `evocacao.${slug(name)}`, name, item || name, descriptions));
+  }
   for (const rawTechnique of list(snapshot.learnedCapabilities)) {
     const item = record(rawTechnique);
     const name = text(item?.nome || item?.name || rawTechnique);

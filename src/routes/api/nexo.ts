@@ -84,6 +84,7 @@ export const Route = createFileRoute("/api/nexo")({
             origins: CHARACTER_FORGE_CHOICE_CATALOG.origins,
             offices: CHARACTER_FORGE_CHOICE_CATALOG.offices.map((office) => ({
               name: office.name,
+              initialTechnique: office.initialTechnique,
               specializations: office.specializations.map((item) => ({ name: item.name })),
             })),
           };
@@ -108,14 +109,34 @@ export const Route = createFileRoute("/api/nexo")({
         if (!sql) return Response.json({ error: "database_unavailable" }, { status: 503, headers });
         try {
           if (input.action === "create_character") {
-            const snapshot = input.character;
+            const rawCharacter = input.character;
+            if (!rawCharacter || typeof rawCharacter !== "object" || Array.isArray(rawCharacter))
+              return Response.json({ error: "nexo_character_invalid", validation: ["invalid_character"] }, { status: 422, headers });
+            const value = rawCharacter as Record<string, unknown>;
+            const office = CHARACTER_FORGE_CHOICE_CATALOG.offices.find((entry) => entry.name === value.oficio);
+            const rawCapacities = value.capacidades && typeof value.capacidades === "object" && !Array.isArray(value.capacidades)
+              ? value.capacidades as Record<string, unknown>
+              : {};
+            const techniques = Array.isArray(rawCapacities.tecnicas) ? [...rawCapacities.tecnicas] : [];
+            if (office?.initialTechnique && !techniques.some((item) => {
+              const record = item && typeof item === "object" ? item as Record<string, unknown> : null;
+              return String(record?.nome || record?.name || item || "").trim() === office.initialTechnique;
+            })) techniques.unshift(office.initialTechnique);
+            const history = value.historia && typeof value.historia === "object" && !Array.isArray(value.historia)
+              ? value.historia as Record<string, unknown>
+              : {};
+            const snapshot = {
+              ...value,
+              capacidades: { ...rawCapacities, tecnicas: techniques },
+              perguntaPessoal: String(value.perguntaPessoal || history.perguntaPessoal || "").trim(),
+              manifestacao_pessoal: String(value.manifestacao_pessoal || history.manifestacaoPessoal || "").trim(),
+            };
             const errors = validateNexoCharacterCreation(snapshot, CHARACTER_FORGE_CHOICE_CATALOG);
             if (errors.length)
               return Response.json(
                 { error: "nexo_character_invalid", validation: errors },
                 { status: 422, headers },
               );
-            const value = snapshot as Record<string, unknown>;
             const full = {
               ruleset: NEXO_RULESET,
               nome: String(value.nome).trim(),
@@ -126,10 +147,24 @@ export const Route = createFileRoute("/api/nexo")({
               especializacao: value.especializacao,
               marco: value.marco,
               influencia: value.influencia,
-              historia: value.historia,
-              capacidades: value.capacidades,
+              historia: {
+                ...history,
+                promessa: value.promessa ?? history.promessa,
+                vinculo: value.vinculo ?? history.vinculo,
+                experiencia: value.experiencia ?? history.experiencia,
+                feridaMarcante: value.feridaMarcante ?? history.feridaMarcante,
+                perguntaPessoal: snapshot.perguntaPessoal,
+                manifestacaoPessoal: snapshot.manifestacao_pessoal,
+              },
+              promessa: value.promessa,
+              vinculo: value.vinculo,
+              experiencia: value.experiencia,
+              feridaMarcante: value.feridaMarcante,
+              perguntaPessoal: snapshot.perguntaPessoal,
+              manifestacao_pessoal: snapshot.manifestacao_pessoal,
+              capacidades: snapshot.capacidades,
               estado: value.estado,
-              completo: false,
+              completo: true,
             };
             const id = randomUUID();
             const character = await createPostgresCharacterRepository(sql).create(

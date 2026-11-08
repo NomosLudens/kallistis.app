@@ -4,7 +4,7 @@ import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
 import { createBunPostgresExecutor } from "@/server/local-core/postgres";
 import { isSameOriginRequest } from "@/server/local-core/csrf";
 import { isSystemMaster } from "@/server/local-core/player-access";
-import { NEXO_RULESET, NEXO_RULESETS } from "@/server/nexo/engine";
+import { NEXO_RULESET } from "@/server/nexo/engine";
 
 const headers = { "Cache-Control": "no-store" };
 export const Route = createFileRoute("/api/nexo/mesas")({ server: { handlers: {
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/nexo/mesas")({ server: { handlers: {
     const url = getRuntimeDatabaseUrl(); if (!url) return Response.json({ error: "database_unavailable" }, { status: 503, headers });
     const sql = createBunPostgresExecutor(url);
     try {
-      const rows = await sql.query<Record<string, unknown>>(`SELECT m.id,m.slug,m.name,m.ruleset,mm.member_role,mm.membership_status FROM public.mesas m JOIN public.mesa_members mm ON mm.mesa_id=m.id WHERE mm.user_id=$1 AND mm.membership_status='active' AND m.ruleset = ANY($2::text[]) ORDER BY m.name`, [auth.userId,NEXO_RULESETS]);
+      const rows = await sql.query<Record<string, unknown>>(`SELECT m.id,m.slug,m.name,m.ruleset,mm.member_role,mm.membership_status FROM public.mesas m JOIN public.mesa_members mm ON mm.mesa_id=m.id WHERE mm.user_id=$1 AND mm.membership_status='active' AND m.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL') ORDER BY m.name`, [auth.userId]);
       return Response.json({ mesas: rows, canCreateMesa: await isSystemMaster(sql, auth.userId) }, { headers });
     } finally { sql.close(); }
   },

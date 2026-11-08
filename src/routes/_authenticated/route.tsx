@@ -142,14 +142,18 @@ export function AuthedLayout() {
       <div className="relative flex h-[100dvh] min-h-[100dvh] w-full bg-[#08080e] text-[#eceaf0]">
         <AppSidebar />
         {!authz.loading && !authz.isMaster ? <ScenePulseReceiver /> : null}
-        {authz.isMaster ? <OstPlayer /> : null}
         <div className="flex-1 flex min-w-0 flex-col relative">
           {!isChat ? <HeaderBar /> : <CompactMenuButton />}
           <main
-            className={`min-h-0 flex-1 min-w-0 relative ${isChat ? "pt-[calc(env(safe-area-inset-top)+3.5rem)]" : ""}`}
+            className={`min-h-0 flex-1 min-w-0 relative ${authz.isMaster ? "overflow-y-auto" : ""} ${isChat ? "pt-[calc(env(safe-area-inset-top)+3.5rem)]" : ""}`}
           >
             <Outlet />
           </main>
+          {authz.isMaster ? (
+            <div className="z-50 flex shrink-0 justify-end border-t border-[color:var(--border)] bg-[#08080e] p-3">
+              <OstPlayer />
+            </div>
+          ) : null}
         </div>
       </div>
     </SidebarProvider>

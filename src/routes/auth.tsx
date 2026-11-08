@@ -210,8 +210,8 @@ function AuthPage() {
 
   async function handleRegistrationSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (registrationCredential.length < 8) {
-      toast.error("A palavra precisa ter pelo menos 8 caracteres.");
+    if (registrationCredential.length < 7) {
+      toast.error("A palavra precisa ter pelo menos 7 caracteres.");
       return;
     }
     if (registrationCredential !== registrationCredentialConfirmation) {
@@ -406,7 +406,7 @@ function AuthPage() {
                 id="registration-credential"
                 name="new-password"
                 type="password"
-                minLength={8}
+                minLength={7}
                 maxLength={256}
                 autoComplete="new-password"
                 required
@@ -421,7 +421,7 @@ function AuthPage() {
                 id="registration-credential-confirmation"
                 name="new-password-confirmation"
                 type="password"
-                minLength={8}
+                minLength={7}
                 maxLength={256}
                 autoComplete="new-password"
                 required

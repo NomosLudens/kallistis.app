@@ -3,7 +3,6 @@ import { requireUser } from "@/lib/require-user.server";
 import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
 import { createBunPostgresExecutor } from "@/server/local-core/postgres";
 import { isSameOriginRequest } from "@/server/local-core/csrf";
-import { NEXO_RULESETS } from "@/server/nexo/engine";
 
 const headers = { "Cache-Control": "no-store" };
 export const Route = createFileRoute("/api/nexo/character-mesas")({ server: { handlers: {
@@ -13,7 +12,7 @@ export const Route = createFileRoute("/api/nexo/character-mesas")({ server: { ha
     const url = getRuntimeDatabaseUrl(); if (!url) return Response.json({ error: "database_unavailable" }, { status: 503, headers });
     const sql = createBunPostgresExecutor(url);
     try {
-      const rows = await sql.query(`SELECT m.id,m.name,m.slug FROM public.mesas m JOIN public.character_mesas cm ON cm.mesa_id=m.id JOIN public.characters c ON c.id=cm.character_id WHERE c.id=$1 AND c.owner_user_id=$2 AND c.ruleset = ANY($3::text[]) ORDER BY m.name`, [id,auth.userId,NEXO_RULESETS]);
+      const rows = await sql.query(`SELECT m.id,m.name,m.slug FROM public.mesas m JOIN public.character_mesas cm ON cm.mesa_id=m.id JOIN public.characters c ON c.id=cm.character_id WHERE c.id=$1 AND c.owner_user_id=$2 AND c.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL') ORDER BY m.name`, [id,auth.userId]);
       return Response.json({ mesas: rows }, { headers });
     } finally { sql.close(); }
   },
@@ -27,7 +26,7 @@ export const Route = createFileRoute("/api/nexo/character-mesas")({ server: { ha
     const sql = createBunPostgresExecutor(url);
     try {
       await sql.transaction!(async (tx) => {
-        const rows = await tx.query(`SELECT 1 FROM public.mesas m JOIN public.mesa_members mm ON mm.mesa_id=m.id JOIN public.characters c ON c.id=$2 WHERE m.id=$1 AND m.ruleset = ANY($3::text[]) AND mm.user_id=$4 AND mm.member_role IN ('jogador','mestre') AND mm.membership_status='active' AND c.owner_user_id=$4 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS,auth.userId]);
+        const rows = await tx.query(`SELECT 1 FROM public.mesas m JOIN public.mesa_members mm ON mm.mesa_id=m.id JOIN public.characters c ON c.id=$2 WHERE m.id=$1 AND m.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL') AND mm.user_id=$3 AND mm.member_role IN ('jogador','mestre') AND mm.membership_status='active' AND c.owner_user_id=$3 AND c.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL') AND c.status <> 'archived' FOR UPDATE`, [mesaId,characterId,auth.userId]);
         if (!rows.length) throw new Error("nexo_character_or_membership_not_available");
         await tx.query(`INSERT INTO public.character_mesas(character_id,mesa_id) VALUES($1,$2) ON CONFLICT(character_id,mesa_id) DO NOTHING`, [characterId,mesaId]);
       });

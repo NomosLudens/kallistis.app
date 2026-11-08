@@ -13,6 +13,7 @@ const mimeTypes: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".jpeg": "image/jpeg",
   ".jpg": "image/jpeg",
+  ".mp3": "audio/mpeg",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".map": "application/json; charset=utf-8",
@@ -32,7 +33,9 @@ function staticPath(request: Request): string | null {
     return null;
   }
   const relative = normalize(pathname).replace(/^[/\\]+/, "");
-  const candidate = resolve(clientRoot, relative);
+  const route = relative.replace(/[/\\]+$/, "");
+  const staticRelative = route === "jogadores" ? "jogadores.html" : route === "fichas" ? "fichas/index.html" : relative;
+  const candidate = resolve(clientRoot, staticRelative);
   return candidate.startsWith(`${clientRoot}/`) || candidate === clientRoot ? candidate : null;
 }
 

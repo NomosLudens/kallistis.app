@@ -27,6 +27,8 @@ import {
 } from "./authorization";
 import { isSystemMaster } from "@/server/local-core/player-access";
 import { projectKallistisCharacter } from "./presentation";
+import { CHARACTER_FORGE_CHOICE_CATALOG } from "./character-choice-registry";
+import { isNexoRuleset, validateNexoCharacterCreation } from "@/server/nexo/engine";
 
 type CharacterRow = Record<string, unknown>;
 const date = (v: unknown): string => String(v ?? "");
@@ -436,8 +438,9 @@ export function createPostgresCharacterRepository(sql: SqlExecutor) {
       mesaIds?: readonly string[],
       ownerUserId = userId,
     ) {
-      const validation =
-        snapshot.completo === true
+      const validation = isNexoRuleset(ruleset)
+        ? { ok: validateNexoCharacterCreation(snapshot, CHARACTER_FORGE_CHOICE_CATALOG).length === 0 }
+        : snapshot.completo === true
           ? validateCharacterSnapshot(snapshot, true)
           : { ok: validateMagicChoices(snapshot).length === 0 };
       if (!validation.ok) throw new Error("character_invalid");

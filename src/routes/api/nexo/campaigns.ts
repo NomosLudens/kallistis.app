@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/require-user.server";
 import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
 import { createBunPostgresExecutor } from "@/server/local-core/postgres";
 import { isSameOriginRequest } from "@/server/local-core/csrf";
-import { NEXO_RULESETS, isNexoRuleset } from "@/server/nexo/engine";
+import { isNexoRuleset } from "@/server/nexo/engine";
 
 const headers = { "Cache-Control": "no-store" };
 export const Route = createFileRoute("/api/nexo/campaigns")({ server: { handlers: {
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/nexo/campaigns")({ server: { handlers
     try {
       const membership = await sql.query(`SELECT 1 FROM public.mesa_members WHERE mesa_id=$1 AND user_id=$2 AND membership_status='active'`, [mesaId,auth.userId]);
       if (!membership.length) return Response.json({ error: "mesa_access_forbidden" }, { status: 403, headers });
-      const rows = await sql.query(`SELECT c.id,c.name,c.status,c.ruleset,c.created_at FROM public.campaigns c JOIN public.mesas m ON m.id=c.mesa_id WHERE c.mesa_id=$1 AND c.ruleset = ANY($2::text[]) AND m.ruleset = ANY($2::text[]) AND c.ruleset=m.ruleset ORDER BY c.created_at`, [mesaId,NEXO_RULESETS]);
+      const rows = await sql.query(`SELECT c.id,c.name,c.status,c.ruleset,c.created_at FROM public.campaigns c JOIN public.mesas m ON m.id=c.mesa_id WHERE c.mesa_id=$1 AND c.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL') AND m.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL') AND c.ruleset=m.ruleset ORDER BY c.created_at`, [mesaId]);
       return Response.json({ campaigns: rows }, { headers });
     } finally { sql.close(); }
   },

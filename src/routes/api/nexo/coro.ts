@@ -5,7 +5,7 @@ import { createBunPostgresExecutor } from "@/server/local-core/postgres";
 import type { SqlExecutor } from "@/server/local-core/postgres";
 import { isSameOriginRequest } from "@/server/local-core/csrf";
 import { characterOfficeRules } from "@/server/characters/character-canon";
-import { canSoloMasterAdjudicateOwnCoroAction, maxCoroBars, NEXO_RULESETS, isNexoRuleset } from "@/server/nexo/engine";
+import { canSoloMasterAdjudicateOwnCoroAction, maxCoroBars, NEXO_RULESETS_POSTGRES_ARRAY, isNexoRuleset } from "@/server/nexo/engine";
 import { CORO_EFFECTS, coroConsentParticipants, getCoroEffect } from "@/server/nexo/coro-catalog";
 
 const headers = { "Cache-Control": "no-store" };
@@ -39,7 +39,7 @@ async function activeMembers(tx: Pick<SqlExecutor, "query">, mesaId: string) {
 }
 function activeIdentityIds(members: readonly ActiveMember[]) { return [...new Set(members.map((member) => member.user_id))]; }
 async function linkedCharacters(tx: Pick<SqlExecutor, "query">, mesaId: string) {
-  return tx.query<Record<string, unknown>>(`SELECT c.id,c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id JOIN public.mesa_members mm ON mm.mesa_id=cm.mesa_id AND mm.user_id=c.owner_user_id AND mm.membership_status='active' WHERE cm.mesa_id=$1 AND c.ruleset = ANY($2::text[]) AND c.status <> 'archived' ORDER BY c.created_at,c.id`, [mesaId,NEXO_RULESETS]);
+  return tx.query<Record<string, unknown>>(`SELECT c.id,c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id JOIN public.mesa_members mm ON mm.mesa_id=cm.mesa_id AND mm.user_id=c.owner_user_id AND mm.membership_status='active' WHERE cm.mesa_id=$1 AND c.ruleset = ANY($2::text[]) AND c.status <> 'archived' ORDER BY c.created_at,c.id`, [mesaId,NEXO_RULESETS_POSTGRES_ARRAY]);
 }
 function eligibleParticipantIds(characters: readonly Record<string, unknown>[]) {
   return [...new Set(characters.filter((row) => activePaper(row.snapshot)).map((row) => String(row.owner_user_id)))];
@@ -121,7 +121,7 @@ export const Route = createFileRoute("/api/nexo/coro")({ server: { handlers: {
           const actionDescription = validText(body.actionDescription, 1, 1000);
           const resistance = Number(body.resistance);
           if (!characterId || !actionDescription || !Number.isInteger(resistance) || resistance < 0 || resistance > 100) throw new Error("coro_resistance_invalid");
-          const linked = await tx.query(`SELECT 1 FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND cm.character_id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS]);
+          const linked = await tx.query(`SELECT 1 FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND cm.character_id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS_POSTGRES_ARRAY]);
           if (!linked.length) throw new Error("coro_character_not_found");
           const locked = await tx.query(`SELECT 1 FROM public.nexo_action_submissions WHERE mesa_id=$1 AND character_id=$2 AND status IN ('pending','ready') LIMIT 1 FOR UPDATE`, [mesaId,characterId]);
           if (locked.length) throw new Error("nexo_resistance_locked_by_action");
@@ -139,7 +139,7 @@ export const Route = createFileRoute("/api/nexo/coro")({ server: { handlers: {
           const characterId = typeof body.characterId === "string" ? body.characterId : "";
           const description = validText(body.actionDescription, 8, 1000);
           if (!characterId || !description) throw new Error("coro_action_description_invalid");
-          const characters = await tx.query<Record<string, unknown>>(`SELECT c.id,c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' AND c.owner_user_id=$4 FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS,auth.userId]);
+          const characters = await tx.query<Record<string, unknown>>(`SELECT c.id,c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' AND c.owner_user_id=$4 FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS_POSTGRES_ARRAY,auth.userId]);
           if (!characters.length) throw new Error("coro_character_not_owned_or_linked");
           const role = activePaper(characters[0].snapshot);
           if (!role) throw new Error("coro_active_paper_missing_or_invalid");
@@ -167,7 +167,7 @@ export const Route = createFileRoute("/api/nexo/coro")({ server: { handlers: {
           if (Number(contribution.round_number) !== Number(state.round_number)) throw new Error("coro_contribution_round_stale");
           let nextState = state;
           if (approved) {
-            const characters = await tx.query<Record<string, unknown>>(`SELECT c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,contribution.character_id,NEXO_RULESETS]);
+            const characters = await tx.query<Record<string, unknown>>(`SELECT c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,contribution.character_id,NEXO_RULESETS_POSTGRES_ARRAY]);
             if (!characters.length) throw new Error("coro_character_not_found");
             if (characters[0].owner_user_id !== contribution.contributor_user_id) throw new Error("coro_character_owner_changed");
             const role = activePaper(characters[0].snapshot);
@@ -194,7 +194,7 @@ export const Route = createFileRoute("/api/nexo/coro")({ server: { handlers: {
           const level = Number(body.level);
           const requestedIds = Array.isArray(body.participantUserIds) ? body.participantUserIds.filter((id): id is string => typeof id === "string") : [];
           if (!characterId || !narrative || !requestedIds.length) throw new Error("coro_manifestation_input_invalid");
-          const characters = await tx.query<Record<string, unknown>>(`SELECT c.id,c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' AND c.owner_user_id=$4 FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS,auth.userId]);
+          const characters = await tx.query<Record<string, unknown>>(`SELECT c.id,c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' AND c.owner_user_id=$4 FOR UPDATE`, [mesaId,characterId,NEXO_RULESETS_POSTGRES_ARRAY,auth.userId]);
           if (!characters.length) throw new Error("coro_character_not_owned_or_linked");
           const role = activePaper(characters[0].snapshot);
           if (!role) throw new Error("coro_active_paper_missing_or_invalid");
@@ -255,7 +255,7 @@ export const Route = createFileRoute("/api/nexo/coro")({ server: { handlers: {
           if (manifestation.proposer_user_id === auth.userId && !canSoloMasterAdjudicateOwnCoroAction({ memberRole: member.member_role, contributorUserId: String(manifestation.proposer_user_id), adjudicatorUserId: auth.userId, activeMesaParticipantUserIds: activeIdentityIds(memberRows) })) throw new Error("coro_self_adjudication_requires_solo_mesa");
           const effect = getCoroEffect(manifestation.active_paper, manifestation.level);
           if (!effect || effect.name !== manifestation.effect_name || effect.actionType !== manifestation.action_type) throw new Error("coro_manifestation_canonical_effect_changed");
-          const leader = await tx.query<Record<string, unknown>>(`SELECT c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,manifestation.leader_character_id,NEXO_RULESETS]);
+          const leader = await tx.query<Record<string, unknown>>(`SELECT c.snapshot,c.owner_user_id FROM public.character_mesas cm JOIN public.characters c ON c.id=cm.character_id WHERE cm.mesa_id=$1 AND c.id=$2 AND c.ruleset = ANY($3::text[]) AND c.status <> 'archived' FOR UPDATE`, [mesaId,manifestation.leader_character_id,NEXO_RULESETS_POSTGRES_ARRAY]);
           if (!leader.length || leader[0].owner_user_id !== manifestation.proposer_user_id) throw new Error("coro_manifestation_leader_changed");
           const currentRole = activePaper(leader[0].snapshot);
           if (!currentRole || currentRole.paper !== manifestation.active_paper) throw new Error("coro_active_paper_changed");

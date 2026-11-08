@@ -16,6 +16,10 @@ type PublicCharacter = {
   promise: string | null;
   loss: string | null;
   question: string | null;
+  concept: string | null;
+  marco: number | null;
+  influence: Record<string, unknown>;
+  capabilities: Array<{ type: string; name: string; summary: string }>;
   complete: boolean;
 };
 
@@ -51,7 +55,7 @@ function TavernaDosPandasPage() {
       .then((result) => {
         if (!active) return;
         const roster = Array.isArray(result.characters) ? result.characters : [];
-        if (roster.length !== 5) throw new Error("roster_unavailable");
+        if (roster.length !== 6) throw new Error("roster_unavailable");
         setCharacters(roster);
         setSelectedName(roster[0]?.name ?? "");
       })
@@ -75,10 +79,9 @@ function TavernaDosPandasPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--gold)]">
             KALLÍSTIS · Taverna dos Pandas
           </p>
-          <h1 className="serif mt-3 text-3xl sm:text-5xl">Histórias antes da ficha</h1>
+          <h1 className="serif mt-3 text-3xl sm:text-5xl">Histórias e fichas NEXO</h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">
-            Conheça as personagens e os caminhos narrativos que seus jogadores trouxeram ao
-            KALLÍSTIS. As escolhas mecânicas serão registradas pelos próprios jogadores.
+            Conheça as personagens de jogador da Mesa e as capacidades NEXO registradas no Genesis.
           </p>
         </header>
 
@@ -115,7 +118,7 @@ function TavernaDosPandasPage() {
               <article className="min-w-0 rounded-3xl border border-white/10 bg-[#18161c] p-5 sm:p-8">
                 <header className="border-b border-white/10 pb-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-white/45">
-                    Personagem de jogador · rascunho narrativo
+                    Personagem de jogador · Marco {selected.marco ?? "—"}
                   </p>
                   <h2 className="serif mt-2 text-3xl sm:text-4xl">{selected.name}</h2>
                   <p className="mt-3 text-sm text-white/65">
@@ -126,6 +129,7 @@ function TavernaDosPandasPage() {
                 </header>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <NarrativeBlock label="Conceito" children={selected.concept} />
                   <NarrativeBlock label="Povo" children={selected.peopleDescription} />
                   <NarrativeBlock label="Origem" children={selected.originDescription} />
                   <NarrativeBlock label="Ofício" children={selected.officeDescription} />
@@ -144,9 +148,21 @@ function TavernaDosPandasPage() {
                   <NarrativeBlock label="Pergunta pessoal" children={selected.question} />
                 </div>
 
+                <section className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-5">
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--gold)]">Capacidades NEXO registradas</h2>
+                  <ul className="mt-3 space-y-3">
+                    {selected.capabilities.map((capability) => (
+                      <li key={`${capability.type}:${capability.name}`} className="text-sm leading-6 text-white/80">
+                        <strong className="text-white">{capability.name}</strong>
+                        <p className="mt-1 whitespace-pre-wrap">{capability.summary}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
                 {!selected.complete ? (
                   <p className="mt-5 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/55">
-                    Nenhuma escolha mecânica foi registrada nesta ficha ainda.
+                    A ficha ainda não tem uma capacidade NEXO registrada.
                   </p>
                 ) : null}
               </article>

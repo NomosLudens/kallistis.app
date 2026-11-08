@@ -3,6 +3,7 @@ import { isSpecializationEligibleAtMarco } from "@/server/characters/character-c
 
 export const NEXO_RULESET = "KALLISTIS_NEXO_1" as const;
 export const NEXO_RULESETS = [NEXO_RULESET, "KALLISTIS_NEXO_FINAL"] as const;
+export const NEXO_RULESETS_POSTGRES_ARRAY = `{${NEXO_RULESETS.join(",")}}`;
 export function isNexoRuleset(value: unknown): value is (typeof NEXO_RULESETS)[number] {
   return typeof value === "string" && (NEXO_RULESETS as readonly string[]).includes(value);
 }
@@ -185,5 +186,12 @@ export function validateNexoCharacterCreation(snapshot: unknown, canon: {
   const errors = validateNexoCanon(snapshot, canon);
   if (!snapshot || typeof snapshot !== "object" || Number((snapshot as Record<string, unknown>).marco) !== 1)
     errors.push("nexo_creation_must_start_at_marco_1");
+  if (snapshot && typeof snapshot === "object") {
+    const value = snapshot as Record<string, unknown>;
+    if (typeof value.perguntaPessoal !== "string" || !value.perguntaPessoal.trim())
+      errors.push("perguntaPessoal_required");
+    if (typeof value.manifestacao_pessoal !== "string" || !value.manifestacao_pessoal.trim())
+      errors.push("manifestacao_pessoal_required");
+  }
   return errors;
 }

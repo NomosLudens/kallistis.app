@@ -1,0 +1,15 @@
+[Unit]
+Description=Back up KALLISTIS Genesis PostgreSQL and essential files to private GCS
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/usr/bin/python3 /usr/local/sbin/kallistis-genesis-backup
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/tmp

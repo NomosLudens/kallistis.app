@@ -38,13 +38,13 @@ describe("conversational creation provider request", () => {
     const referenceCases = [
       {
         id: "P01-09",
-        question: "Como funcionam as proficiências de armas?",
-        expected: /Proficiência não concede automaticamente \+2/i,
+        question: "Qual é o Marco para escolher a Especialização do Ofício?",
+        expected: /Marco 3|Marco 9/i,
       },
       {
         id: "P01-10",
-        question: "O que fazem Munição de Quartzo e Fio de Retorno?",
-        expected: /Munição de Quartzo[\s\S]*\+2 dano[\s\S]*Fio de Retorno[\s\S]*6 células/i,
+        question: "O Marco mínimo concede aprendizagem automática de Técnica?",
+        expected: /não concede aprendizagem automática|fonte, treinamento ou acontecimento real/i,
       },
       {
         id: "P01-13",

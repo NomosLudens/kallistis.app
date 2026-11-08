@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily KALLISTIS Genesis backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=15m
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

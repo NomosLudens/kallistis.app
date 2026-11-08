@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/require-user.server";
 import { isSameOriginRequest } from "@/server/local-core/csrf";
 import { createBunPostgresExecutor } from "@/server/local-core/postgres";
 import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
-import { NEXO_RULESETS, isNexoRuleset, validateProposedArguments } from "@/server/nexo/engine";
+import { NEXO_RULESETS_POSTGRES_ARRAY, isNexoRuleset, validateProposedArguments } from "@/server/nexo/engine";
 
 const headers = { "Cache-Control": "no-store" };
 function error(code: string, status = 400) {
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/api/nexo/actions")({
           const args = ids.length
             ? await sql.query<Record<string, unknown>>(
                 `SELECT submission_id,slot,argument_text,status,adjudicated_by_user_id,adjudicated_at FROM public.nexo_action_arguments WHERE submission_id=ANY($1::uuid[]) ORDER BY submission_id,slot`,
-                [ids],
+                [`{${ids.join(",")}}`],
               )
             : [];
           const bySubmission = new Map<string, Record<string, unknown>[]>();
@@ -142,7 +142,7 @@ export const Route = createFileRoute("/api/nexo/actions")({
               if (sessionId) {
                 const sessions = await tx.query(
                   `SELECT 1 FROM public.mesa_live_sessions WHERE id=$1 AND mesa_id=$2 AND status='live' AND ruleset = ANY($3::text[]) FOR UPDATE`,
-                  [sessionId, mesaId, NEXO_RULESETS],
+                  [sessionId, mesaId, NEXO_RULESETS_POSTGRES_ARRAY],
                 );
                 if (!sessions.length) throw new Error("nexo_session_not_found");
               }

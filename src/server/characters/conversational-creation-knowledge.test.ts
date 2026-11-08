@@ -16,6 +16,8 @@ import {
   searchCreationBook,
   updateCreationConversationMemory,
 } from "./conversational-creation-knowledge";
+import { BOOK_SOURCE_SHA256 } from "./conversational-creation-book-manifest";
+import { resolveBookMemoryEntities } from "./conversational-creation-memory-graph";
 
 function executor(
   rows: Record<string, unknown>[] = [],
@@ -31,7 +33,8 @@ function executor(
 describe("conversation book retrieval and persistent memory", () => {
   it("routes 200 retrieved candidates through 50, 10, and 4 before loading source text", async () => {
     const hits = Array.from({ length: 200 }, (_, index) => ({
-      chunk_id: `K12-${String(index + 1).padStart(4, "0")}`,
+      source_sha256: BOOK_SOURCE_SHA256,
+      chunk_id: `N11-${String(index + 1).padStart(4, "0")}`,
       book_title: "KALLISTIS — LIVRO COMPLETO 2.0",
       chapter: "Parte QA",
       section: "Regras",
@@ -64,11 +67,11 @@ describe("conversation book retrieval and persistent memory", () => {
       "como funcionam os atributos?",
       expect.arrayContaining(["atributos", "funcionam"]),
       ["attributes"],
-      "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
-      expect.arrayContaining(["K12-0106", "K12-0120"]),
+      BOOK_SOURCE_SHA256,
+      [],
     ]);
     expect(sources).toHaveLength(4);
-    expect(sources[0]?.chunkId).toBe("K12-0106");
+    expect(sources[0]?.chunkId).toBe("N11-0001");
     expect(sources.every((source) => source.text.startsWith("Trecho "))).toBe(true);
   });
 
@@ -77,6 +80,7 @@ describe("conversation book retrieval and persistent memory", () => {
     const hits = Array.from({ length: 200 }, (_, index) => {
       const chunkId = `K12-${String(index + 1).padStart(4, "0")}`;
       return {
+        source_sha256: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
         chunk_id: chunkId,
         book_title: "KALLISTIS — Livro consolidado",
         chapter: chunkId === "K12-0120" ? "Evocações" : "Parte QA",
@@ -106,13 +110,9 @@ describe("conversation book retrieval and persistent memory", () => {
       "Como meu personagem Evocador define a Âncora e quais papéis pode exercer?",
     );
 
-    expect(sources.map((source) => source.chunkId)).toContain("K12-0120");
-    expect(sources.map((source) => source.chunkId)).toContain("K12-0093");
-    expect(sources.find((source) => source.chunkId === "K12-0093")?.text).toContain(
-      "**Papéis:** Artilharia, Amparo ou Bastião",
-    );
-    expect(sources.map((source) => source.chunkId)).not.toContain("K12-0199");
-    expect(sql.queryMock.mock.calls[0]?.[1]?.[4]).toContain("K12-0120");
+    expect(resolveBookMemoryEntities("Evocador Âncora").chunkIds).toEqual([]);
+    expect(sources).toEqual([]);
+    expect(sql.queryMock.mock.calls[0]?.[1]?.[4]).toEqual([]);
   });
 
   it("persists six workbook tabs from server-authoritative state and exact player narrative", () => {
@@ -266,16 +266,16 @@ describe("conversation book retrieval and persistent memory", () => {
         qaId: "current",
         questionShort: "Como funciona Sintonia?",
         answerShort: "Limita o uso de formas mágicas.",
-        sourceChunkIds: ["K12-0042"],
-        sourceVersion: "KALLISTIS-LIVRO-2026-10-12",
-        sourceSha256: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
+        sourceChunkIds: ["NEXO-0035"],
+        sourceVersion: "KALLISTIS-LIVRO-2026-11-05",
+        sourceSha256: "4416d5ce8eec1ee64167ef7595c7cc155e1f9486a7543edbb8b28e92a65fad7f",
         confidence: "source-backed",
         supportStatus: "VERIFIED",
         supportedClaims: [
           {
             claim: "Sintonia limita formas mágicas",
             quote: "Sintonia limita formas mágicas.",
-            chunkId: "K12-0042",
+            chunkId: "NEXO-0035",
           },
         ],
         status: "answered",
@@ -351,11 +351,11 @@ describe("conversation book retrieval and persistent memory", () => {
 
   it("stores only exact source claims as trusted memory, never extra model prose", () => {
     const snapshot = { serverCreationProgress: {} } as CharacterSnapshot;
-    const quote = "Âncora. objeto, lugar, nome, lembrança, elemento, artefato ou corpo construído.";
+    const quote = "**Âncora Reforçada.** **Possibilidade específica:** Reforce uma Âncora conhecida e declare qual vínculo, Forma ou função precisa permanecer sustentado até o fim da cena.";
     const source = {
-      chunkId: "K12-0120",
-      sourceVersion: "KALLISTIS-LIVRO-2026-10-12",
-      sourceHash: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
+      chunkId: "NEXO-4084",
+      sourceVersion: "KALLISTIS-LIVRO-2026-11-05",
+      sourceHash: "4416d5ce8eec1ee64167ef7595c7cc155e1f9486a7543edbb8b28e92a65fad7f",
       bookTitle: "Livro",
       chapter: "Evocações",
       section: "Âncora",
@@ -379,14 +379,14 @@ describe("conversation book retrieval and persistent memory", () => {
       answerSupport: {
         status: "VERIFIED",
         answer: `Neste trecho: ${quote}`,
-        claims: [{ claim: quote, quote, chunkId: "K12-0120" }],
+        claims: [{ claim: quote, quote, chunkId: "NEXO-4084" }],
       },
     });
     expect(memory.qa[0]).toMatchObject({
       confidence: "source-backed",
       supportStatus: "VERIFIED",
       answerShort: `Neste trecho: ${quote}`,
-      supportedClaims: [{ claim: quote, quote, chunkId: "K12-0120" }],
+      supportedClaims: [{ claim: quote, quote, chunkId: "NEXO-4084" }],
     });
     expect(selectRelevantCreationMemory(memory, "Âncora").qa[0]?.answerShort).toBe(
       `Neste trecho: ${quote}`,
@@ -396,13 +396,13 @@ describe("conversation book retrieval and persistent memory", () => {
   it("stores independently supported paraphrases with the natural answer and source provenance", () => {
     const snapshot = { serverCreationProgress: {} } as CharacterSnapshot;
     const answer =
-      "A Âncora pode ser um objeto, lugar ou lembrança que sustenta o vínculo evocado.";
-    const claim = "Âncora inclui objetos, lugares ou lembranças para sustentar um vínculo.";
-    const quote = "Âncora. objeto, lugar, nome, lembrança, elemento, artefato ou corpo construído.";
+      "A Técnica permite reforçar uma Âncora conhecida e definir qual vínculo, Forma ou função deve permanecer sustentado até o fim da cena.";
+    const claim = "A Técnica de Âncora Reforçada mantém um vínculo, Forma ou função sustentado até o fim da cena.";
+    const quote = "**Âncora Reforçada.** **Possibilidade específica:** Reforce uma Âncora conhecida e declare qual vínculo, Forma ou função precisa permanecer sustentado até o fim da cena.";
     const source = {
-      chunkId: "K12-0120",
-      sourceVersion: "KALLISTIS-LIVRO-2026-10-12",
-      sourceHash: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
+      chunkId: "NEXO-4084",
+      sourceVersion: "KALLISTIS-LIVRO-2026-11-05",
+      sourceHash: "4416d5ce8eec1ee64167ef7595c7cc155e1f9486a7543edbb8b28e92a65fad7f",
       bookTitle: "Livro",
       chapter: "Evocações",
       section: "Âncora",
@@ -420,7 +420,7 @@ describe("conversation book retrieval and persistent memory", () => {
       previous: emptyCreationConversationMemory(),
       snapshot,
       userMessage: "Como funciona a Âncora?",
-      assistantMessage: `${answer}\n\nFontes verificadas pelo servidor: K12-0120.`,
+      assistantMessage: `${answer}\n\nFontes verificadas pelo servidor: NEXO-4084.`,
       intent: "question",
       sources: [source],
       answerSupport: {
@@ -436,7 +436,7 @@ describe("conversation book retrieval and persistent memory", () => {
             provenanceStatus: "VERIFIED",
             semanticStatus: "SUPPORTED",
             contradictionStatus: "NONE",
-            evidence: [{ quote, chunkId: "K12-0120" }],
+            evidence: [{ quote, chunkId: "NEXO-4084" }],
           },
         ],
       },
@@ -454,9 +454,9 @@ describe("conversation book retrieval and persistent memory", () => {
           evidence: [
             {
               quote,
-              chunkId: "K12-0120",
-              sourceVersion: "KALLISTIS-LIVRO-2026-10-12",
-              sourceSha256: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
+              chunkId: "NEXO-4084",
+              sourceVersion: "KALLISTIS-LIVRO-2026-11-05",
+              sourceSha256: "4416d5ce8eec1ee64167ef7595c7cc155e1f9486a7543edbb8b28e92a65fad7f",
               provenance: "literal_source_match",
             },
           ],
@@ -466,7 +466,7 @@ describe("conversation book retrieval and persistent memory", () => {
           contradictionStatus: "NONE",
         },
       ],
-      supportedClaims: [{ claim, quote, chunkId: "K12-0120", status: "SUPPORTED" }],
+      supportedClaims: [{ claim, quote, chunkId: "NEXO-4084", status: "SUPPORTED" }],
     });
     expect(selectRelevantCreationMemory(memory, "Explique a Âncora").qa[0]?.answerShort).toBe(
       answer,
@@ -474,19 +474,19 @@ describe("conversation book retrieval and persistent memory", () => {
   });
 
   it("revalidates paraphrase memory against current source quotes without requiring quote-equal answers", async () => {
-    const quote = "Âncora. objeto, lugar, nome, lembrança, elemento, artefato ou corpo construído.";
+    const quote = "**Âncora Reforçada.** **Possibilidade específica:** Reforce uma Âncora conhecida e declare qual vínculo, Forma ou função precisa permanecer sustentado até o fim da cena.";
     const answer =
-      "A Âncora pode ser um objeto, lugar ou lembrança que sustenta o vínculo evocado.";
-    const claim = "Âncora inclui objetos, lugares ou lembranças para sustentar um vínculo.";
+      "A Técnica permite reforçar uma Âncora conhecida e definir qual vínculo, Forma ou função deve permanecer sustentado até o fim da cena.";
+    const claim = "A Técnica de Âncora Reforçada mantém um vínculo, Forma ou função sustentado até o fim da cena.";
     const memoryRow = {
       qa: [
         {
           qaId: "supported-paraphrase",
           questionShort: "Como funciona a Âncora?",
           answerShort: answer,
-          sourceChunkIds: ["K12-0120"],
-          sourceVersion: "KALLISTIS-LIVRO-2026-10-12",
-          sourceSha256: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
+          sourceChunkIds: ["NEXO-4084"],
+          sourceVersion: "KALLISTIS-LIVRO-2026-11-05",
+          sourceSha256: "4416d5ce8eec1ee64167ef7595c7cc155e1f9486a7543edbb8b28e92a65fad7f",
           confidence: "source-backed",
           supportStatus: "SUPPORTED",
           supportMethod: "independent-evaluator-v1",
@@ -503,16 +503,16 @@ describe("conversation book retrieval and persistent memory", () => {
               evidence: [
                 {
                   quote,
-                  chunkId: "K12-0120",
+                  chunkId: "NEXO-4084",
                   sourceKind: "book",
-                  sourceVersion: "KALLISTIS-LIVRO-2026-10-12",
-                  sourceSha256: "37a558c8119b5b9867389123f871a6a9a1ea2dd9d654fbda7ae7c1e8297de4c7",
+                  sourceVersion: "KALLISTIS-LIVRO-2026-11-05",
+                  sourceSha256: "4416d5ce8eec1ee64167ef7595c7cc155e1f9486a7543edbb8b28e92a65fad7f",
                   provenance: "literal_source_match",
                 },
               ],
             },
           ],
-          supportedClaims: [{ claim: answer, quote, chunkId: "K12-0120", status: "SUPPORTED" }],
+          supportedClaims: [{ claim: answer, quote, chunkId: "NEXO-4084", status: "SUPPORTED" }],
           status: "answered",
           createdAt: "2026-10-23T00:00:00.000Z",
         },
@@ -525,7 +525,7 @@ describe("conversation book retrieval and persistent memory", () => {
     };
     const sql = {
       query: vi.fn(async (statement: string) =>
-        statement.includes("SELECT qa,") ? [memoryRow] : [{ chunk_id: "K12-0120", content: quote }],
+        statement.includes("SELECT qa,") ? [memoryRow] : [{ chunk_id: "NEXO-4084", content: quote }],
       ),
       close: vi.fn(),
     } as unknown as SqlExecutor;

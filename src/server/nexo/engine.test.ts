@@ -48,7 +48,7 @@ describe("NEXO core", () => {
   });
 
   it("rejects traditional mechanics and invalid influence totals in an NEXO sheet", () => {
-    const base = { nome: "Teste", conceito: "Conceito", povo: "Aelvari", origem: "Criado na Luz", oficio: "Curador", especializacao: "", marco: 1, influencia: { luz: 5, escuridao: 5 }, promessa: "Promessa", vinculo: "Vínculo", experiencia: "Experiência", feridaMarcante: "Ferida", capacidades: { dons: [], tecnicas: [], formas: [], evocoes: [], chaves: [], equipamentos: [] }, estado: { marcasSombra: 0 } };
+    const base = { nome: "Teste", conceito: "Conceito", povo: "Aelvari", origem: "Criado na Luz", oficio: "Curador", especializacao: "", marco: 1, influencia: { luz: 5, escuridao: 5 }, promessa: "Promessa", vinculo: "Vínculo", experiencia: "Experiência", perguntaPessoal: "Pergunta", manifestacao_pessoal: "Manifestação", feridaMarcante: "Ferida", capacidades: { dons: [], tecnicas: [], formas: [], evocoes: [], chaves: [], equipamentos: [] }, estado: { marcasSombra: 0 } };
     expect(validateNexoCharacter(base)).toEqual([]);
     const { feridaMarcante, ...withoutWound } = base;
     void feridaMarcante;

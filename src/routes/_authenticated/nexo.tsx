@@ -6,7 +6,7 @@ import { NexoActionBoard } from "@/components/NexoNarrativeSheet";
 type Catalog = {
   peoples: { name: string }[];
   origins: string[];
-  offices: { name: string; specializations: { name: string }[] }[];
+  offices: { name: string; initialTechnique?: string; specializations: { name: string }[] }[];
 };
 type Character = { id: string; name: string; ruleset: string; version: number; snapshot: Record<string, unknown> };
 type Mesa = { id: string; name: string; slug: string; member_role: string };
@@ -54,6 +54,8 @@ function NexoPage() {
   const [bond, setBond] = useState("");
   const [experience, setExperience] = useState("");
   const [wound, setWound] = useState("");
+  const [personalQuestion, setPersonalQuestion] = useState("");
+  const [personalManifestation, setPersonalManifestation] = useState("");
   const [light, setLight] = useState(5);
   const [dark, setDark] = useState(5);
   const [resistanceCharacterId, setResistanceCharacterId] = useState("");
@@ -84,12 +86,14 @@ function NexoPage() {
     event.preventDefault();
     if (saving) return;
     setSaving(true);
+    const initialTechnique = catalog?.offices.find((entry) => entry.name === office)?.initialTechnique;
     const character = {
       nome: name.trim(), conceito: concept.trim(), povo: people, origem: origin, oficio: office,
       especializacao: specialization, marco: 1, influencia: { luz: light, escuridao: dark },
-      historia: { promessa: promise.trim(), vinculo: bond.trim(), experiencia: experience.trim(), feridaMarcante: wound.trim() },
+      historia: { promessa: promise.trim(), vinculo: bond.trim(), experiencia: experience.trim(), feridaMarcante: wound.trim(), perguntaPessoal: personalQuestion.trim(), manifestacaoPessoal: personalManifestation.trim() },
       promessa: promise.trim(), vinculo: bond.trim(), experiencia: experience.trim(), feridaMarcante: wound.trim(),
-      capacidades: { dons: [], tecnicas: [], formas: [], evocoes: [], chaves: [], equipamentos: [] },
+      perguntaPessoal: personalQuestion.trim(), manifestacao_pessoal: personalManifestation.trim(),
+      capacidades: { dons: [], tecnicas: initialTechnique ? [initialTechnique] : [], formas: [], evocoes: [], chaves: [], equipamentos: [] },
       estado: { marcasSombra: 0, ferimentos: [], condicoes: [] },
     };
     try {
@@ -98,7 +102,7 @@ function NexoPage() {
       if (!response.ok) throw new Error(data.error || "nexo_create_failed");
       toast.success("Ficha NEXO persistida como rascunho.");
       await reload();
-      setName(""); setConcept(""); setPromise(""); setBond(""); setExperience(""); setWound("");
+      setName(""); setConcept(""); setPromise(""); setBond(""); setExperience(""); setWound(""); setPersonalQuestion(""); setPersonalManifestation("");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Falha ao salvar"); }
     finally { setSaving(false); }
   }
@@ -274,10 +278,13 @@ function NexoPage() {
         <Field label="Origem"><select required value={origin} onChange={(e) => setOrigin(e.target.value)}><option value="">Escolha</option>{catalog?.origins.map((item) => <option key={item}>{item}</option>)}</select></Field>
         <Field label="Ofício"><select required value={office} onChange={(e) => { setOffice(e.target.value); setSpecialization(""); }}><option value="">Escolha</option>{catalog?.offices.map((item) => <option key={item.name}>{item.name}</option>)}</select></Field>
         <Field label="Especialização (Marco 3)"><select value={specialization} disabled onChange={(e) => setSpecialization(e.target.value)}><option value="">Disponível ao alcançar o Marco 3</option>{activeOffice?.specializations.map((item) => <option key={item.name}>{item.name}</option>)}</select></Field>
+        {activeOffice?.initialTechnique ? <p className="text-sm text-white/65 md:col-span-2">Técnica inicial de M1, aplicada pelo Ofício: <strong>{activeOffice.initialTechnique}</strong>.</p> : null}
         <Field label="Promessa"><textarea required value={promise} onChange={(e) => setPromise(e.target.value)} /></Field>
         <Field label="Vínculo"><textarea required value={bond} onChange={(e) => setBond(e.target.value)} /></Field>
         <Field label="Experiência"><textarea required value={experience} onChange={(e) => setExperience(e.target.value)} /></Field>
         <Field label="Ferida marcante (opcional)"><textarea value={wound} onChange={(e) => setWound(e.target.value)} /></Field>
+        <Field label="Pergunta pessoal"><textarea required value={personalQuestion} onChange={(e) => setPersonalQuestion(e.target.value)} /></Field>
+        <Field label="Manifestação pessoal"><textarea required value={personalManifestation} onChange={(e) => setPersonalManifestation(e.target.value)} /></Field>
         <div className="md:col-span-2"><p className="mb-2 text-sm">Influência inicial (a soma deve ser 10)</p><div className="grid grid-cols-2 gap-3"><Field label={`Luz · ${light}`}><input type="range" min="0" max="10" value={light} onChange={(e) => { const value = Number(e.target.value); setLight(value); setDark(10-value); }} /></Field><Field label={`Escuridão · ${dark}`}><input type="range" min="0" max="10" value={dark} onChange={(e) => { const value = Number(e.target.value); setDark(value); setLight(10-value); }} /></Field></div></div>
         <button disabled={saving} className="min-h-11 rounded-lg bg-[color:var(--gold)] px-5 font-medium text-black disabled:opacity-50 md:col-span-2">{saving ? "Salvando…" : "Salvar rascunho NEXO"}</button>
       </form>

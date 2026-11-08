@@ -205,8 +205,8 @@ export function OstPlayer() {
       }
       className={
         minimized
-          ? "fixed bottom-3 right-3 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--border)] bg-background/95 p-1 shadow-2xl backdrop-blur-xl"
-          : "fixed bottom-3 right-3 z-50 w-[min(38rem,calc(100vw-1.5rem))] rounded-2xl border border-[color:var(--border)] bg-background/95 p-3 shadow-2xl backdrop-blur-xl"
+          ? "flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--border)] bg-background/95 p-1 shadow-2xl backdrop-blur-xl"
+          : "w-[min(38rem,100%)] rounded-2xl border border-[color:var(--border)] bg-background/95 p-3 shadow-2xl backdrop-blur-xl"
       }
     >
       <audio ref={audioRef} preload="metadata" className="sr-only" aria-hidden="true" />

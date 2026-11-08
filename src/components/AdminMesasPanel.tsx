@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Check, Copy, Loader2, RefreshCw, UserRoundPlus } from "lucide-react";
 import { toast } from "sonner";
 
 type MesaUser = {
@@ -55,6 +55,7 @@ function errorLabel(error: unknown) {
     vtt_campaign_not_found: "Campanha Gravewright não encontrada ou inelegível.",
     vtt_mapping_conflict: "A Mesa já possui outro vínculo VTT; revisão necessária.",
     vtt_campaign_already_mapped: "A campanha VTT já está vinculada a outra Mesa.",
+    invite_target_not_found: "A conta escolhida não pode receber este convite.",
   };
   return labels[code] ?? (code || "Não foi possível concluir a operação.");
 }
@@ -76,6 +77,11 @@ export function AdminMesasPanel() {
   const [existingCampaignsOpen, setExistingCampaignsOpen] = useState(false);
   const [existingCampaignsLoading, setExistingCampaignsLoading] = useState(false);
   const [existingCampaignLinking, setExistingCampaignLinking] = useState(false);
+  const [inviteMesaId, setInviteMesaId] = useState("");
+  const [inviteUserId, setInviteUserId] = useState("");
+  const [inviteUrl, setInviteUrl] = useState("");
+  const [inviteSaving, setInviteSaving] = useState(false);
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   async function load(options?: { quiet?: boolean }) {
     if (options?.quiet) setRefreshing(true);
@@ -124,6 +130,9 @@ export function AdminMesasPanel() {
     setExistingCampaigns([]);
     setExistingCampaignId("");
     setExistingCampaignsOpen(false);
+    setInviteUserId("");
+    setInviteUrl("");
+    setInviteCopied(false);
   }, [selectedMesaId]);
 
   function toggle(setter: (value: (current: string[]) => string[]) => void, id: string) {
@@ -227,6 +236,43 @@ export function AdminMesasPanel() {
       toast.error(errorLabel(error));
     } finally {
       setWorking(false);
+    }
+  }
+
+  async function createPlayerInvite() {
+    if (!inviteMesaId || !inviteUserId || inviteSaving) return;
+    setInviteSaving(true);
+    setInviteUrl("");
+    setInviteCopied(false);
+    try {
+      const response = await fetch("/api/admin/invites", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ user_id: inviteUserId, mesa_id: inviteMesaId }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        invite_url?: string;
+        error?: string;
+      } | null;
+      if (!response.ok || !data?.invite_url)
+        throw new Error(data?.error ?? "Não foi possível gerar o convite.");
+      setInviteUrl(data.invite_url);
+      toast.success("Convite da Mesa criado. Compartilhe o link diretamente com o jogador.");
+    } catch (error) {
+      toast.error(errorLabel(error));
+    } finally {
+      setInviteSaving(false);
+    }
+  }
+
+  async function copyPlayerInvite() {
+    if (!inviteUrl) return;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setInviteCopied(true);
+    } catch {
+      toast.error("Não foi possível copiar o convite neste navegador.");
     }
   }
 
@@ -539,6 +585,97 @@ export function AdminMesasPanel() {
                         </label>
                       ))}
                     </fieldset>
+                    <div className="space-y-3 rounded-xl border border-[color:var(--gold)]/30 bg-[color:var(--gold)]/[0.03] p-3">
+                      <div>
+                        <p className="flex items-center gap-2 text-sm text-[color:var(--ivory)]">
+                          <UserRoundPlus className="h-4 w-4 text-[color:var(--gold)]" />
+                          Convidar jogador para esta Mesa
+                        </p>
+                        <p className="mt-1 text-xs text-[color:var(--ivory-dim)]">
+                          Selecione uma conta ativa. O convite cria uma participação pendente e só
+                          é aceito pela própria conta destinatária.
+                        </p>
+                      </div>
+                      <select
+                        aria-label="Mesa do convite"
+                        value={inviteMesaId}
+                        onChange={(event) => {
+                          setInviteMesaId(event.target.value);
+                          setInviteUserId("");
+                          setInviteUrl("");
+                          setInviteCopied(false);
+                        }}
+                        className={inputClass}
+                      >
+                        <option value="">Escolha a Mesa do convite…</option>
+                        {state.mesas.map((mesa) => (
+                          <option key={mesa.id} value={mesa.id}>
+                            {mesa.name}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        aria-label="Conta para convidar à Mesa"
+                        value={inviteUserId}
+                        disabled={!inviteMesaId}
+                        onChange={(event) => {
+                          setInviteUserId(event.target.value);
+                          setInviteUrl("");
+                          setInviteCopied(false);
+                        }}
+                        className={inputClass}
+                      >
+                        <option value="">Escolha uma conta ativa…</option>
+                        {state.users
+                          .filter(
+                            (user) =>
+                              !state.mesas
+                                .find((mesa) => mesa.id === inviteMesaId)
+                                ?.members.some((member) => member.id === user.id),
+                          )
+                          .map((user) => (
+                            <option key={user.id} value={user.id}>
+                              {labelFor(user)}
+                            </option>
+                          ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => void createPlayerInvite()}
+                        disabled={!inviteMesaId || !inviteUserId || inviteSaving}
+                        className="h-10 px-4"
+                      >
+                        {inviteSaving ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Gerar convite da Mesa"
+                        )}
+                      </Button>
+                      {inviteUrl ? (
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <input
+                            aria-label="Link do convite da Mesa"
+                            readOnly
+                            value={inviteUrl}
+                            className="min-w-0 flex-1 rounded-lg border border-[color:var(--border)] bg-background px-3 py-2 text-xs text-[color:var(--ivory-dim)]"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => void copyPlayerInvite()}
+                            className="h-10 shrink-0 px-3"
+                          >
+                            {inviteCopied ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                            {inviteCopied ? "Copiado" : "Copiar link"}
+                          </Button>
+                        </div>
+                      ) : null}
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
