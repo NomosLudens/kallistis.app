@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TavernaDosPandasRouteImport } from './routes/taverna-dos-pandas'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -51,6 +52,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedChatIndexRouteImport } from './routes/_authenticated/chat.index'
 import { Route as ApiVttPlayerPhraseRouteImport } from './routes/api/vtt/player-phrase'
 import { Route as ApiVttHandoffRouteImport } from './routes/api/vtt/handoff'
+import { Route as ApiPublicTavernaDosPandasRouteImport } from './routes/api/public/taverna-dos-pandas'
 import { Route as ApiPublicReadyRouteImport } from './routes/api/public/ready'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiProfileAvatarRouteImport } from './routes/api/profile.avatar'
@@ -103,6 +105,11 @@ import { Route as AuthenticatedPersonagemCharacterIdFichaRouteImport } from './r
 import { Route as ApiInternalVttHandoffConsumeRouteImport } from './routes/api/internal/vtt/handoff/consume'
 import { Route as ApiInternalVttCharactersReadRouteImport } from './routes/api/internal/vtt/characters/read'
 
+const TavernaDosPandasRoute = TavernaDosPandasRouteImport.update({
+  id: '/taverna-dos-pandas',
+  path: '/taverna-dos-pandas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConviteRoute = ConviteRouteImport.update({
   id: '/convite',
   path: '/convite',
@@ -316,6 +323,12 @@ const ApiVttHandoffRoute = ApiVttHandoffRouteImport.update({
   path: '/api/vtt/handoff',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTavernaDosPandasRoute =
+  ApiPublicTavernaDosPandasRouteImport.update({
+    id: '/api/public/taverna-dos-pandas',
+    path: '/api/public/taverna-dos-pandas',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicReadyRoute = ApiPublicReadyRouteImport.update({
   id: '/api/public/ready',
   path: '/api/public/ready',
@@ -593,6 +606,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/convite': typeof ConviteRoute
+  '/taverna-dos-pandas': typeof TavernaDosPandasRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/criar-personagem': typeof AuthenticatedCriarPersonagemRoute
   '/galeria': typeof AuthenticatedGaleriaRoute
@@ -675,6 +689,7 @@ export interface FileRoutesByFullPath {
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ready': typeof ApiPublicReadyRoute
+  '/api/public/taverna-dos-pandas': typeof ApiPublicTavernaDosPandasRoute
   '/api/vtt/handoff': typeof ApiVttHandoffRoute
   '/api/vtt/player-phrase': typeof ApiVttPlayerPhraseRoute
   '/chat/': typeof AuthenticatedChatIndexRoute
@@ -687,6 +702,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/convite': typeof ConviteRoute
+  '/taverna-dos-pandas': typeof TavernaDosPandasRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/criar-personagem': typeof AuthenticatedCriarPersonagemRoute
   '/galeria': typeof AuthenticatedGaleriaRoute
@@ -769,6 +785,7 @@ export interface FileRoutesByTo {
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ready': typeof ApiPublicReadyRoute
+  '/api/public/taverna-dos-pandas': typeof ApiPublicTavernaDosPandasRoute
   '/api/vtt/handoff': typeof ApiVttHandoffRoute
   '/api/vtt/player-phrase': typeof ApiVttPlayerPhraseRoute
   '/chat': typeof AuthenticatedChatIndexRoute
@@ -783,6 +800,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/convite': typeof ConviteRoute
+  '/taverna-dos-pandas': typeof TavernaDosPandasRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/criar-personagem': typeof AuthenticatedCriarPersonagemRoute
   '/_authenticated/galeria': typeof AuthenticatedGaleriaRoute
@@ -865,6 +883,7 @@ export interface FileRoutesById {
   '/api/profile/avatar': typeof ApiProfileAvatarRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ready': typeof ApiPublicReadyRoute
+  '/api/public/taverna-dos-pandas': typeof ApiPublicTavernaDosPandasRoute
   '/api/vtt/handoff': typeof ApiVttHandoffRoute
   '/api/vtt/player-phrase': typeof ApiVttPlayerPhraseRoute
   '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
@@ -879,6 +898,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/convite'
+    | '/taverna-dos-pandas'
     | '/agenda'
     | '/criar-personagem'
     | '/galeria'
@@ -961,6 +981,7 @@ export interface FileRouteTypes {
     | '/api/profile/avatar'
     | '/api/public/health'
     | '/api/public/ready'
+    | '/api/public/taverna-dos-pandas'
     | '/api/vtt/handoff'
     | '/api/vtt/player-phrase'
     | '/chat/'
@@ -973,6 +994,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/convite'
+    | '/taverna-dos-pandas'
     | '/agenda'
     | '/criar-personagem'
     | '/galeria'
@@ -1055,6 +1077,7 @@ export interface FileRouteTypes {
     | '/api/profile/avatar'
     | '/api/public/health'
     | '/api/public/ready'
+    | '/api/public/taverna-dos-pandas'
     | '/api/vtt/handoff'
     | '/api/vtt/player-phrase'
     | '/chat'
@@ -1068,6 +1091,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/convite'
+    | '/taverna-dos-pandas'
     | '/_authenticated/agenda'
     | '/_authenticated/criar-personagem'
     | '/_authenticated/galeria'
@@ -1150,6 +1174,7 @@ export interface FileRouteTypes {
     | '/api/profile/avatar'
     | '/api/public/health'
     | '/api/public/ready'
+    | '/api/public/taverna-dos-pandas'
     | '/api/vtt/handoff'
     | '/api/vtt/player-phrase'
     | '/_authenticated/chat/'
@@ -1164,6 +1189,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ConviteRoute: typeof ConviteRoute
+  TavernaDosPandasRoute: typeof TavernaDosPandasRoute
   ApiCampaignContinuityRoute: typeof ApiCampaignContinuityRoute
   ApiCharacterCreationRoute: typeof ApiCharacterCreationRoute
   ApiCharactersRoute: typeof ApiCharactersRoute
@@ -1209,6 +1235,7 @@ export interface RootRouteChildren {
   ApiMasterStateRoute: typeof ApiMasterStateRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicReadyRoute: typeof ApiPublicReadyRoute
+  ApiPublicTavernaDosPandasRoute: typeof ApiPublicTavernaDosPandasRoute
   ApiVttHandoffRoute: typeof ApiVttHandoffRoute
   ApiVttPlayerPhraseRoute: typeof ApiVttPlayerPhraseRoute
   ApiMasterSurfaceSurfaceRoute: typeof ApiMasterSurfaceSurfaceRoute
@@ -1218,6 +1245,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/taverna-dos-pandas': {
+      id: '/taverna-dos-pandas'
+      path: '/taverna-dos-pandas'
+      fullPath: '/taverna-dos-pandas'
+      preLoaderRoute: typeof TavernaDosPandasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/convite': {
       id: '/convite'
       path: '/convite'
@@ -1510,6 +1544,13 @@ declare module '@tanstack/react-router' {
       path: '/api/vtt/handoff'
       fullPath: '/api/vtt/handoff'
       preLoaderRoute: typeof ApiVttHandoffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/taverna-dos-pandas': {
+      id: '/api/public/taverna-dos-pandas'
+      path: '/api/public/taverna-dos-pandas'
+      fullPath: '/api/public/taverna-dos-pandas'
+      preLoaderRoute: typeof ApiPublicTavernaDosPandasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/ready': {
@@ -2013,6 +2054,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ConviteRoute: ConviteRoute,
+  TavernaDosPandasRoute: TavernaDosPandasRoute,
   ApiCampaignContinuityRoute: ApiCampaignContinuityRoute,
   ApiCharacterCreationRoute: ApiCharacterCreationRoute,
   ApiCharactersRoute: ApiCharactersRoute,
@@ -2058,6 +2100,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasterStateRoute: ApiMasterStateRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicReadyRoute: ApiPublicReadyRoute,
+  ApiPublicTavernaDosPandasRoute: ApiPublicTavernaDosPandasRoute,
   ApiVttHandoffRoute: ApiVttHandoffRoute,
   ApiVttPlayerPhraseRoute: ApiVttPlayerPhraseRoute,
   ApiMasterSurfaceSurfaceRoute: ApiMasterSurfaceSurfaceRoute,

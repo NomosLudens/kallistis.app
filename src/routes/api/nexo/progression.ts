@@ -5,7 +5,7 @@ import { createBunPostgresExecutor } from "@/server/local-core/postgres";
 import { getRuntimeDatabaseUrl } from "@/server/runtime/context";
 import { mechanicalFingerprint } from "@/server/characters/character-canon";
 import { CHARACTER_FORGE_CHOICE_CATALOG } from "@/server/characters/character-choice-registry";
-import { NEXO_RULESETS, isNexoRuleset } from "@/server/nexo/engine";
+import { isNexoRuleset } from "@/server/nexo/engine";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -66,10 +66,12 @@ export const Route = createFileRoute("/api/nexo/progression")({
                JOIN public.mesa_members mm ON mm.mesa_id=cm.mesa_id
                JOIN public.mesas m ON m.id=cm.mesa_id
               WHERE cm.character_id=$1 AND cm.mesa_id=$2 AND mm.user_id=$3
-                AND mm.membership_status='active' AND m.ruleset = ANY($4::text[])
-                AND c.ruleset = ANY($4::text[]) AND c.status <> 'archived'
+                AND mm.membership_status='active'
+                AND m.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL')
+                AND c.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL')
+                AND c.status <> 'archived'
               LIMIT 1`,
-            [characterId, mesaId, auth.userId, NEXO_RULESETS],
+            [characterId, mesaId, auth.userId],
           );
           if (!access.length) return error("nexo_progression_access_forbidden", 403);
           const events = await sql.query<Record<string, unknown>>(
@@ -121,9 +123,9 @@ export const Route = createFileRoute("/api/nexo/progression")({
                  FROM public.mesa_members mm
                  JOIN public.mesas m ON m.id=mm.mesa_id
                 WHERE mm.mesa_id=$1 AND mm.user_id=$2 AND mm.membership_status='active'
-                  AND m.ruleset = ANY($3::text[])
+                  AND m.ruleset IN ('KALLISTIS_NEXO_1','KALLISTIS_NEXO_FINAL')
                 FOR UPDATE OF mm`,
-              [mesaId, auth.userId, NEXO_RULESETS],
+              [mesaId, auth.userId],
             );
             const role = members[0]?.member_role;
             if (!role) throw new Error("nexo_progression_access_forbidden");
@@ -156,9 +158,15 @@ export const Route = createFileRoute("/api/nexo/progression")({
               if (marco !== 3) throw new Error("invalid_nexo_specialization_marco");
               if (typeof snapshot.especializacao === "string" && snapshot.especializacao.trim())
                 throw new Error("nexo_specialization_already_selected");
-              const specialization = typeof body.specialization === "string" ? body.specialization.trim() : "";
-              const office = CHARACTER_FORGE_CHOICE_CATALOG.offices.find((item) => item.name === snapshot.oficio);
-              if (!specialization || !office?.specializations.some((item) => item.name === specialization))
+              const specialization =
+                typeof body.specialization === "string" ? body.specialization.trim() : "";
+              const office = CHARACTER_FORGE_CHOICE_CATALOG.offices.find(
+                (item) => item.name === snapshot.oficio,
+              );
+              if (
+                !specialization ||
+                !office?.specializations.some((item) => item.name === specialization)
+              )
                 throw new Error("invalid_nexo_specialization");
               const nextSnapshot = { ...snapshot, especializacao: specialization };
               const nextVersion = currentVersion + 1;
@@ -167,7 +175,13 @@ export const Route = createFileRoute("/api/nexo/progression")({
                     SET snapshot=$2::jsonb,version=$3,mechanical_fingerprint=$4,updated_at=now()
                   WHERE id=$1 AND version=$5
                   RETURNING version`,
-                [characterId, nextSnapshot, nextVersion, mechanicalFingerprint(nextSnapshot), currentVersion],
+                [
+                  characterId,
+                  nextSnapshot,
+                  nextVersion,
+                  mechanicalFingerprint(nextSnapshot),
+                  currentVersion,
+                ],
               );
               if (!updated.length) throw new Error("nexo_progression_version_conflict");
               await tx.query(
@@ -183,7 +197,13 @@ export const Route = createFileRoute("/api/nexo/progression")({
                  RETURNING id,created_at`,
                 [characterId, auth.userId, { specialization, marco }, currentVersion, nextVersion],
               );
-              return { type: "specialization", id: event[0]!.id, specialization, marco, version: nextVersion };
+              return {
+                type: "specialization",
+                id: event[0]!.id,
+                specialization,
+                marco,
+                version: nextVersion,
+              };
             }
 
             if (action === "record_narrative") {
@@ -193,7 +213,11 @@ export const Route = createFileRoute("/api/nexo/progression")({
               const allowedCategories = ["historia", "vinculo", "conhecimento", "consequencia"];
               const description =
                 typeof body.description === "string" ? body.description.trim() : "";
-              if (!allowedCategories.includes(category) || description.length < 5 || description.length > 1500)
+              if (
+                !allowedCategories.includes(category) ||
+                description.length < 5 ||
+                description.length > 1500
+              )
                 throw new Error("invalid_nexo_narrative_progression");
               const event = await tx.query<{ id: string; created_at: Date }>(
                 `INSERT INTO public.character_events
@@ -202,16 +226,27 @@ export const Route = createFileRoute("/api/nexo/progression")({
                  RETURNING id,created_at`,
                 [characterId, auth.userId, { category, description, marco }, currentVersion],
               );
-              return { type: "narrative", id: event[0]!.id, marco, createdAt: event[0]!.created_at };
+              return {
+                type: "narrative",
+                id: event[0]!.id,
+                marco,
+                createdAt: event[0]!.created_at,
+              };
             }
 
             if (action === "advance_marco") {
               if (role !== "mestre") throw new Error("nexo_marco_advancement_forbidden");
               const expectedVersion = Number(body.expectedVersion);
               const rationale = typeof body.rationale === "string" ? body.rationale.trim() : "";
-              if (!Number.isInteger(expectedVersion) || expectedVersion < 1 || rationale.length < 10 || rationale.length > 1500)
+              if (
+                !Number.isInteger(expectedVersion) ||
+                expectedVersion < 1 ||
+                rationale.length < 10 ||
+                rationale.length > 1500
+              )
                 throw new Error("invalid_nexo_marco_advancement");
-              if (expectedVersion !== currentVersion) throw new Error("nexo_progression_version_conflict");
+              if (expectedVersion !== currentVersion)
+                throw new Error("nexo_progression_version_conflict");
               if (marco >= 15) throw new Error("nexo_marco_ceiling");
               const nextSnapshot = { ...snapshot, marco: marco + 1 };
               const nextVersion = currentVersion + 1;
@@ -220,7 +255,13 @@ export const Route = createFileRoute("/api/nexo/progression")({
                     SET snapshot=$2::jsonb,version=$3,mechanical_fingerprint=$4,updated_at=now()
                   WHERE id=$1 AND version=$5
                   RETURNING version`,
-                [characterId, nextSnapshot, nextVersion, mechanicalFingerprint(nextSnapshot), currentVersion],
+                [
+                  characterId,
+                  nextSnapshot,
+                  nextVersion,
+                  mechanicalFingerprint(nextSnapshot),
+                  currentVersion,
+                ],
               );
               if (!updated.length) throw new Error("nexo_progression_version_conflict");
               await tx.query(
