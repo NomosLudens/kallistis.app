@@ -2,7 +2,7 @@
 
 **Versão:** 1.0  
 **Data:** 2026-11-09  
-**Estado:** texto consolidado e verificado; publicação oficial depende da confirmação do destino e do fluxo de versionamento.  
+**Estado:** texto consolidado e verificado; publicado em `NomosLudens/kallistis.app`, ramo `main`.  
 **Autor:** Antônio de Oliveira / AN70N10 0L1V31R4 · Nomos Ludens.
 **Direitos autorais:** © 2026 Antônio de Oliveira / AN70N10 0L1V31R4 · Nomos Ludens. Todos os direitos reservados.
 

@@ -6,7 +6,7 @@ Este índice identifica a referência normativa vigente do NEXO e preserva a dis
 
 - **Fonte canônica consolidada:** [KALLÍSTIS NEXO — Regras Canônicas, versão 1.0](KALLISTIS_NEXO_REGRAS_CANONICAS_2026-11-09.md)
   - Data: 2026-11-09
-  - SHA-256: `ae6e5af3a2820c63163fab799971b72395f80714e24c611c68355f8004baf177`
+  - SHA-256: `11295015ed6b3fe82b6dcfa8732aa60504a4e49cf30b1fbeee008d00df222410`
   - Fonte consolidada: `KALLISTIS_LIVRO_COMPLETO_NEXO_MOTOR_PROGRESSAO_2026-11-05.md`, SHA-256 `2f87f29cea7d57b77a90898ca281499685e65635d206dc6598b7a0ac337b6688`
   - Escopo: Livro III, Livro IV e apêndices NEXO; decisões autorais homologadas preservadas.
   - Repositório de destino: `NomosLudens/kallistis.app`, o repositório novo do Genesis; ramo padrão `main`. O cânone do checkout canônico fica em `CANON/`.
