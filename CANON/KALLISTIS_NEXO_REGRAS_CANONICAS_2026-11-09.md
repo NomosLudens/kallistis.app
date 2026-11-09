@@ -1,6 +1,6 @@
 # KALLÍSTIS NEXO — Regras Canônicas
 
-**Versão:** 1.0  
+**Versão:** 1.0.1 — fechamento editorial do Eneáedro  
 **Data:** 2026-11-09  
 **Estado:** texto consolidado e verificado; publicado em `NomosLudens/kallistis.app`, ramo `main`.  
 **Autor:** Antônio de Oliveira / AN70N10 0L1V31R4 · Nomos Ludens.
@@ -31,6 +31,7 @@ Os identificadores NEXO-R001 em diante são referências estáveis às seções 
 - **Luz, Escuridão, Predominância e Ressonância:** [4. Luz, Escuridão e Predominância](#nexo-r131); [5. Ressonâncias — dez manifestações do cânone](#nexo-r135); [Dom — Eco Paralelo](#nexo-r015); [Dom — Dado da Fortuna](#nexo-r050); [Dom — Ressonância Prismática](#nexo-r055).
 - **Iniciativa, ações e conflitos:** [Vanguarda — a iniciativa](#nexo-r142); [Iniciativa envolvendo três ou mais facções](#nexo-r143); [Ações na cena tática](#nexo-r149); [Atacar, proteger e resistir](#nexo-r145); [Cobertura, linha de efeito e áreas](#nexo-r150).
 - **Consequências, recuperação e recursos:** [Ferimentos, derrota e morte](#nexo-r146); [Condições, incapacidade e morte](#nexo-r153); [8. Recuperação — a história estabelece o caminho](#nexo-r159); [Economia e equipamentos](#nexo-r290); [Artefatos](#nexo-r300); [Coro — ficha coletiva](#nexo-r319); [Sombra e Fendas](#nexo-r323).
+- **Eneáedro e Velarim:** [Adendo normativo — Eneáedro dos Nove Verbos](#adendo-eneaedro-fechamento).
 - **Capacidades e manifestações:** [Ofícios e Trilhas](#nexo-r062); [Catálogo das Formas e aprendizado](#nexo-r170); [Evocações](#nexo-r257); [VELARIM EM JOGO](#nexo-r274); [Merge](#nexo-r280); [Manifestação e Legado](#nexo-r070).
 - **Progressão:** [11. Marcos, aprendizagem e continuidade](#nexo-r164); [Manifestação e Legado](#nexo-r070).
 - **Condução e adversários:** [12. Mestre — conduza o jogo](#nexo-r166); [Condução de KALLISTIS](#nexo-r338); [Bestiário e encontros](#nexo-r369); [Criação rápida de adversário](#nexo-r789).
@@ -8884,3 +8885,81 @@ Comece pelo objetivo e pela identidade concreta da presença. Defina o que ela q
 
 Atributos, Sintonia, Fôlego, Fluxo, Vitalidade, Lucidez, Guarda, Fortitude, Integridade, Proteção como valor e Pressão como modificador não são recursos ou estatísticas operativas do NEXO. Menções históricas ou ficcionais permanecem somente quando não comandam a resolução.
 
+---
+
+<a id="adendo-eneaedro-fechamento"></a>
+
+# KALLÍSTIS NEXO — Adendo normativo do Eneáedro dos Nove Verbos
+
+**Data de consolidação editorial:** 09/11/2026  
+**Estado:** homologação interpretativa incorporada ao NEXO, sem nova mecânica.  
+**Autoridade:** decisões autorais de 09/11/2026; dossiê integral *O Eneáedro dos Nove Verbos — Verbo + Capacidade + Justificativa* (13 páginas); regras NEXO vigentes.  
+**Proveniência:** este texto é uma redação editorial de integração. **Não se apresenta como recuperação literal** do arquivo local `KALLISTIS_ENEAEDRO_HOMOLOGACAO_2026-11-09.md`, que não estava publicado no GitHub consultado.
+
+## 1. Natureza e finalidade
+
+O **Eneáedro** é uma **linguagem facultativa de orientação das ações**. Ajuda jogadores a reconhecer possibilidades de utilização das capacidades efetivas das personagens; não é perícia, atributo, Forma, Ofício, árvore de habilidades, recurso, sistema de turnos, lista exaustiva de comandos nem método autônomo de resolução. O jogador pode simplesmente declarar o que deseja fazer, sem mencionar qualquer vértice.
+
+O Eneáedro não altera o número de Argumentos, a fórmula NEXO, a Resistência, os resultados dos dados, os limites de capacidades, o procedimento de oposição ou os custos já previstos.
+
+## 2. Os nove verbos e sua ordem visual
+
+A representação aprovada dispõe, **em sentido horário a partir do topo**:
+
+**DESPERTAR → EXPLORAR → PROJETAR → ROMPER → FORJAR → VINCULAR → RESTAURAR → DEFENDER → MOLDAR → DESPERTAR.**
+
+Os verbos indicam **perspectivas possíveis**, sem monopolizar ações ou especializações:
+
+| Verbo | Pergunta orientadora | Alcance interpretativo, sem efeito automático |
+|---|---|---|
+| **Despertar** | O que desejo fazer emergir? | Favorecer percepção, consciência, reação ou atividade com meios disponíveis. |
+| **Explorar** | O que posso investigar? | Percorrer, investigar e examinar possibilidades. |
+| **Projetar** | O que quero dirigir adiante? | Dirigir, lançar, exteriorizar ou antecipar uma ação. |
+| **Romper** | O que preciso interromper? | Desfazer continuidade, barreira ou vínculo por meio permitido. |
+| **Forjar** | O que posso elaborar? | Produzir ou articular algo mediante trabalho e recursos existentes. |
+| **Vincular** | O que posso conectar? | Estabelecer ou fortalecer uma relação legítima. |
+| **Restaurar** | O que quero recuperar? | Buscar recuperar uma função, condição ou integridade, nos limites efetivos. |
+| **Defender** | O que desejo proteger? | Preservar algo diante de uma ameaça. |
+| **Moldar** | O que posso transformar? | Reconfigurar forma, organização ou estado de algo existente. |
+
+A ordem é **gráfica e pedagógica**, não sequência obrigatória de execução, progressão ou turnos. Os verbos podem se sobrepor semanticamente. **Forjar** substitui *Criar* para distinguir elaboração com meios existentes de criação ontológica; **Despertar** substitui *Questionar*, que permanece uma ação livre possível.
+
+## 3. Três princípios de interpretação
+
+**Universalidade.** Qualquer personagem pode recorrer a qualquer verbo como orientação, independentemente de Povo ou Ofício; a capacidade efetiva é que delimita o meio de agir.
+
+**Polissemia.** O mesmo verbo pode orientar ações físicas, sociais, intelectuais ou extraordinárias, mas essa variação não iguala os meios e não permite efeitos ausentes da ficha ou do mundo.
+
+**Contextualidade.** A ação depende do objeto, das circunstâncias, da posição, dos recursos e das permissões da personagem; o verbo isolado não determina possibilidade ou resultado.
+
+## 4. Gramática facultativa da declaração
+
+**VERBO + CAPACIDADE + JUSTIFICATIVA**
+
+- **Verbo:** a direção do que o jogador pretende tentar.
+- **Capacidade:** meio efetivamente disponível e autorizado à personagem — técnica, conhecimento, poder, recurso, equipamento ou circunstância pertinente, conforme o cânone e a situação.
+- **Justificativa:** fundamento ficcional causal que conecta esse meio ao objetivo naquela situação concreta.
+
+A justificativa **não é um terceiro Argumento**, não acrescenta bônus, não cria fatos ou habilidades, não muda uma capacidade inexistente em capacidade disponível e não premia eloquência. A análise de Argumentos permanece a do NEXO, com seu limite ordinário de **até dois Argumentos causais distintos**.
+
+A declaração pode ser feita em linguagem comum e em poucas palavras; ninguém é obrigado a preencher a tríade nem a pedir auxílio da IA.
+
+## 5. Aplicação e precedência do motor NEXO
+
+Quando a tentativa for possível, certa e sem risco relevante, não se exige rolagem artificial. Quando for possível, **incerta e arriscada**, o Mestre anuncia **Resistência e consequência antes dos dados**, julga a pertinência dos Argumentos conforme o cânone e executa a resolução NEXO. O verbo escolhido não altera esse procedimento nem garante sucesso.
+
+A interpretação não permite contornar requisitos de **Forma, Grau, Pacto, Evocação, aprendizagem, equipamento ou limites específicos de Dom e Ofício**. Tampouco torna *Restaurar* cura ilimitada, *Vincular* domínio, *Despertar* controle de consciência ou *Forjar* criação irrestrita.
+
+## 6. Relação entre Velarim, Totalidade e Fragmentação
+
+**Velarim** é a **língua da Totalidade**, originada com o **Cristal Uno**, anterior à Fratura. O **Eneáedro** é uma **linguagem de ação da Fragmentação**, formulada em **língua comum** para a mesa. **Não constitui tradução do Velarim**, nem exige equivalentes linguísticos ou glifos Velarim para seus nove verbos.
+
+A **Fragmentação não se confunde com Sombra** nem implica inferioridade, domínio ou perda legítima de autonomia. Preservam-se identidade, diferença, relações consentidas e os limites cosmológicos já homologados. O vocábulo Velarim **kirun** (*capacidade*) é aproximação conceitual documentada, **não** tradução do Eneáedro nem autorização para inventar léxico.
+
+Pendências de léxico, gramática ou inventário visual de glifos pertencem à auditoria própria do Velarim. **Não condicionam o fechamento normativo deste adendo** e nenhuma forma linguística nova é homologada por ele.
+
+## 7. Fonte, hierarquia e estado de validação
+
+Este adendo **integra a interpretação** das regras NEXO vigentes sem substituir nenhum procedimento mecânico. Em colisões de operação, prevalecem as regras específicas e os procedimentos homologados da consolidação NEXO. A síntese original de **13 páginas** permanece evidência histórica e investigativa, não um segundo motor normativo.
+
+**Estado editorial:** Eneáedro homologado e integrado. **Estado empírico:** não se afirma playtest real de campanha, aceite completo de todos os catálogos nem funcionamento integral do aplicativo Genesis. Esses são critérios distintos da conclusão editorial.
